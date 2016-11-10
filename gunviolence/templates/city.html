@@ -49,9 +49,20 @@
                     </select>
                 </div>
             </div>   
-        </div>   
+        </div> 
+        <div class="btn-group" data-toggle="buttons">
+            <label class="btn btn-primary">
+                <input type="radio" class="form-check-input" name="optionsRadios" id="optionsRadios1" value="neighborhood" onchange="changeOption()" checked>
+                Neighborhoods
+            </label>
+            <label class="btn btn-primary">
+                <input type="radio" class="form-check-input" name="optionsRadios" id="optionsRadios2" value="heatmap" onchange="changeOption()">
+                Heatmap
+            </label>
+        </div>
         
-        <div id="map"><div id="view-side" class="map"></div></div>
-        
+        <div id="map">
+            <div id="view-side" class="map"></div>
+        </div>
     </body>
 </html>

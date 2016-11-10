@@ -37,7 +37,9 @@ class ChicagoData():
 				limit = kwargs['limit']
 		else:
 			limit = None
+
 		self.read_data(limit=limit)
+		self._apply_weapons_flag()
 		self.read_meta()
 		self.merge_meta()
 		return self
@@ -52,7 +54,6 @@ class ChicagoData():
 		self.meta['district'] = self._read_district()
 		self.meta['census'] = self._read_census()
 		self.meta['fbi'] = self._read_fbi()
-
 		
 	def _read_community(self):
 		community = pd.read_csv(self.DATA_PATH + 'community_areas.csv')
@@ -175,6 +176,23 @@ class ChicagoData():
 		print result.summary()
 		return result
 
+	def _apply_weapons_flag(self):
+		indexes = []
+		self.df['WEAPON_FLAG'] = 0
+		for i, row in self.df.iterrows():
+			if re.match('.*GUN.*|.*FIREARM.*|.*(?<!NO )WEAPON.*|WEAPON.*', row['Description']) or row['Primary Type']=='WEAPONS VIOLATION':
+				indexes.append(i)
+		self.df.loc[indexes, 'WEAPON_FLAG'] = 1
+		return self
+
+	@property
+	def weapons_crimes(self):
+		indexes = []
+		w = pd.read_csv('%sIUCR.csv' % self.DATA_PATH)
+		for i, row in w.iterrows():
+			if re.match('.*GUN.*|.*FIREARM.*|.*(?<!NO )WEAPON.*|WEAPON.*', row['SECONDARY DESCRIPTION']) or row['PRIMARY DESCRIPTION']=='WEAPONS VIOLATION':
+				indexes.append(i)
+		return w.ix[indexes].reset_index()
 
 class PivotData(ChicagoData):
 	def __init__(self, fields, dt_format, *args, **kwargs):
@@ -224,6 +242,7 @@ class PivotData(ChicagoData):
 		dt_list.sort()
 		return dt_list
 
+
 def community_crimes(dt_format, *args, **kwargs):
 	cd = ChicagoData()
 	community_pivot_file = cd.DATA_PATH + 'community_pivot.obj'
@@ -240,16 +259,17 @@ def community_crimes(dt_format, *args, **kwargs):
 	return comm
 
 print 'args', args
-comm = community_crimes('%Y-%m', ['Primary Type', 'WEAPONS VIOLATION'], repull=args.repull)
-print comm.date_list
+weapons = community_crimes('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
+print weapons.weapons_crimes
 
 
 
 
 
 if __name__=="__main__":
-	args = parse_args()
 	comm = community_crimes('%m-%Y', ['Primary Type', 'WEAPONS VIOLATION'], limit=args.limit)
 	print comm.data
 	print comm.date_list
 	print comm.data
+	# cd = ChicagoData()
+	# print cd.weapons_crimes

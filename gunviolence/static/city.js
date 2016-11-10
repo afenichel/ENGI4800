@@ -14,26 +14,32 @@ var city = $("meta[name='city']").attr("content");
 
 console.log(city);
 
-$.getJSON($SCRIPT_ROOT + '/city/' + city + '/0', function(json) {
+$.getJSON($SCRIPT_ROOT + '/pivot/' + city + '/0', function(json) {
 		res = json;
 	});
 console.log(res);
 google.maps.event.addDomListener(window, 'load', initialize_map);
 
 
+console.log($("myDropdown option:selected").val());
 
 function changeOption() {
-    selected_dt = document.getElementById("myDropdown").value;
-	console.log(selected_dt);
-	$.getJSON($SCRIPT_ROOT + '/city/' + city + '/' + selected_dt, function(json) {
-		res = json;
-		console.log(res['map_dict']);
-		if (polypaths.length>0){
-			removePoly(res);
-		}
-		drawPoly(res);
-	});
-
+	console.log($("myDropdown option:selected").val());
+	if ($('input[value="neighborhood"]').is(':checked') && $("myDropdown option:selected").val()!="0") {
+	    selected_dt = document.getElementById("myDropdown").value;
+		console.log(selected_dt);
+		$.getJSON($SCRIPT_ROOT + '/pivot/' + city + '/' + selected_dt, function(json) {
+			res = json;
+			console.log(res['map_dict']);
+			if (polypaths.length>0){
+				removePoly(res);
+			}
+			drawPoly(res);
+		});
+	}
+	else {
+		removePoly(res);
+	}
 }
 
 
@@ -57,7 +63,7 @@ function initialize_map() {
 }
 
 function removePoly(res) {
-	for(i = 0; i < Object.keys(res.results[res.selected_dt]).length; i++) {
+	for(i = 0; i < map_polygons.length; i++) {
 		map_polygons[i].setMap(null);
 	}
 }
@@ -94,7 +100,7 @@ function drawPoly(res) {
 		    map_polygons[i].addListener('click', function(event) {
 		    	latlngclicked = event.latLng;
 		    	var idx = map_polygons.indexOf(this);
-				var content = res.results.COMMUNITY[idx];
+				var content = "<p>" + res.results.COMMUNITY[idx] + "</p><p>" + res.results[selected_dt][idx] + "</p>";
 				var infowindow = new google.maps.InfoWindow({content: content, position: latlngclicked});
 			    if (prev_infowindow_map) {
 		    		console.log(prev_infowindow_map);

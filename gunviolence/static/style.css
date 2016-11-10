@@ -10,6 +10,14 @@ body {
     float: bottom;
 }
 
+.form-check {
+    padding-top: 1px;
+    padding-right: 20px;
+    padding-bottom: 1px;
+    padding-left: 20px;
+}
+
+
  #view-side { 
  	height:800px;
  	width:600px;
@@ -20,5 +28,13 @@ body {
  #myDropdown {
  	width: 150px;
  	height: 30px;
+}
+
+#radio-legend {
+	text-align: left;
+    padding-top: 1px;
+    padding-right: 40px;
+    padding-bottom: 1px;
+    padding-left: 40px;
 }
 

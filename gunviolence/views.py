@@ -2,7 +2,7 @@ from gunviolence import app
 from flask import Flask, render_template, url_for, jsonify
 from werkzeug.serving import run_simple
 from ConfigUtil import config
-from ChicagoData import comm
+from ChicagoData import weapons
 import pandas as pd
 import numpy as np
 import random
@@ -35,28 +35,28 @@ def main_page():
 @app.route('/city/<string:city>')
 def city(city, map_dict=map_dict):
     map_dict['center'] = tuple(config['center'][city])
-    return render_template('city.html', date_dropdown=[d for d in enumerate(comm.date_list)], api_key=key, city=city)
+    return render_template('city.html', date_dropdown=[d for d in enumerate(weapons.date_list)], api_key=key, city=city)
 
 
-@app.route('/city/<string:city>/<string:dt_filter>')
+@app.route('/pivot/<string:city>/<string:dt_filter>')
 def monthly_data(city, dt_filter, map_dict=map_dict):
     map_dict['center'] = tuple(config['center'][city])
     if dt_filter!='0':
-        cols = set(comm.data.columns) - set(comm.date_list) 
+        cols = set(weapons.data.columns) - set(weapons.date_list) 
         cols |= set([dt_filter])
-        comm_data = comm.geom_to_list(comm.data[list(cols)])
-        comm_data.loc[:, dt_filter] = comm_data[dt_filter].fillna(0)
-        comm_data.loc[:, 'norm'] = np.linalg.norm(comm_data[dt_filter].fillna(0))
-        comm_data.loc[:, 'fill_opacity'] = comm_data[dt_filter]/comm_data['norm']
+        weapons_data = weapons.geom_to_list(weapons.data[list(cols)])
+        weapons_data.loc[:, dt_filter] = weapons_data[dt_filter].fillna(0)
+        weapons_data.loc[:, 'norm'] = np.linalg.norm(weapons_data[dt_filter].fillna(0))
+        weapons_data.loc[:, 'fill_opacity'] = weapons_data[dt_filter]/weapons_data['norm']
     else: 
-        comm_data=pd.DataFrame([])
+        weapons_data=pd.DataFrame([])
     polyargs = {}
     polyargs['stroke_color'] = '#FF0000' 
     polyargs['fill_color'] = '#FF0000' 
     polyargs['stroke_opacity'] = 1
     polyargs['stroke_weight'] = .2
 
-    return jsonify({'selected_dt': dt_filter, 'map_dict': map_dict, 'polyargs': polyargs, 'results': comm_data.to_dict()})
+    return jsonify({'selected_dt': dt_filter, 'map_dict': map_dict, 'polyargs': polyargs, 'results': weapons_data.to_dict()})
 
 
 
