@@ -100,7 +100,7 @@ function drawPoly(res) {
 		    map_polygons[i].addListener('click', function(event) {
 		    	latlngclicked = event.latLng;
 		    	var idx = map_polygons.indexOf(this);
-				var content = "<p>" + res.results.COMMUNITY[idx] + "</p><p>" + res.results[selected_dt][idx] + "</p>";
+				var content = "<p>" + res.results.COMMUNITY[idx] + "</p><p>Gun crimes: " + res.results[selected_dt][idx] + "</p>";
 				var infowindow = new google.maps.InfoWindow({content: content, position: latlngclicked});
 			    if (prev_infowindow_map) {
 		    		console.log(prev_infowindow_map);
