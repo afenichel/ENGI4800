@@ -185,14 +185,6 @@ class ChicagoData():
 		self.df.loc[indexes, 'WEAPON_FLAG'] = 1
 		return self
 
-	@property
-	def weapons_crimes(self):
-		indexes = []
-		w = pd.read_csv('%sIUCR.csv' % self.DATA_PATH)
-		for i, row in w.iterrows():
-			if re.match('.*GUN.*|.*FIREARM.*|.*(?<!NO )WEAPON.*|WEAPON.*', row['SECONDARY DESCRIPTION']) or row['PRIMARY DESCRIPTION']=='WEAPONS VIOLATION':
-				indexes.append(i)
-		return w.ix[indexes].reset_index()
 
 class PivotData(ChicagoData):
 	def __init__(self, fields, dt_format, *args, **kwargs):
@@ -260,7 +252,6 @@ def community_crimes(dt_format, *args, **kwargs):
 
 print 'args', args
 weapons = community_crimes('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
-print weapons.weapons_crimes
 
 
 
