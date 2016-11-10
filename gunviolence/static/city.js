@@ -25,7 +25,7 @@ google.maps.event.addDomListener(window, 'load', initialize_map);
 function changeOption() {
     selected_dt = document.getElementById("myDropdown").value;
 	console.log(selected_dt);
-	$.getJSON($SCRIPT_ROOT + '/' + city + '/' + selected_dt, function(json) {
+	$.getJSON($SCRIPT_ROOT + '/city/' + city + '/' + selected_dt, function(json) {
 		res = json;
 		console.log(res['map_dict']);
 		if (polypaths.length>0){
