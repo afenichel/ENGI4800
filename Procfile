@@ -1,1 +1,1 @@
-web: sudo apt-get install python-dev && python runserver.py
+web: python runserver.py
