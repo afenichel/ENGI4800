@@ -3,8 +3,10 @@ var res = {};
 var latlngclicked;
 var polypaths = [];
 var map = null;
+var heatmap = null;
 var prev_infowindow_map = null;
 var map_polygons = [];
+var map_heatmarks = []
 // var map_markers = [];
 // var map_rectangles = [];
 // var map_circles = [];
@@ -12,39 +14,42 @@ var map_polygons = [];
 
 var city = $("meta[name='city']").attr("content"); 
 
-console.log(city);
-
-$.getJSON($SCRIPT_ROOT + '/pivot/' + city + '/0', function(json) {
+$.getJSON($SCRIPT_ROOT + '/community/' + city + '/0', function(json) {
 		res = json;
 	});
 console.log(res);
-google.maps.event.addDomListener(window, 'load', initialize_map);
+google.maps.event.addDomListener(window, 'load', initMap);
 
 
 console.log($("myDropdown option:selected").val());
 
 function changeOption() {
-	console.log($("myDropdown option:selected").val());
-	if ($('input[value="neighborhood"]').is(':checked') && $("myDropdown option:selected").val()!="0") {
-	    selected_dt = document.getElementById("myDropdown").value;
+    selected_dt = document.getElementById("myDropdown").value;
+	console.log(selected_dt);
+    if (map_polygons.length > 0) {
+    	removePoly(res);
+    }
+    if (map_heatmarks.length > 0) {
+    	removeHeatmap(res);
+    }
+	if ($('input[value="community"]').is(':checked') && $("myDropdown option:selected").val()!="0") {
 		console.log(selected_dt);
-		$.getJSON($SCRIPT_ROOT + '/pivot/' + city + '/' + selected_dt, function(json) {
+		$.getJSON($SCRIPT_ROOT + '/community/' + city + '/' + selected_dt, function(json) {
 			res = json;
-			console.log(res['map_dict']);
-			if (polypaths.length>0){
-				removePoly(res);
-			}
 			drawPoly(res);
 		});
 	}
-	else {
-		removePoly(res);
+	if ($('input[value="heatmap"]').is(':checked') && $("myDropdown option:selected").val()!="0") {
+		$.getJSON($SCRIPT_ROOT + '/heatmap/' + city + '/' + selected_dt, function(json) {
+			res = json;
+			console.log(res['map_dict']);
+			drawHeatmap(res);
+		});
 	}
 }
 
 
-
-function initialize_map() {
+function initMap() {
     document.getElementById('view-side').style.display = 'block';
     console.log(res.map_dict)
     map = new google.maps.Map(
@@ -60,6 +65,31 @@ function initialize_map() {
         scrollwheel: res.map_dict.scroll_wheel,
         fullscreenControl: res.map_dict.fullscreen_control
     });
+}
+
+function drawHeatmap(res) {
+	if (res.results.hasOwnProperty(res.selected_dt)) {
+		console.log(res);
+		for(i = 0; i < Object.keys(res.results[res.selected_dt]).length; i++) {
+			var lat_coord = res.results.Latitude[i];
+			var lng_coord = res.results.Longitude[i];
+			var incidents = res.results[selected_dt][i];
+			var coords = new google.maps.LatLng(Number(lat_coord), Number(lng_coord));
+			for (j = 0; j < Number(incidents); j++){
+				map_heatmarks.push(coords);	
+			}
+		}
+		console.log(map_heatmarks);
+		heatmap = new google.maps.visualization.HeatmapLayer({
+			          data: map_heatmarks,
+			          map: map
+		});
+		heatmap.setMap(heatmap.getMap());
+	}
+}
+
+function removeHeatmap(res) {
+	heatmap.setMap(null);
 }
 
 function removePoly(res) {
@@ -102,6 +132,7 @@ function drawPoly(res) {
 		    	var idx = map_polygons.indexOf(this);
 				var content = "<p>" + res.results.COMMUNITY[idx] + "</p><p>Gun crimes: " + res.results[selected_dt][idx] + "</p>";
 				var infowindow = new google.maps.InfoWindow({content: content, position: latlngclicked});
+			    console.log(selected_dt.split('-'))
 			    if (prev_infowindow_map) {
 		    		console.log(prev_infowindow_map);
 		            prev_infowindow_map.close();
@@ -113,15 +144,6 @@ function drawPoly(res) {
 	}
 }
 
-
-
-function getInfoCallback(map, p) {
-
-    return function(ev) {
-        
-        
-    };
-}
 
 
 function hoverPoly() {

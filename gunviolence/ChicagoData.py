@@ -12,12 +12,22 @@ from runserver import args
 
 
 class ChicagoData():
-	def __init__(self):
+	def __init__(self, *args):
 		self.DATA_PATH =  os.path.join(os.path.dirname(__file__), "data/")
 		self.CSV_FILE = self.DATA_PATH + "Crimes_-_2010_to_present.csv"
 		self.df = pd.DataFrame()
 		self.meta = dict()
 		self.gun_fbi_codes = ['01A', '2', '3', '04B', '04A', '15']
+		self.args = args
+
+	def filter_df(self, df):
+		for arg in self.args:
+			assert len(arg)==2, "Filter must define field and filter values"
+			assert arg[0] in df.columns
+			key = arg[0]
+			val = self._set_list(arg[1])
+			df = df[df[key].isin(val)].reset_index(drop=True)
+		return df
 
 	def initData(self, **kwargs):
 		if 'download_data' in kwargs:
@@ -188,22 +198,16 @@ class ChicagoData():
 
 class PivotData(ChicagoData):
 	def __init__(self, fields, dt_format, *args, **kwargs):
-		ChicagoData.__init__(self)
+		ChicagoData.__init__(self, *args)
 		self.initData(**kwargs)
 		self.fields = self._set_list(fields)
 		self.dt_format = dt_format
-		self.args = args
 		self.pivot()
 
 	def pivot(self):
 		data = self.df.copy()
+		data = self.filter_df(data)
 		sep = '---'
-		for arg in self.args:
-			assert len(arg)==2, "Filter must define field and filter values"
-			assert arg[0] in data.columns
-			key = arg[0]
-			val = self._set_list(arg[1])
-			data = data[data[key].isin(val)].reset_index(drop=True)
 
 		data['Period'] = data['Date'].map(lambda x: datetime.strptime(x, '%m/%d/%Y %I:%M:%S %p').strftime(self.dt_format))
 		counts = data.groupby(['Period']+self.fields, as_index=False).count().iloc[:, 0:len(self.fields)+2] 
@@ -236,31 +240,37 @@ class PivotData(ChicagoData):
 
 
 def community_crimes(dt_format, *args, **kwargs):
+	data_obj = crimes(dt_format, ['Community Area', 'COMMUNITY', 'the_geom_community'], 'community_pivot.obj', *args, **kwargs)
+	return data_obj
+
+def heatmap_crimes(dt_format, *args, **kwargs):
+	data_obj = crimes(dt_format, ['Latitude', 'Longitude'], 'heatmap.obj', *args, **kwargs)
+	return data_obj
+
+def crimes(dt_format,  pivot_cols, filename, *args, **kwargs):
 	cd = ChicagoData()
-	community_pivot_file = cd.DATA_PATH + 'community_pivot.obj'
+	pivot_cols = cd._set_list(pivot_cols)
+	filepath = cd.DATA_PATH + filename
 	kwargs.setdefault('repull', False)
-	if (not kwargs['repull']) and os.path.isfile(community_pivot_file):
-		f = open(community_pivot_file, 'rb')
-		comm = cPickle.load(f)
+	if (not kwargs['repull']) and os.path.isfile(filepath):
+		f = open(filepath, 'rb')
+		data_obj = cPickle.load(f)
 	else:
-		f = open(community_pivot_file, 'wb')
-		comm = PivotData(['Community Area', 'COMMUNITY', 'the_geom_community'], dt_format, *args, **kwargs)
-		comm.df = pd.DataFrame([]) 
-		cPickle.dump(comm, f, protocol=cPickle.HIGHEST_PROTOCOL)
+		f = open(filepath, 'wb')
+		data_obj = PivotData(pivot_cols, dt_format, *args, **kwargs)
+		data_obj.df = pd.DataFrame([]) 
+		cPickle.dump(data_obj, f, protocol=cPickle.HIGHEST_PROTOCOL)
 	f.close()
-	return comm
+	return data_obj
 
 print 'args', args
-weapons = community_crimes('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
+crime_dict={}
+crime_dict['community'] = community_crimes('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
+crime_dict['heatmap'] = heatmap_crimes('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
 
 
 
 
 
 if __name__=="__main__":
-	comm = community_crimes('%m-%Y', ['Primary Type', 'WEAPONS VIOLATION'], limit=args.limit)
-	print comm.data
-	print comm.date_list
-	print comm.data
-	# cd = ChicagoData()
-	# print cd.weapons_crimes
+	pass
