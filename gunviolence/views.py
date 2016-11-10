@@ -32,13 +32,13 @@ def main_page():
 
 
 
-@app.route('/<string:city>')
+@app.route('/city/<string:city>')
 def city(city, map_dict=map_dict):
     map_dict['center'] = tuple(config['center'][city])
     return render_template('city.html', date_dropdown=[d for d in enumerate(comm.date_list)], api_key=key, city=city)
 
 
-@app.route('/<string:city>/<string:dt_filter>')
+@app.route('/city/<string:city>/<string:dt_filter>')
 def monthly_data(city, dt_filter, map_dict=map_dict):
     map_dict['center'] = tuple(config['center'][city])
     if dt_filter!='0':

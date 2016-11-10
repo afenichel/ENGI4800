@@ -2,5 +2,6 @@
 	"GOOGLE_MAPS_KEY": "AIzaSyD-YafiC3rBAGvnRjc6NRYPTRYhpxN9uWs",
 	"center": {"baltimore": [39.292083, -76.559678],
 			"chicago": [41.8781136, -87.6298],
-			"new_york": [40.735631,-73.9243867]}
+			"new_york": [40.735631,-73.9243867],
+			"favicon.ico": []}
 }
