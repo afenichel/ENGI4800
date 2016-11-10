@@ -14,7 +14,7 @@ var city = $("meta[name='city']").attr("content");
 
 console.log(city);
 
-$.getJSON($SCRIPT_ROOT + '/' + city + '/0', function(json) {
+$.getJSON($SCRIPT_ROOT + '/city/' + city + '/0', function(json) {
 		res = json;
 	});
 console.log(res);
