@@ -32,8 +32,7 @@ def main_page():
 
 
 @app.route('/city/<string:city>')
-def city(city, map_dict=map_dict):
-    map_dict['center'] = tuple(config['center'][city])
+def city(city):
     return render_template('city.html', date_dropdown=crime_dict['community'].date_list, api_key=key, city=city)
 
 
@@ -41,23 +40,31 @@ def city(city, map_dict=map_dict):
 def monthlty_data(api_endpoint, city, dt_filter, map_dict=map_dict):
     map_dict['center'] = tuple(config['center'][city])
     crime_obj = crime_dict[api_endpoint]
+    
     if dt_filter!='0':
-        cols = set(crime_obj.data.columns) - set(crime_obj.date_list) 
-        cols |= set([dt_filter])
-        crime_data = crime_obj.geom_to_list(crime_obj.data[list(cols)])
-        crime_data.loc[:, dt_filter] = crime_data[dt_filter].fillna(0)
-        crime_data = crime_data[crime_data[dt_filter]>0].reset_index(drop=True)
-        crime_data.loc[:, 'norm'] = np.linalg.norm(crime_data[dt_filter].fillna(0))
-        crime_data.loc[:, 'fill_opacity'] = crime_data[dt_filter]/crime_data['norm']
+        norm_data = crime_obj.norm_data(dt_filter)
+        crime_data = crime_obj.geom_to_list(norm_data)
+        cols = (set(crime_data.columns) - set(crime_obj.date_list)) | set([dt_filter])
+        crime_data = crime_data[list(cols)]    
     else: 
         crime_data=pd.DataFrame([])
+
     polyargs = {}
     polyargs['stroke_color'] = '#FF0000' 
     polyargs['fill_color'] = '#FF0000' 
     polyargs['stroke_opacity'] = 1
-    polyargs['stroke_weight'] = .15
+    polyargs['stroke_weight'] = .2
     return jsonify({'selected_dt': dt_filter, 'map_dict': map_dict, 'polyargs': polyargs, 'results': crime_data.to_dict()})
 
+
+
+
+@app.route('/adjcomm/<string:city>')
+def adjacent_comms(city):
+    crime_obj = crime_dict['community']
+    crime_data = crime_obj.geom_to_list(data)
+    adj_list = crime_obj.adjacent_communities(crime_data)
+    return jsonify({'adj_community_list': adj_list})
 
 if __name__ == '__main__':
     run_simple('localhost', 5000, app,

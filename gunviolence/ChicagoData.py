@@ -119,6 +119,8 @@ class ChicagoData():
 		os.system("curl 'https://data.cityofchicago.org/api/views/kn9c-c2s2/rows.csv?accessType=DOWNLOAD' -o '%scensus_data.csv'" % self.DATA_PATH)
 		return self
 
+
+
 	@classmethod
 	def geom_to_list(cls, df):
 		for c in df.columns: 
@@ -132,6 +134,24 @@ class ChicagoData():
 		coord_strings = [re.sub("\(|\)", "", c).split(" ") for c in coord_sets.split(", ")]
 		coord_list = tuple([(float(c[1]), float(c[0])) for c in coord_strings])
 		return coord_list
+
+	@staticmethod
+	def adjacent_communities(df):
+		adj_list = {}
+		s=datetime.now()
+		print 'now', datetime.now()
+		if set(['the_geom_community', 'Community Area']) < set(df.columns):
+			for index1, row1 in df.iterrows():
+				for index2, row2 in df.iterrows():
+					if index1 > index2:
+						geom1 = row1['the_geom_community']
+						geom2 = row2['the_geom_community']
+						boundary_intersect = set(geom1) & set(geom2)
+						if len(boundary_intersect) > 0:
+							adj_list.setdefault(row1['Community Area'], []).append(row2['Community Area'])
+							adj_list.setdefault(row2['Community Area'], []).append(row1['Community Area'])
+		print 'runtime:', datetime.now() - s
+		return adj_list
 		
 
 	@staticmethod
@@ -228,6 +248,15 @@ class PivotData(ChicagoData):
 	def _date_cols(self):
 		return set(self._data.columns) - set(self.fields)
 
+
+	def norm_data(self, dt_filter):
+		data = self.data.copy()
+		data.loc[:, dt_filter] = data[dt_filter].fillna(0)
+		data = data[data[dt_filter]>0].reset_index(drop=True)
+		data.loc[:, 'norm'] = np.linalg.norm(data[dt_filter].fillna(0))
+		data.loc[:, 'fill_opacity'] = data[dt_filter]/data['norm']
+		return data
+
 	@property
 	def data(self):
 		return self._data
@@ -237,6 +266,8 @@ class PivotData(ChicagoData):
 		dt_list = list(self._date_cols())
 		dt_list.sort()
 		return dt_list
+
+
 
 
 def community_crimes(dt_format, *args, **kwargs):
