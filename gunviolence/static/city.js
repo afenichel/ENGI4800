@@ -1,6 +1,5 @@
 var selected_dt;
 var res = {};
-var latlngclicked;
 var polypaths = [];
 var map = null;
 var heatmap = null;
@@ -183,23 +182,25 @@ function drawPoly(res) {
 		    map_polygons[i].addListener('mouseout', function() {
 		    	unhoverPoly(this);
 		    });
-		    map_polygons[i].addListener('click', function(event) {
-		    	latlngclicked = event.latLng;
-		    	var idx = map_polygons.indexOf(this);
-				r = getResults();
-		    	community = r.results.COMMUNITY[idx];
-		    	console.log(r);
-		    	var content = "<p>" + r.results.COMMUNITY[idx] + "</p><p>Gun crimes: " + r.results[selected_dt][idx] + "</p>";
-				var infowindow = new google.maps.InfoWindow({content: content, position: latlngclicked});
-
-			    if (prev_infowindow_map) {
-		            prev_infowindow_map.close();
-		        }
-	        	infowindow.open(map);
-	        	prev_infowindow_map = infowindow;		    	
-		    });
+		    map_polygons[i].addListener('click', clickPoly);
 	    }
 	}
+}
+
+
+function clickPoly(event) {
+	var latlngclicked = event.latLng;
+	var idx = map_polygons.indexOf(this);
+	community = r.results.COMMUNITY[idx];
+	var r = getResults();
+	var content = "<p>" + r.results.COMMUNITY[idx] + "</p><p>Gun crimes: " + r.results[selected_dt][idx] + "</p>";
+	var infowindow = new google.maps.InfoWindow({content: content, position: latlngclicked});
+
+    if (prev_infowindow_map) {
+        prev_infowindow_map.close();
+    }
+	infowindow.open(map);
+	prev_infowindow_map = infowindow;		    	
 }
 
 function getResults() {
