@@ -2,12 +2,15 @@
     <html>
     <head>
         <meta name="city" content="{{ city }}">
+        <meta name="date_dropdown" content="{{ date_dropdown }}">
+
     	<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="{{ url_for('static', filename='jquery-3.1.1.js') }}">\x3C/script>')</script>
         <script src="//maps.googleapis.com/maps/api/js?v=3&amp;key={{ api_key }}&libraries=visualization" type="text/javascript"></script>
         <script type=text/javascript> $SCRIPT_ROOT = {{ request.script_root|tojson|safe }}; </script>
         <script type="text/javascript" src="{{ url_for('static', filename='city.js') }}"></script>   
+
         <!-- Latest compiled and minified CSS -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
@@ -41,23 +44,34 @@
         <div class="jumbotron">
             <div class="container">
                 <h1 class="page-header">{{ city.upper() | replace("_", " ") }}</h1>
-                <div class="dropdown">
+                <!-- <div class="dropdown">
                     <select id="myDropdown" onchange="changeOption()" class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                         <option value=0 selected="selected">Select Month</option>
                             {% for t in date_dropdown %}
                         <option value={{ t }}>{{ t }}</option>
                             {% endfor %}
                     </select>
+                </div> -->
+                                
+
+
+                <div data-role="main" class="ui-content">
+                    <form method="post" action="demoform.asp">
+                        <label for="date-slider" id="date-label">Select Date</label>
+                        <input type="range" name="date-slider" id="date-slider" value="{{ (date_dropdown | length) // 2 }}"  min="0" max="{{ date_dropdown | length }}" data-show-value="true" onchange="sliderOption()">
+                    </form>
                 </div>
+
+
             </div>   
         </div> 
         <div class="btn-group" data-toggle="buttons">
             <label class="btn btn-primary">
-                <input type="radio" class="form-check-input" name="optionsRadios" id="optionsRadios1" value="community" onchange="changeOption()" checked>
+                <input type="radio" class="form-check-input" name="optionsRadios" id="optionsRadios1" value="community" onchange="sliderOption()" checked>
                 Neighborhoods
             </label>
             <label class="btn btn-primary">
-                <input type="radio" class="form-check-input" name="optionsRadios" id="optionsRadios2" value="heatmap" onchange="changeOption()">
+                <input type="radio" class="form-check-input" name="optionsRadios" id="optionsRadios2" value="heatmap" onchange="sliderOption()">
                 Heatmap
             </label>
         </div>
