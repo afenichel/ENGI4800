@@ -7,9 +7,9 @@ var heatmap = null;
 var prev_infowindow_map = null;
 var map_polygons = [];
 var map_heatmarks = [];
-
 var city = $("meta[name='city']").attr("content"); 
 var date_dropdown = $("meta[name='date_dropdown']").attr("content").replace(/\[|\]|'/g, "").split(", ")
+var community;
 
 $.getJSON($SCRIPT_ROOT + '/community/' + city + '/0', function(json) {
 		res = json;
@@ -29,7 +29,7 @@ function sliderOption() {
 	var dt_obj = new Date(yr, m);
 	var monthName = dt_obj.toString().split(" ")[1];
 	dt.innerHTML = "Date: " + monthName + " " + yr;
-	
+
 	if (map_polygons.length > 0) {
     	removePoly();
     }
@@ -40,6 +40,15 @@ function sliderOption() {
 		$.getJSON($SCRIPT_ROOT + '/community/' + city + '/' + selected_dt, function(json) {
 			res = json;
 			drawPoly(res);
+			console.log(res.results)
+			
+			if (prev_infowindow_map) {
+				comm_idx = Object.values(res.results.COMMUNITY).indexOf(community);
+				console.log(selected_dt);
+				console.log(res.results);
+				var content = "<p>" + res.results.COMMUNITY[comm_idx] + "</p><p>Gun crimes: " + res.results[selected_dt][comm_idx] + "</p>";
+				prev_infowindow_map.setContent(content);
+			}
 		});
 	}
 	if ($('input[value="heatmap"]').is(':checked') && $("myDropdown option:selected").val()!="0") {
@@ -47,6 +56,9 @@ function sliderOption() {
 			res = json;
 			drawHeatmap(res);
 		});
+		if (prev_infowindow_map) {
+			prev_infowindow_map.close();
+		}
 	}
 }
 
@@ -67,7 +79,13 @@ function initMap() {
         scrollwheel: res.map_dict.scroll_wheel,
         fullscreenControl: res.map_dict.fullscreen_control
     });
+    map.addListener('click', function(event) {
+		if (prev_infowindow_map) {
+			prev_infowindow_map.close();
+		}
+	})
 }
+
 
 function drawHeatmap(res) {
 	if (res.results.hasOwnProperty(res.selected_dt)) {
@@ -128,6 +146,7 @@ function drawPoly(res) {
 		    map_polygons[i].addListener('click', function(event) {
 		    	latlngclicked = event.latLng;
 		    	var idx = map_polygons.indexOf(this);
+		    	community = res.results.COMMUNITY[idx];
 				var content = "<p>" + res.results.COMMUNITY[idx] + "</p><p>Gun crimes: " + res.results[selected_dt][idx] + "</p>";
 				var infowindow = new google.maps.InfoWindow({content: content, position: latlngclicked});
 
@@ -140,6 +159,7 @@ function drawPoly(res) {
 	    }
 	}
 }
+
 
 
 function removePoly() {
