@@ -30,31 +30,41 @@ function sliderOption() {
 	var monthName = dt_obj.toString().split(" ")[1];
 	dt.innerHTML = "Date: " + monthName + " " + yr;
 
-	if (map_polygons.length > 0) {
-    	removePoly();
-    }
-    if (map_heatmarks.length > 0) {
-    	removeHeatmap();
-    }
-	if ($('input[value="community"]').is(':checked') && $("myDropdown option:selected").val()!="0") {
+	console.log($('input[value="community"]'))
+
+	if ($('input[value="community"]').is(':checked')) {
 		$.getJSON($SCRIPT_ROOT + '/community/' + city + '/' + selected_dt, function(json) {
 			res = json;
-			drawPoly(res);
-			console.log(res.results)
-			
+			console.log('len' + map_polygons.length)
+			if (map_polygons.length > 0) {
+		    	updatePoly(res);
+		    }
+		    else {
+				drawPoly(res);
+		    }
+	        if (map_heatmarks.length > 0) {
+		    	removeHeatmap();
+		    }
 			if (prev_infowindow_map) {
 				comm_idx = Object.values(res.results.COMMUNITY).indexOf(community);
-				console.log(selected_dt);
-				console.log(res.results);
 				var content = "<p>" + res.results.COMMUNITY[comm_idx] + "</p><p>Gun crimes: " + res.results[selected_dt][comm_idx] + "</p>";
 				prev_infowindow_map.setContent(content);
 			}
 		});
 	}
-	if ($('input[value="heatmap"]').is(':checked') && $("myDropdown option:selected").val()!="0") {
+	if ($('input[value="heatmap"]').is(':checked')) {
 		$.getJSON($SCRIPT_ROOT + '/heatmap/' + city + '/' + selected_dt, function(json) {
 			res = json;
-			drawHeatmap(res);
+			if (map_heatmarks.length > 0) {
+				updateHeatmap(res);
+			}
+			else {
+				drawHeatmap(res);
+			}
+			if (map_polygons.length > 0) {
+				removePoly();
+			}
+			
 		});
 		if (prev_infowindow_map) {
 			prev_infowindow_map.close();
@@ -62,6 +72,15 @@ function sliderOption() {
 	}
 }
 
+function updatePoly(res) {
+	if (res.results.hasOwnProperty(res.selected_dt)) {
+
+		// add polygons
+		for(i = 0; i < map_polygons.length; i++) {
+			map_polygons[i].setOptions({fillOpacity: res.results.fill_opacity[i]});
+		}
+	}
+}
 
 
 function initMap() {
@@ -107,9 +126,30 @@ function drawHeatmap(res) {
 	}
 }
 
+
+function updateHeatmap(res) {
+	if (res.results.hasOwnProperty(res.selected_dt)) {
+		map_heatmarks = [];
+		// add polygons
+		for(i = 0; i < Object.keys(res.results[res.selected_dt]).length; i++) {
+			var lat_coord = res.results.Latitude[i];
+			var lng_coord = res.results.Longitude[i];
+			var incidents = res.results[selected_dt][i];
+			var coords = new google.maps.LatLng(Number(lat_coord), Number(lng_coord));
+			for (j = 0; j < Number(incidents); j++){
+				map_heatmarks.push(coords);	
+			}
+		}
+		heatmap.setData(map_heatmarks);
+	}
+}
+
 function removeHeatmap() {
 	if (heatmap) {
 		heatmap.setMap(null);
+	}
+	if (map_heatmarks) {
+		map_heatmarks = [];
 	}
 }
 
@@ -146,8 +186,10 @@ function drawPoly(res) {
 		    map_polygons[i].addListener('click', function(event) {
 		    	latlngclicked = event.latLng;
 		    	var idx = map_polygons.indexOf(this);
-		    	community = res.results.COMMUNITY[idx];
-				var content = "<p>" + res.results.COMMUNITY[idx] + "</p><p>Gun crimes: " + res.results[selected_dt][idx] + "</p>";
+				r = getResults();
+		    	community = r.results.COMMUNITY[idx];
+		    	console.log(r);
+		    	var content = "<p>" + r.results.COMMUNITY[idx] + "</p><p>Gun crimes: " + r.results[selected_dt][idx] + "</p>";
 				var infowindow = new google.maps.InfoWindow({content: content, position: latlngclicked});
 
 			    if (prev_infowindow_map) {
@@ -160,12 +202,15 @@ function drawPoly(res) {
 	}
 }
 
-
+function getResults() {
+	return res;
+}
 
 function removePoly() {
 	for(i = 0; i < map_polygons.length; i++) {
 		map_polygons[i].setMap(null);
 	}
+	map_polygons = [];
 }
 
 function hoverPoly() {
