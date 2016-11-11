@@ -59,12 +59,13 @@ def monthlty_data(api_endpoint, city, dt_filter, map_dict=map_dict):
 
 
 
-@app.route('/adjcomm/<string:city>')
-def adjacent_comms(city):
+@app.route('/community_meta/<string:city>')
+def community(city):
     crime_obj = crime_dict['community']
+    data = crime_obj.data
     crime_data = crime_obj.geom_to_list(data)
-    adj_list = crime_obj.adjacent_communities(crime_data)
-    return jsonify({'adj_community_list': adj_list})
+    community_meta = crime_obj.communities(crime_data)
+    return jsonify({'community_meta': community_meta})
 
 if __name__ == '__main__':
     run_simple('localhost', 5000, app,

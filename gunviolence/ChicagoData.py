@@ -9,6 +9,7 @@ from sklearn.linear_model import LinearRegression
 from statsmodels.api import OLS
 import cPickle
 from runserver import args
+from flask import url_for
 
 
 class ChicagoData():
@@ -136,10 +137,14 @@ class ChicagoData():
 		return coord_list
 
 	@staticmethod
-	def adjacent_communities(df):
-		adj_list = {}
-		s=datetime.now()
-		print 'now', datetime.now()
+	def communities(df):
+		adj_list = dict()
+		name = dict()
+
+		census = pd.read_csv("gunviolence/data/census_data.csv")
+		census['Community Area Number'] = census['Community Area Number'].fillna('All')
+		census = census.set_index('Community Area Number')
+
 		if set(['the_geom_community', 'Community Area']) < set(df.columns):
 			for index1, row1 in df.iterrows():
 				for index2, row2 in df.iterrows():
@@ -150,8 +155,10 @@ class ChicagoData():
 						if len(boundary_intersect) > 0:
 							adj_list.setdefault(row1['Community Area'], []).append(row2['Community Area'])
 							adj_list.setdefault(row2['Community Area'], []).append(row1['Community Area'])
-		print 'runtime:', datetime.now() - s
-		return adj_list
+
+		community = {'adj_list': adj_list}
+		community.update(census.to_dict())
+		return community
 		
 
 	@staticmethod

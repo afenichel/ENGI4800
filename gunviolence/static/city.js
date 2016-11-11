@@ -191,8 +191,8 @@ function drawPoly(res) {
 function clickPoly(event) {
 	var latlngclicked = event.latLng;
 	var idx = map_polygons.indexOf(this);
-	community = r.results.COMMUNITY[idx];
 	var r = getResults();
+	community = r.results.COMMUNITY[idx];
 	var content = "<p>" + r.results.COMMUNITY[idx] + "</p><p>Gun crimes: " + r.results[selected_dt][idx] + "</p>";
 	var infowindow = new google.maps.InfoWindow({content: content, position: latlngclicked});
 
