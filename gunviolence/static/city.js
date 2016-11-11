@@ -4,12 +4,9 @@ var latlngclicked;
 var polypaths = [];
 var map = null;
 var heatmap = null;
-var old_heatmap = null;
 var prev_infowindow_map = null;
 var map_polygons = [];
-var old_polygons = []
 var map_heatmarks = [];
-var old_heatmarks = [];
 
 var city = $("meta[name='city']").attr("content"); 
 var date_dropdown = $("meta[name='date_dropdown']").attr("content").replace(/\[|\]|'/g, "").split(", ")
@@ -32,8 +29,13 @@ function sliderOption() {
 	var dt_obj = new Date(yr, m);
 	var monthName = dt_obj.toString().split(" ")[1];
 	dt.innerHTML = "Date: " + monthName + " " + yr;
-
-
+	
+	if (map_polygons.length > 0) {
+    	removePoly();
+    }
+    if (map_heatmarks.length > 0) {
+    	removeHeatmap();
+    }
 	if ($('input[value="community"]').is(':checked') && $("myDropdown option:selected").val()!="0") {
 		$.getJSON($SCRIPT_ROOT + '/community/' + city + '/' + selected_dt, function(json) {
 			res = json;
@@ -46,12 +48,6 @@ function sliderOption() {
 			drawHeatmap(res);
 		});
 	}
-	if (old_polygons.length > 0) {
-    	removePoly();
-    }
-    if (old_heatmarks.length > 0) {
-    	removeHeatmap();
-    }
 }
 
 
@@ -90,22 +86,15 @@ function drawHeatmap(res) {
 			          map: map
 		});
 		heatmap.setMap(heatmap.getMap());
-		old_heatmap = heatmap;
-		old_heatmarks = map_heatmarks;
 	}
 }
 
 function removeHeatmap() {
-	if (old_heatmap) {
-		old_heatmap.setMap(null);
+	if (heatmap) {
+		heatmap.setMap(null);
 	}
 }
 
-function removePoly() {
-	for(i = 0; i < old_polygons.length; i++) {
-		old_polygons[i].setMap(null);
-	}
-}
 
 function drawPoly(res) {
 	if (res.results.hasOwnProperty(res.selected_dt)) {
@@ -149,11 +138,15 @@ function drawPoly(res) {
 	        	prev_infowindow_map = infowindow;		    	
 		    });
 	    }
-	old_polygons = map_polygons;
 	}
 }
 
 
+function removePoly() {
+	for(i = 0; i < map_polygons.length; i++) {
+		map_polygons[i].setMap(null);
+	}
+}
 
 function hoverPoly() {
 	this.setOptions({fillOpacity: 1});
@@ -168,6 +161,12 @@ function unhoverPoly(p) {
 
 function changeOption() {
     selected_dt = document.getElementById("myDropdown").value;
+    if (map_polygons.length > 0) {
+    	removePoly();
+    }
+    if (map_heatmarks.length > 0) {
+    	removeHeatmap();
+    }
 	if ($('input[value="community"]').is(':checked') && $("myDropdown option:selected").val()!="0") {
 		$.getJSON($SCRIPT_ROOT + '/community/' + city + '/' + selected_dt, function(json) {
 			res = json;
@@ -180,11 +179,5 @@ function changeOption() {
 			drawHeatmap(res);
 		});
 	}
-    if (old_polygons.length > 0) {
-    	removePoly();
-    }
-    if (old_heatmarks.length > 0) {
-    	removeHeatmap();
-    }
 }
 
