@@ -129,36 +129,44 @@ class ChicagoData():
 				df[c] = df[c].map(lambda x: cls._parse_geom(x))
 		return df
 
+
 	@staticmethod
 	def _parse_geom(coords):
-		coord_sets = re.match("MULTIPOLYGON \(\(\((.*)\)\)\)", coords).group(1)
-		coord_strings = [re.sub("\(|\)", "", c).split(" ") for c in coord_sets.split(", ")]
-		coord_list = tuple([(float(c[1]), float(c[0])) for c in coord_strings])
+		if isinstance(coords, basestring):
+			coord_sets = re.match("MULTIPOLYGON \(\(\((.*)\)\)\)", coords).group(1)
+			coord_strings = [re.sub("\(|\)", "", c).split(" ") for c in coord_sets.split(", ")]
+			coord_list = tuple([(float(c[1]), float(c[0])) for c in coord_strings])
+		elif isinstance(coords, (list, tuple)):
+			coord_list = tuple(coords)
 		return coord_list
+
 
 	@staticmethod
 	def communities(df):
-		adj_list = dict()
-		name = dict()
+		community = dict()
+		community.setdefault('All', {})
 
 		census = pd.read_csv("gunviolence/data/census_data.csv")
 		census['Community Area Number'] = census['Community Area Number'].fillna('All')
 		census = census.set_index('Community Area Number')
+		census.index = [str(idx) for idx in census.index]
+
 
 		if set(['the_geom_community', 'Community Area']) < set(df.columns):
 			for index1, row1 in df.iterrows():
+				community['All'].setdefault('adj_list', []).append(row1['Community Area'])
 				for index2, row2 in df.iterrows():
+					community.setdefault(row1['Community Area'], {})
+					community.setdefault(row2['Community Area'], {})
 					if index1 > index2:
 						geom1 = row1['the_geom_community']
 						geom2 = row2['the_geom_community']
 						boundary_intersect = set(geom1) & set(geom2)
 						if len(boundary_intersect) > 0:
-							adj_list.setdefault(row1['Community Area'], []).append(row2['Community Area'])
-							adj_list.setdefault(row2['Community Area'], []).append(row1['Community Area'])
-
-		community = {'adj_list': adj_list}
-		community.update(census.to_dict())
-		return community
+							community[row1['Community Area']].setdefault('adj_list', []).append(row2['Community Area'])
+							community[row2['Community Area']].setdefault('adj_list', []).append(row1['Community Area'])
+		
+		return pd.DataFrame(community).T.join(census).fillna(-1)
 		
 
 	@staticmethod
@@ -223,6 +231,7 @@ class ChicagoData():
 		return self
 
 
+
 class PivotData(ChicagoData):
 	def __init__(self, fields, dt_format, *args, **kwargs):
 		ChicagoData.__init__(self, *args)
@@ -256,10 +265,11 @@ class PivotData(ChicagoData):
 		return set(self._data.columns) - set(self.fields)
 
 
-	def norm_data(self, dt_filter):
+	def norm_data(self, dt_filter, filter_zero=True):
 		data = self.data.copy()
 		data.loc[:, dt_filter] = data[dt_filter].fillna(0)
-		data = data[data[dt_filter]>0].reset_index(drop=True)
+		if filter_zero:
+			data = data[data[dt_filter]>0].reset_index(drop=True)
 		data.loc[:, 'norm'] = np.linalg.norm(data[dt_filter].fillna(0))
 		data.loc[:, 'fill_opacity'] = data[dt_filter]/data['norm']
 		return data
@@ -273,7 +283,6 @@ class PivotData(ChicagoData):
 		dt_list = list(self._date_cols())
 		dt_list.sort()
 		return dt_list
-
 
 
 

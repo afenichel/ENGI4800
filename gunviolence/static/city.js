@@ -1,5 +1,6 @@
 var selected_dt;
 var res = {};
+var comm_data = {};
 var polypaths = [];
 var map = null;
 var heatmap = null;
@@ -8,10 +9,16 @@ var map_polygons = [];
 var map_heatmarks = [];
 var city = $("meta[name='city']").attr("content"); 
 var date_dropdown = $("meta[name='date_dropdown']").attr("content").replace(/\[|\]|'/g, "").split(", ")
-var community;
+var community_name;
+var community_id;
 
 $.getJSON($SCRIPT_ROOT + '/community/' + city + '/0', function(json) {
 		res = json;
+	});
+
+
+$.getJSON($SCRIPT_ROOT + '/census/' + city , function(json) {
+		comm_data = json;
 	});
 
 google.maps.event.addDomListener(window, 'load', initMap);
@@ -29,12 +36,10 @@ function sliderOption() {
 	var monthName = dt_obj.toString().split(" ")[1];
 	dt.innerHTML = "Date: " + monthName + " " + yr;
 
-	console.log($('input[value="community"]'))
 
 	if ($('input[value="community"]').is(':checked')) {
 		$.getJSON($SCRIPT_ROOT + '/community/' + city + '/' + selected_dt, function(json) {
 			res = json;
-			console.log('len' + map_polygons.length)
 			if (map_polygons.length > 0) {
 		    	updatePoly(res);
 		    }
@@ -45,7 +50,7 @@ function sliderOption() {
 		    	removeHeatmap();
 		    }
 			if (prev_infowindow_map) {
-				comm_idx = Object.values(res.results.COMMUNITY).indexOf(community);
+				comm_idx = Object.values(res.results.COMMUNITY).indexOf(community_name);
 				var content = "<p>" + res.results.COMMUNITY[comm_idx] + "</p><p>Gun crimes: " + res.results[selected_dt][comm_idx] + "</p>";
 				prev_infowindow_map.setContent(content);
 			}
@@ -192,7 +197,8 @@ function clickPoly(event) {
 	var latlngclicked = event.latLng;
 	var idx = map_polygons.indexOf(this);
 	var r = getResults();
-	community = r.results.COMMUNITY[idx];
+	community_name = r.results.COMMUNITY[idx];
+	community_id = r.results['Community Area'][idx].toString() 
 	var content = "<p>" + r.results.COMMUNITY[idx] + "</p><p>Gun crimes: " + r.results[selected_dt][idx] + "</p>";
 	var infowindow = new google.maps.InfoWindow({content: content, position: latlngclicked});
 
@@ -200,7 +206,56 @@ function clickPoly(event) {
         prev_infowindow_map.close();
     }
 	infowindow.open(map);
-	prev_infowindow_map = infowindow;		    	
+	prev_infowindow_map = infowindow;
+
+	console.log(community_id);
+	console.log(Object.keys(comm_data))
+	var adj_list = comm_data[community_id]["adj_list"];
+	var hardship = []
+	var labels = []
+	hardship.push({color: "#C0C0C0", y: comm_data[community_id]["HARDSHIP INDEX"]});
+	labels.push(comm_data[community_id]["COMMUNITY AREA NAME"]);
+	for (i in adj_list) {
+		console.log(adj_list[i]);
+		console.log(comm_data[adj_list[i]]["adj_list"]);
+		hardship.push(comm_data[adj_list[i]]["HARDSHIP INDEX"]);
+		labels.push(comm_data[adj_list[i]]["COMMUNITY AREA NAME"]);
+	}
+	console.log('hardship' +  hardship);
+
+
+	$(function () { 
+	    var myChart = Highcharts.chart('chart1', {
+	    chart: {
+	            type: 'column'
+	        },
+	        title: {
+	            text: 'Census Data'
+	        },
+	        subtitle: {
+	        	text: 'Compared with Adjacent Neighborhoods'
+	        },
+	        xAxis: {
+	            categories: labels
+	        },
+	        yAxis: {
+	            title: {
+	                text: 'Neighborhood'
+	            }
+	        },
+	        series: [{
+	        	type: "column",
+	            name: 'Hardship Index',
+	            data: hardship
+	        },
+	        {
+	        	type: "line",
+	        	name: "City Average",
+	        	data:  comm_data["All"]["HARDSHIP INDEX"]
+	        }]
+	    });
+	});
+
 }
 
 function getResults() {

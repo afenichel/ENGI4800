@@ -6,6 +6,7 @@ from ChicagoData import crime_dict
 import pandas as pd
 import numpy as np
 import random
+import json
 
 def gen_hex_colour_code():
    return ''.join([random.choice('0123456789ABCDEF') for x in range(6)])
@@ -40,9 +41,11 @@ def city(city):
 def monthlty_data(api_endpoint, city, dt_filter, map_dict=map_dict):
     map_dict['center'] = tuple(config['center'][city])
     crime_obj = crime_dict[api_endpoint]
-    
+    filter_zeros = True
+    if api_endpoint=="community":
+        filter_zeros = False
     if dt_filter!='0':
-        norm_data = crime_obj.norm_data(dt_filter)
+        norm_data = crime_obj.norm_data(dt_filter, filter_zeros)
         crime_data = crime_obj.geom_to_list(norm_data)
         cols = (set(crime_data.columns) - set(crime_obj.date_list)) | set([dt_filter])
         crime_data = crime_data[list(cols)]    
@@ -58,14 +61,15 @@ def monthlty_data(api_endpoint, city, dt_filter, map_dict=map_dict):
 
 
 
-
-@app.route('/community_meta/<string:city>')
+@app.route('/census/<string:city>')
 def community(city):
     crime_obj = crime_dict['community']
     data = crime_obj.data
     crime_data = crime_obj.geom_to_list(data)
     community_meta = crime_obj.communities(crime_data)
-    return jsonify({'community_meta': community_meta})
+    return jsonify(community_meta.T.to_dict())
+
+
 
 if __name__ == '__main__':
     run_simple('localhost', 5000, app,
