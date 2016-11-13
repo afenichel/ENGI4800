@@ -290,7 +290,7 @@ function chartCensus() {
 	        },
 	        yAxis: {
 	            title: {
-	                text: 'Neighborhood'
+	                text: ""
 	            }
 	        },
 	        series: series

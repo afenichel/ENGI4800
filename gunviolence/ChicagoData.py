@@ -272,6 +272,7 @@ class PivotData(ChicagoData):
 			data = data[data[dt_filter]>0].reset_index(drop=True)
 		data.loc[:, 'norm'] = np.linalg.norm(data[dt_filter].fillna(0))
 		data.loc[:, 'fill_opacity'] = data[dt_filter]/data['norm']
+		data.loc[:, 'fill_opacity'] = data.loc[:, 'fill_opacity'] / max(data.loc[:, 'fill_opacity'] )
 		return data
 
 	@property
