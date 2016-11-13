@@ -25,7 +25,7 @@ def parse_args():
 	parser.add_argument("-repull",  action="store_true",
 						help="repull pivot data object")
 	
-	parser.add_argument("-limit",  metavar='limit', type = int, default=None,
+	parser.add_argument("-limit",  metavar='limit', type=int, default=None,
 							help="limit size of data for faster testing of code")
 
 	args = parser.parse_args()
