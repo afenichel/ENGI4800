@@ -82,7 +82,13 @@
                 <div id="view-side" class="map"></div>
             </div>
             <div style="display: inline-block; vertical-align: top; padding-top: 20px">
-                <div id="chart1" style="width:400px; height: 400px;"></div>
+                <div class="dropdown" id="censusDropdown">
+                    <select id="myDropdown" onchange="chartCensus()" class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                    </select>
+                </div>
+                <div id="chart-container1" style="width:400px; height: 400px;">
+                    <div id="chart1"></div>
+                </div>
             </div>
         </div>
     </body>
