@@ -8,8 +8,9 @@ import re
 from sklearn.linear_model import LinearRegression
 from statsmodels.api import OLS
 import cPickle
+from sklearn.cluster import DBSCAN
 from runserver import args
-from flask import url_for
+
 
 
 class ChicagoData():
@@ -60,9 +61,9 @@ class ChicagoData():
 		return self	
 
 	def read_meta(self):
+		self.meta['district'] = self._read_district()
 		self.meta['community'] = self._read_community()
 		self.meta['beat'] = self._read_beat()
-		self.meta['district'] = self._read_district()
 		self.meta['census'] = self._read_census()
 		self.meta['fbi'] = self._read_fbi()
 		
@@ -104,10 +105,12 @@ class ChicagoData():
 		return self
 
 	def merge_meta(self):
-		self.df = self.df.merge(self.meta['beat'], how='left', left_on='Beat', right_on='BEAT_NUM', suffixes=('', '_beat'))
+		self.df = self.df.merge(self.meta['district'], how='left', left_on='District', right_on='DIST_NUM', suffixes=('', '_district'))
 		self.df = self.df.merge(self.meta['community'], how='left', left_on='Community Area', right_on='AREA_NUMBE', suffixes=('', '_community'))
+		self.df = self.df.merge(self.meta['beat'], how='left', left_on='Beat', right_on='BEAT_NUM', suffixes=('', '_beat'))
 		self.df = self.df.merge(self.meta['census'], how='left', left_on='Community Area', right_on='Community Area Number')
 		self.df = self.df.merge(self.meta['fbi'], how='left', left_on='FBI Code', right_on='CODE')
+		self.df['the_geom_district'] = self.df['the_geom']
 		return self
 
 	def pull_metadata(self):
@@ -151,7 +154,6 @@ class ChicagoData():
 		census = census.set_index('Community Area Number')
 		census.index = [str(idx) for idx in census.index]
 
-
 		if set(['the_geom_community', 'Community Area']) < set(df.columns):
 			for index1, row1 in df.iterrows():
 				community['All'].setdefault('adj_list', []).append(row1['Community Area'])
@@ -177,43 +179,7 @@ class ChicagoData():
 			else:
 				return list(f)
 		else:
-			return f
-
-	
-
-	def regression(self):
-		data = self.df
-		data_filtered = data[data['Primary Type']=='WEAPONS VIOLATION']
-		c = list(self.meta['census'].columns)
-		c.remove('Community Area Number')
-		c.remove('COMMUNITY AREA NAME')
-		c.append('COMMUNITY')
-		c.append('SHAPE_AREA')
-		c.append('Location Description')
-		c.append('Year')
-		data_mat = data_filtered[c+['Primary Type']].groupby(c, as_index=False).count()
-		
-		year =pd.get_dummies(data_mat['Year'])
-		loc =pd.get_dummies(data_mat['Location Description'])
-		community =pd.get_dummies(data_mat['COMMUNITY'])
-
-		mat = data_mat.join(year).join(loc).join(community).drop('Year', axis=1).drop('Location Description', axis=1).drop('COMMUNITY', axis=1)
-		X = mat[[c for c in mat.columns if c!='Primary Type']]
-		y = mat['Primary Type']
-		
-		significant_cols = list()
-
-		print '----------INDIVIDUAL REGRESSION----------'
-		for c in X:
-			print c
-			result = self._model(X[c], y)
-			significant_cols += list(result.pvalues[result.pvalues<0.05].axes[0])
-
-		print '----------TOTAL REGRESSIONION----------'
-		result = self._model(X, y)
-
-		result = self._model(X[significant_cols], y)
-		
+			return f		
 
 	def _model(self, X, y):
 		model = OLS(y, X)
@@ -235,10 +201,17 @@ class ChicagoData():
 class PivotData(ChicagoData):
 	def __init__(self, fields, dt_format, *args, **kwargs):
 		ChicagoData.__init__(self, *args)
-		self.initData(**kwargs)
+		kwargs.setdefault('repull', False)
 		self.fields = self._set_list(fields)
 		self.dt_format = dt_format
-		self.pivot()
+		if 'csv' in kwargs:
+			self.csv = self.DATA_PATH + kwargs['csv']
+
+		if not kwargs['repull'] and self.csv and os.path.isfile(self.csv):
+			self._data = pd.read_csv(self.csv)
+		else:
+			self.initData(**kwargs)
+			self.pivot()
 
 	def pivot(self):
 		data = self.df.copy()
@@ -259,6 +232,8 @@ class PivotData(ChicagoData):
 		pivot_split = pivot.reset_index().fields.str.split(sep, expand=True)
 		pivot_rename = pivot_split.rename(columns={int(k): v for k, v in enumerate(self.fields)})
 		self._data = pivot_rename.merge(pivot.reset_index(drop=True), left_index=True, right_index=True)
+		if self.csv:
+			self._data.to_csv(self.csv, index=False)
 		return self
 
 	def _date_cols(self):
@@ -275,6 +250,66 @@ class PivotData(ChicagoData):
 		data.loc[:, 'fill_opacity'] = data.loc[:, 'fill_opacity'] / max(data.loc[:, 'fill_opacity'] )
 		return data
 
+	def clusters(self):
+		kms_per_radian = 6371.0088
+		epsilon = 1.5 / kms_per_radian
+		db = DBSCAN(eps=epsilon, min_samples=1, algorithm='ball_tree', metric='haversine')
+		for d in self.date_list:
+			data = self._data[self._data[d]>0][['Longitude', 'Latitude']]
+			print 'DATA\n', data
+			db.fit(np.radians(data))
+			cluster_labels = db.labels_
+			num_clusters = len(set(cluster_labels))
+			for n in set(cluster_labels(num_clusters)):
+				print n
+			print cluster_labels
+
+
+	def get_geo_midpoints(self):
+		# http://www.geomidpoint.com/calculation.html
+		data = self._data.fillna(0)
+		groupby_cols = list(set(data.columns) - set(self.date_list) - set(['Longitude', 'Latitude']))
+		if (set(['Longitude', 'Latitude']) < set(data.columns)) and (len(groupby_cols) > 0):
+			lat = data['Latitude'].map(lambda x: float(x))
+			lng = data['Longitude'].map(lambda x: float(x))
+			lat = lat*np.pi/180.
+			lng = lng*np.pi/180.
+			for d in self.date_list:
+				data[d + '_X'] = np.cos(lat) * np.cos(lng) * data[d]
+				data[d + '_Y'] = np.cos(lat) * np.sin(lng) * data[d]
+				data[d + '_Z'] = np.sin(lat) * data[d]
+				data = data.groupby(groupby_cols, as_index=False).sum()
+				X = data[d + '_X']/data[d]
+				Y = data[d + '_Y']/data[d]
+				Z = data[d + '_Z']/data[d]
+				data[d + '_Lng'] = np.arctan2(Y, X) * 180./np.pi
+				Hyp = np.sqrt(X * X + Y * Y)
+				data[d + '_Lat'] = np.arctan2(Z, Hyp) * 180./np.pi
+			Lat = data[groupby_cols + [d + '_Lat' for d in self.date_list]].fillna(0)
+			Lat.columns = groupby_cols + self.date_list
+			Lng = data[groupby_cols + [d + '_Lng' for d in self.date_list]].fillna(0)
+			Lng.columns = groupby_cols + self.date_list
+			return Lat, Lng
+		else:
+			return pd.DataFrame([], columns=[groupby_cols + self.date_list]), pd.DataFrame([], columns=[groupby_cols + self.date_list])
+
+	def get_midpoint_counts(self):
+		data = self._data.fillna(0)
+		groupby_cols = list(set(data.columns) - set(self.date_list) - set(['Longitude', 'Latitude']))
+		return self._data.groupby(groupby_cols, as_index=False).sum()
+
+	@property
+	def Lat_midpoints(self):
+		return self.get_geo_midpoints()[0]
+
+	@property
+	def Lng_midpoints(self):
+		return self.get_geo_midpoints()[1]
+
+	@property
+	def count_midpoints(self):
+		return self.get_midpoint_counts()
+	
 	@property
 	def data(self):
 		return self._data
@@ -288,37 +323,68 @@ class PivotData(ChicagoData):
 
 
 def community_crimes(dt_format, *args, **kwargs):
-	data_obj = crimes(dt_format, ['Community Area', 'COMMUNITY', 'the_geom_community'], 'community_pivot.obj', *args, **kwargs)
+	kwargs['pickle'] = 'community_pivot.obj'
+	data_obj = crimes(dt_format, ['Community Area', 'COMMUNITY', 'the_geom_community'],  *args, **kwargs)
 	return data_obj
 
 def heatmap_crimes(dt_format, *args, **kwargs):
-	data_obj = crimes(dt_format, ['Latitude', 'Longitude'], 'heatmap.obj', *args, **kwargs)
+	kwargs['csv'] = 'heatmap.csv'
+	data_obj = crimes(dt_format, ['Latitude', 'Longitude'],  *args, **kwargs)
 	return data_obj
 
-def crimes(dt_format,  pivot_cols, filename, *args, **kwargs):
+def district_markers(dt_format, *args, **kwargs):
+	kwargs['pickle'] = 'district_marker.obj'
+	data_obj = crimes(dt_format, ['Latitude', 'Longitude', 'DIST_NUM', 'Primary Type'], *args, **kwargs)
+	return data_obj
+
+def community_markers(dt_format, *args, **kwargs):
+	kwargs['pickle'] = 'community_marker.obj'
+	data_obj = crimes(dt_format, ['Latitude', 'Longitude', 'Community Area', 'Primary Type'], *args, **kwargs)
+	return data_obj
+
+def beat_markers(dt_format, *args, **kwargs):
+	kwargs['pickle'] = 'beat_marker.obj'
+	data_obj = crimes(dt_format, ['Latitude', 'Longitude', 'BEAT_NUM', 'Primary Type'], 'beat_marker.obj', *args, **kwargs)
+	return data_obj
+
+def incident_markers(dt_format, *args, **kwargs):
+	kwargs['csv'] = 'incident_marker.csv'
+	data_obj = crimes(dt_format, ['Latitude', 'Longitude', 'Location', 'Primary Type'], *args, **kwargs)
+	return data_obj
+
+def crimes(dt_format,  pivot_cols, *args, **kwargs):
 	cd = ChicagoData()
 	pivot_cols = cd._set_list(pivot_cols)
-	filepath = cd.DATA_PATH + filename
 	kwargs.setdefault('repull', False)
-	if (not kwargs['repull']) and os.path.isfile(filepath):
-		f = open(filepath, 'rb')
-		data_obj = cPickle.load(f)
-	else:
-		f = open(filepath, 'wb')
+	if 'csv' in kwargs:
+		filepath = cd.DATA_PATH + kwargs['csv']
 		data_obj = PivotData(pivot_cols, dt_format, *args, **kwargs)
-		data_obj.df = pd.DataFrame([]) 
-		cPickle.dump(data_obj, f, protocol=cPickle.HIGHEST_PROTOCOL)
-	f.close()
+	if 'pickle' in kwargs:
+		filepath = cd.DATA_PATH + kwargs['pickle']
+		if (not kwargs['repull']) and os.path.isfile(filepath):
+			f = open(filepath, 'rb')
+			data_obj = cPickle.load(f)
+			f.close()
+		else:
+			data_obj = PivotData(pivot_cols, dt_format, *args, **kwargs)
+			f = open(filepath, 'wb')
+			data_obj.df = pd.DataFrame([]) 
+			cPickle.dump(data_obj, f, protocol=cPickle.HIGHEST_PROTOCOL)
+			print '%s pickled' % filename
+			f.close()
 	return data_obj
 
-print 'args', args
+
 crime_dict={}
-crime_dict['community'] = community_crimes('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
+crime_dict['incident_marker'] = incident_markers('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
 crime_dict['heatmap'] = heatmap_crimes('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
-
-
+crime_dict['community'] = community_crimes('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
+crime_dict['district_marker'] = district_markers('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
+crime_dict['community_marker'] = community_markers('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
+crime_dict['beat_marker'] = beat_markers('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
 
 
 
 if __name__=="__main__":
 	pass
+	

@@ -2,15 +2,11 @@ from gunviolence import app
 from flask import Flask, render_template, url_for, jsonify
 from werkzeug.serving import run_simple
 from ConfigUtil import config
-from ChicagoData import crime_dict
+from gunviolence.ChicagoData import *
 import pandas as pd
 import numpy as np
 import random
 import json
-
-def gen_hex_colour_code():
-   return ''.join([random.choice('0123456789ABCDEF') for x in range(6)])
-
 
 key=config['GOOGLE_MAPS_KEY']
 
@@ -25,7 +21,7 @@ map_dict = {
             'maptype_control': False,
             'streetview_control': False,
             'scale_control': True,
-            'style': 'height:800px;width:600px;margin:0;'}
+            'style': 'height:800px;width:800px;margin:0;'}
 
 @app.route('/')
 def main_page():
@@ -68,6 +64,19 @@ def community(city):
     crime_data = crime_obj.geom_to_list(data)
     community_meta = crime_obj.communities(crime_data)
     return jsonify(community_meta.T.to_dict())
+
+
+@app.route('/marker/<string:marker>/<string:city>/<string:dt_filter>')
+def markers(marker, city, dt_filter):
+    Lat = pd.DataFrame(crime_dict[marker].Lat_midpoints[dt_filter].rename('Latitude'))
+    Lng = pd.DataFrame(crime_dict[marker].Lng_midpoints[dt_filter].rename('Longitude'))
+    counts = pd.DataFrame(crime_dict[marker].count_midpoints[dt_filter].rename('counts')).fillna(0)
+    Lat = Lat[counts.counts>0].reset_index(drop=True).to_dict()
+    Lng = Lng[counts.counts>0].reset_index(drop=True).to_dict()
+    counts = counts[counts.counts>0].reset_index(drop=True).to_dict()
+    counts.update(Lat)
+    counts.update(Lng)
+    return jsonify(counts)
 
 
 

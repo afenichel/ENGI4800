@@ -7,12 +7,14 @@ var heatmap = null;
 var prev_infowindow_map = null;
 var map_polygons = [];
 var map_heatmarks = [];
+var map_markers = [];
 var city = $("meta[name='city']").attr("content"); 
 var date_dropdown = $("meta[name='date_dropdown']").attr("content").replace(/\[|\]|'/g, "").split(", ")
 var community_name;
 var community_id;
 var censusChart;
 var census_opt;
+var z;
 
 $.getJSON($SCRIPT_ROOT + '/community/' + city + '/0', function(json) {
 		res = json;
@@ -76,8 +78,52 @@ function sliderOption() {
 		}
 		$("#myDropdown").hide();
 		$("#chart1").hide();
-		console.log($("#chart1").is(":visible"));
 	}
+	if ($('input[value="markers"]').is(':checked')) {
+		z = map.getZoom();
+
+			if (map_heatmarks.length > 0) {
+				removeHeatmap();
+			}
+			if (map_polygons.length > 0) {
+				removePoly();
+			}
+
+		console.log('z'+z)
+		if (z < 11) {
+			var endpoint = 'district_marker';
+		} else if (z == 11 ) {
+			var endpoint = 'community_marker';
+		} else if (z == 12 ) {
+			var endpoint = 'beat_marker';
+		} else {
+			var endpoint = 'incident_marker';
+		}
+		console.log($SCRIPT_ROOT + '/marker/' + endpoint + '/' + city + '/' + selected_dt);
+		$.getJSON($SCRIPT_ROOT + '/marker/' + endpoint + '/' + city + '/' + selected_dt, function(json) {
+			res = json;
+			drawMarkers(res);
+		});
+	}
+}
+
+function drawMarkers(res) {
+	console.log(res)
+	$.each(Object.keys(res['counts']), function(i, index) {
+		console.log(i +  ': ' + index);
+		console.log(res['Latitude'][index] + " " + res['Longitude'][index]);
+		var mark = new google.maps.Marker({
+				position: new google.maps.LatLng(res['Latitude'][index], res['Longitude'][index]),
+				label: res['counts'][index].toString(),
+				icon: {
+					path: google.maps.SymbolPath.CIRCLE,
+					fillOpacity: 1,
+					scale: 10
+				},
+				map: map
+			});
+		map_markers.push(mark);
+	});
 }
 
 function updatePoly(res) {
@@ -91,8 +137,10 @@ function updatePoly(res) {
 }
 
 
+
 function initMap() {
 	$("#myDropdown").hide();
+	z = res.map_dict.maptype_control;
     document.getElementById('view-side').style.display = 'block';
     map = new google.maps.Map(
     document.getElementById('view-side'), {
@@ -100,7 +148,7 @@ function initMap() {
         zoom: res.map_dict.zoom,
         mapTypeId: google.maps.MapTypeId.ROADMAP,
         zoomControl: res.map_dict.zoom_control,
-        mapTypeControl: res.map_dict.maptype_control,
+        mapTypeControl: z,
         scaleControl: true,
         streetViewControl: res.map_dict.streetview_control,
         rotateControl: res.map_dict.rorate_control,
@@ -112,6 +160,10 @@ function initMap() {
 			prev_infowindow_map.close();
 		}
 	})
+	map.addListener('zoom_changed', function() {
+          z = map.getZoom();
+          console.log(z);
+    });
 }
 
 
@@ -268,9 +320,6 @@ function chartCensus() {
 	        })
 	}
 
-	console.log(all_data)
-	console.log(census_labels);
-	console.log(census_data);
 	if (censusChart) {
 		censusChart.destroy()
 	}
@@ -303,6 +352,11 @@ function getResults() {
 	return res;
 }
 
+
+function getSelectedDt() {
+	return selected_dt;
+}
+
 function removePoly() {
 	for(i = 0; i < map_polygons.length; i++) {
 		map_polygons[i].setMap(null);
@@ -320,8 +374,5 @@ function unhoverPoly(p) {
 }
 
 
-
-function changeOption() {
-	}
 
 
