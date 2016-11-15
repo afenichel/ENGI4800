@@ -66,17 +66,17 @@ def community(city):
     return jsonify(community_meta.T.to_dict())
 
 
-@app.route('/marker/<string:marker>/<string:city>/<string:dt_filter>')
-def markers(marker, city, dt_filter):
-    Lat = pd.DataFrame(crime_dict[marker].Lat_midpoints[dt_filter].rename('Latitude'))
-    Lng = pd.DataFrame(crime_dict[marker].Lng_midpoints[dt_filter].rename('Longitude'))
-    counts = pd.DataFrame(crime_dict[marker].count_midpoints[dt_filter].rename('counts')).fillna(0)
-    Lat = Lat[counts.counts>0].reset_index(drop=True).to_dict()
-    Lng = Lng[counts.counts>0].reset_index(drop=True).to_dict()
-    counts = counts[counts.counts>0].reset_index(drop=True).to_dict()
-    counts.update(Lat)
-    counts.update(Lng)
-    return jsonify(counts)
+# @app.route('/marker/<string:marker>/<string:city>/<string:dt_filter>')
+# def markers(marker, city, dt_filter):
+#     Lat = pd.DataFrame(crime_dict[marker].Lat_midpoints[dt_filter].rename('Latitude'))
+#     Lng = pd.DataFrame(crime_dict[marker].Lng_midpoints[dt_filter].rename('Longitude'))
+#     counts = pd.DataFrame(crime_dict[marker].count_midpoints[dt_filter].rename('counts')).fillna(0)
+#     Lat = Lat[counts.counts>0].reset_index(drop=True).to_dict()
+#     Lng = Lng[counts.counts>0].reset_index(drop=True).to_dict()
+#     counts = counts[counts.counts>0].reset_index(drop=True).to_dict()
+#     counts.update(Lat)
+#     counts.update(Lng)
+#     return jsonify(counts)
 
 
 

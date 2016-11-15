@@ -14,6 +14,8 @@ var community_name;
 var community_id;
 var censusChart;
 var census_opt;
+var crimetype_opt;
+var field;
 var z;
 
 $.getJSON($SCRIPT_ROOT + '/community/' + city + '/0', function(json) {
@@ -88,42 +90,95 @@ function sliderOption() {
 			if (map_polygons.length > 0) {
 				removePoly();
 			}
-
+		z = map.getZoom();
 		console.log('z'+z)
 		if (z < 11) {
 			var endpoint = 'district_marker';
+			field = 'DIST_NUM';
 		} else if (z == 11 ) {
 			var endpoint = 'community_marker';
+			field = 'Community Area';
 		} else if (z == 12 ) {
 			var endpoint = 'beat_marker';
+			field = 'BEAT_NUM'
 		} else {
 			var endpoint = 'incident_marker';
+			field = 'Location'
 		}
-		console.log($SCRIPT_ROOT + '/marker/' + endpoint + '/' + city + '/' + selected_dt);
-		$.getJSON($SCRIPT_ROOT + '/marker/' + endpoint + '/' + city + '/' + selected_dt, function(json) {
+		console.log($SCRIPT_ROOT + '/' + endpoint + '/' + city + '/' + selected_dt);
+		$.getJSON($SCRIPT_ROOT + '/' + endpoint + '/' + city + '/' + selected_dt, function(json) {
 			res = json;
-			drawMarkers(res);
+			createDropdownMarkers(res, field);
+			drawMarkers(res, field);
 		});
 	}
 }
 
-function drawMarkers(res) {
-	console.log(res)
-	$.each(Object.keys(res['counts']), function(i, index) {
-		console.log(i +  ': ' + index);
-		console.log(res['Latitude'][index] + " " + res['Longitude'][index]);
-		var mark = new google.maps.Marker({
-				position: new google.maps.LatLng(res['Latitude'][index], res['Longitude'][index]),
-				label: res['counts'][index].toString(),
-				icon: {
-					path: google.maps.SymbolPath.CIRCLE,
-					fillOpacity: 1,
-					scale: 10
-				},
-				map: map
-			});
-		map_markers.push(mark);
+
+function createDropdownMarkers(res, field) {
+	$("#myDropdown").empty();
+	p = new Set(Object.values(res.results['Primary Type']))
+	console.log(Array.from(p));
+	$.each(Array.from(p), function(index, value) {
+		console.log(value);
+		var opt = document.createElement("option");
+	    var t = document.createTextNode(value);
+	    if (index == 0) {
+	    	opt.setAttribute("selected", "selected");
+	    	crimetype_opt = value;
+	    }
+	    opt.setAttribute("value", "option" + index);
+	    opt.appendChild(t);
+		document.getElementById("myDropdown").appendChild(opt);
 	});
+	$("#myDropdown").show();
+}
+
+
+
+
+function drawMarkers(res, field) {
+	dt = res['selected_dt'];
+	console.log(dt);
+	var labels = {}
+	var bounds = {};
+
+
+	for(i = 0; i < map_markers.length; i++) {
+		map_markers[i].setMap(null);
+	}
+
+	$.each(res.results[dt], function(index, value) {
+		var comm_area = res.results[field][index];
+		var primary_type = res.results['Primary Type'][index];
+		var key = [comm_area, primary_type]
+		if (primary_type==crimetype_opt) {
+			if (~map_markers.hasOwnProperty(key)) {
+				bounds[key] = new google.maps.LatLngBounds();
+				labels[key] = 0
+			}
+			bounds[key].extend(new google.maps.LatLng(res.results['Latitude'][index], res.results['Longitude'][index]));
+			labels[key] += res.results[dt][index];
+		}
+	});
+	console.log('LENGTH '+Object.keys(bounds).length);
+	$.each(bounds, function(index, bound) {
+		var mark = new google.maps.Marker({
+			position: bound.getCenter(),
+			label: labels[index].toString(),
+			icon: {
+				path: google.maps.SymbolPath.CIRCLE,
+				fillOpacity: 0.3,
+				strokeOpacity: 0.5,
+				strokeWeight: 2,
+				strokeColor: res.polyargs.stroke_color,
+				fillColor: res.polyargs.fill_color,
+				scale: 10
+			},
+			map: map
+		});
+		map_markers.push(mark) 
+	});    
 }
 
 function updatePoly(res) {
@@ -160,10 +215,7 @@ function initMap() {
 			prev_infowindow_map.close();
 		}
 	})
-	map.addListener('zoom_changed', function() {
-          z = map.getZoom();
-          console.log(z);
-    });
+	map.addListener('zoom_changed', sliderOption);
 }
 
 
@@ -265,12 +317,12 @@ function clickPoly(event) {
     }
 	infowindow.open(map);
 	prev_infowindow_map = infowindow;
-	createDropdown();
+	createDropdownCharts();
 	chartCensus();
 	
 }
 
-function createDropdown() {
+function createDropdownCharts() {
 	$("#myDropdown").empty();
 	$.each(Object.keys(comm_data[community_id]), function(index, value) {
 		if ($.inArray(value, ["adj_list", "COMMUNITY AREA NAME"]) == -1) { 
@@ -290,6 +342,14 @@ function createDropdown() {
 
 }
 
+function dropDownSelect() {
+	if ($('input[value="community"]').is(':checked')) {
+		chartCensus();
+	}
+	else if ($('input[value="markers"]').is(':checked')) {
+		drawMarkers(res, field);
+	}
+}
 
 function chartCensus() {
 	census_opt = $("#myDropdown option:selected").text();
@@ -345,8 +405,8 @@ function chartCensus() {
 	        series: series
 	    });
 	});
-
 }
+
 
 function getResults() {
 	return res;

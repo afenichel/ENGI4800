@@ -272,8 +272,8 @@ class PivotData(ChicagoData):
 		if (set(['Longitude', 'Latitude']) < set(data.columns)) and (len(groupby_cols) > 0):
 			lat = data['Latitude'].map(lambda x: float(x))
 			lng = data['Longitude'].map(lambda x: float(x))
-			lat = lat*np.pi/180.
-			lng = lng*np.pi/180.
+			lat = np.radians(lat)
+			lng = np.radians(lng)
 			for d in self.date_list:
 				data[d + '_X'] = np.cos(lat) * np.cos(lng) * data[d]
 				data[d + '_Y'] = np.cos(lat) * np.sin(lng) * data[d]
@@ -282,9 +282,9 @@ class PivotData(ChicagoData):
 				X = data[d + '_X']/data[d]
 				Y = data[d + '_Y']/data[d]
 				Z = data[d + '_Z']/data[d]
-				data[d + '_Lng'] = np.arctan2(Y, X) * 180./np.pi
-				Hyp = np.sqrt(X * X + Y * Y)
-				data[d + '_Lat'] = np.arctan2(Z, Hyp) * 180./np.pi
+				data[d + '_Lng'] = np.degrees(np.arctan2(Y, X))
+				Hyp = np.sqrt(np.power(X, 2) + np.power(Y, 2))
+				data[d + '_Lat'] = np.degrees(np.arctan2(Z, Hyp))
 			Lat = data[groupby_cols + [d + '_Lat' for d in self.date_list]].fillna(0)
 			Lat.columns = groupby_cols + self.date_list
 			Lng = data[groupby_cols + [d + '_Lng' for d in self.date_list]].fillna(0)
