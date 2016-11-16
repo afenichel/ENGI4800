@@ -20,6 +20,7 @@ var crimetype_opt;
 var field;
 var z;
 
+
 $.getJSON($SCRIPT_ROOT + '/community/' + city + '/0', function(json) {
 		res = json;
 	});
@@ -40,17 +41,17 @@ function initMap() {
 	z = res.map_dict.maptype_control;
     document.getElementById('view-side').style.display = 'block';
     map = new google.maps.Map(
-    document.getElementById('view-side'), {
-        center: new google.maps.LatLng(res.map_dict.center[0], res.map_dict.center[1]),
-        zoom: res.map_dict.zoom,
-        mapTypeId: google.maps.MapTypeId.ROADMAP,
-        zoomControl: res.map_dict.zoom_control,
-        mapTypeControl: z,
-        scaleControl: true,
-        streetViewControl: res.map_dict.streetview_control,
-        rotateControl: res.map_dict.rorate_control,
-        scrollwheel: res.map_dict.scroll_wheel,
-        fullscreenControl: res.map_dict.fullscreen_control
+	    document.getElementById('view-side'), {
+	        center: new google.maps.LatLng(res.map_dict.center[0], res.map_dict.center[1]),
+	        zoom: res.map_dict.zoom,
+	        mapTypeId: google.maps.MapTypeId.ROADMAP,
+	        zoomControl: res.map_dict.zoom_control,
+	        mapTypeControl: z,
+	        scaleControl: true,
+	        streetViewControl: res.map_dict.streetview_control,
+	        rotateControl: res.map_dict.rorate_control,
+	        scrollwheel: res.map_dict.scroll_wheel,
+	        fullscreenControl: res.map_dict.fullscreen_control
     });
     map.addListener('click', function(event) {
 		if (prev_infowindow_poly) {
@@ -61,20 +62,25 @@ function initMap() {
 }
 
 
-function sliderOption() {
-	var slider_idx = $("#date-slider").val();
-	selected_dt = date_dropdown[slider_idx];
-
-	var dt = document.getElementById("date-label");
+function getMonthName(selected_dt) {
 	var yr = selected_dt.split("-")[0];
 	var m = selected_dt.split("-")[1] - 1;
 	var dt_obj = new Date(yr, m);
 	var monthName = dt_obj.toString().split(" ")[1];
-	dt.innerHTML = "Date: " + monthName + " " + yr;
+	return [monthName, yr]
+}
+
+function sliderOption() {
+	var slider_idx = $("#date-slider").val();
+	selected_dt = date_dropdown[slider_idx];
+	var dt = document.getElementById("date-label");
+	var dt_list = getMonthName(selected_dt);
+	dt.innerHTML = "Date: " + dt_list[0] + ". " + dt_list[1];
 
 
 	if ($('.form-check-input[value="community"]').is(':checked')) {
 		$("#chart1").hide();
+		$("#chart2").hide();
 		$("#myDropdown").hide();
 		$.getJSON($SCRIPT_ROOT + '/community/' + city + '/' + selected_dt, function(json) {
 			res = json;
@@ -96,6 +102,9 @@ function sliderOption() {
 		});
 	}
 	if ($('.form-check-input[value="heatmap"]').is(':checked')) {
+		$("#myDropdown").hide();
+		$("#chart1").hide();
+		$("#chart2").hide();
 		$.getJSON($SCRIPT_ROOT + '/heatmap/' + city + '/' + selected_dt, function(json) {
 			res = json;
 			removeMarkers();
@@ -113,11 +122,11 @@ function sliderOption() {
 		if (prev_infowindow_poly) {
 			prev_infowindow_poly.close();
 		}
-		$("#myDropdown").hide();
-		$("#chart1").hide();
 	}
+
 	if ($('.form-check-input[value="markers"]').is(':checked')) {
 		$("#chart1").hide();
+		$("#chart2").show();
 		if (map_heatmarks.length > 0) {
 			removeHeatmap();
 		}
@@ -146,7 +155,7 @@ function sliderOption() {
 		$.getJSON($SCRIPT_ROOT + '/' + endpoint + '/' + city + '/' + selected_dt, function(json) {
 			res = json;
 			createDropdownMarkers(res, field);
-			drawMarkers(res, field);
+			dropDownSelect();
 
 		});
 	}
@@ -158,6 +167,7 @@ function dropDownSelect() {
 	}
 	else if ($('input[value="markers"]').is(':checked')) {
 		drawMarkers(res, field);
+		chartCrimeTypes();
 	}
 }
 
@@ -184,6 +194,14 @@ function createDropdownMarkers(res, field) {
 		document.getElementById("myDropdown").appendChild(opt);
 	});
 	$("#myDropdown").show();
+
+ 
+	$( "#myDropdown" ).position({
+			  my: "center top",
+			  at: "center top",
+			  of: "#chart2"
+			});
+
 }
 
 
@@ -207,7 +225,7 @@ function drawMarkers(res, field) {
 			labels[key] += Number(res.results[dt][index]);
 		}
 	});
-	console.log(Math.min.apply(null, Object.values(labels)));
+
 	$.each(bounds, function(index, bound) {
 		var mark = new google.maps.Marker({
 			position: bound.getCenter(),
@@ -242,13 +260,8 @@ function removeMarkers() {
 function hoverMarkers(event) {
 	var idx = map_markers.indexOf(this);
 	var r = getResults();
-	console.log('idx'+idx);
-	console.log(mark_labels);
-	console.log('mark_labels at idx'+Object.values(mark_labels)[idx]);
-	console.log(idx);
 	var content = "<p>" + crimetype_opt + "</p><p>Gun crimes: " + Object.values(mark_labels)[idx] + "</p>";
 	var position = this.getPosition()
-	console.log(position.lat())
 	var infowindow = new google.maps.InfoWindow({content: content, position: new google.maps.LatLng(position.lat()+.01, position.lng()) });
 	infowindow.open(map);
 	prev_infowindow_marker = infowindow;
@@ -314,9 +327,6 @@ function removeHeatmap() {
 
 
 
-
-
-
 function createDropdownPoly() {
 	$("#myDropdown").empty();
 	$.each(Object.keys(comm_data[community_id]), function(index, value) {
@@ -337,10 +347,69 @@ function createDropdownPoly() {
 
 }
 
+function chartCrimeTypes() {
+	var data = [];
+	var xLabels = [];
+	$(function () {
+	    // Make monochrome colors and set them as default for all pies
+	    Highcharts.getOptions().plotOptions.pie.colors = (function () {
+	        var colors = [],
+	            base = Highcharts.getOptions().colors[0],
+	            i;
+
+	        for (i = 0; i < 10; i += 1) {
+	            // Start out with a darkened base color (negative brighten), and end
+	            // up with a much brighter color
+	            colors.push(Highcharts.Color(base).brighten((i - 3) / 7).get());
+	        }
+	        return colors;
+	    }());
+
+		$.getJSON($SCRIPT_ROOT + '/crime_description/' + city + '/' + selected_dt, function(json) {
+			$.each(json.results['Primary Type'], function(index, value) {
+				if (value==crimetype_opt) {
+					var name = json.results['Description'][index];
+					var y = json.results[selected_dt][index];
+					data.push({color: "#008080", y: y});
+					xLabels.push(name);
+
+				}
+			});
+
+		    // Build the chart
+		    $('#chart2').highcharts({
+		        chart: {
+		            plotBackgroundColor: null,
+		            plotBorderWidth: null,
+		            plotShadow: false,
+		            type: 'bar'
+		        },
+		        title: {
+		            text: 'Crime Breakdown by Type<br>' + getMonthName(selected_dt).join('. ')
+
+		        },
+		        xAxis: {
+		            categories: xLabels
+		        },
+		        yAxis: {
+		        	title: {
+		        		text: crimetype_opt + " CRIME COUNT"
+		        	}
+		        },
+		      	series: [{
+		      		name: 'CRIME COUNT',
+		            showInLegend: false,
+		            data: data,
+		        }]
+		    });
+		});
+	});
+}
+
+
 
 function chartCensus() {
 	census_opt = $("#myDropdown option:selected").text();
-	console.log(comm_data);
 	var adj_list = comm_data[community_id]["adj_list"];
 	var census_data = [];
 	var census_labels = [];
@@ -349,7 +418,7 @@ function chartCensus() {
 	census_data.push({color: "#C0C0C0", y: comm_data[community_id][census_opt]});
 	census_labels.push(comm_data[community_id]["COMMUNITY AREA NAME"]);
 	for (i in adj_list) {
-		census_data.push(comm_data[adj_list[i]][census_opt]);
+		census_data.push({color: "#008080", y: comm_data[adj_list[i]][census_opt]});
 		census_labels.push(comm_data[adj_list[i]]["COMMUNITY AREA NAME"]);
 		all_data.push(all_point);
 	}
@@ -357,7 +426,21 @@ function chartCensus() {
 	series = [{
 	        	type: "column",
 	            name: census_opt,
-	            data: census_data
+	            data: census_data,
+	            events: {
+	                    click: function (event) {
+	                    	community_name = event.point.category.toUpperCase();
+	                    	var idx = Object.values(res.results['COMMUNITY']).indexOf(community_name);
+							community_id = res.results['Community Area'][idx].toString() 
+							
+						    if (prev_infowindow_poly) {
+						        prev_infowindow_poly.close();
+						    }
+
+							createDropdownPoly();
+							chartCensus();	
+	                    }
+	                }
 	        }]
 
 	if (census_opt!="HARDSHIP INDEX") {
@@ -373,24 +456,24 @@ function chartCensus() {
 	}
 	$(function () {
 	    censusChart = Highcharts.chart('chart1', {
-	    chart: {
-	            type: 'column'
-	        },
-	        title: {
-	            text: 'Census Data'
-	        },
-	        subtitle: {
-	        	text: 'Compared with Adjacent Neighborhoods'
-	        },
-	        xAxis: {
-	            categories: census_labels
-	        },
-	        yAxis: {
-	            title: {
-	                text: ""
-	            }
-	        },
-	        series: series
+		    chart: {
+		            type: 'column'
+		        },
+		        title: {
+		            text: 'Census Data'
+		        },
+		        subtitle: {
+		        	text: community_name + ': Compared with Adjacent Neighborhoods'
+		        },
+		        xAxis: {
+		            categories: census_labels
+		        },
+		        yAxis: {
+		            title: {
+		                text: ""
+		            }
+		        },
+		        series: series
 	    });
 	});
 }

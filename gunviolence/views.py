@@ -49,10 +49,10 @@ def monthlty_data(api_endpoint, city, dt_filter, map_dict=map_dict):
         crime_data=pd.DataFrame([])
 
     polyargs = {}
-    polyargs['stroke_color'] = '#FF0000' 
+    polyargs['stroke_color'] = '#FFFFFF' 
     polyargs['fill_color'] = '#FF0000' 
     polyargs['stroke_opacity'] = 1
-    polyargs['stroke_weight'] = .2
+    polyargs['stroke_weight'] = .5
     return jsonify({'selected_dt': dt_filter, 'map_dict': map_dict, 'polyargs': polyargs, 'results': crime_data.to_dict()})
 
 
@@ -64,19 +64,6 @@ def community(city):
     crime_data = crime_obj.geom_to_list(data)
     community_meta = crime_obj.communities(crime_data)
     return jsonify(community_meta.T.to_dict())
-
-
-# @app.route('/marker/<string:marker>/<string:city>/<string:dt_filter>')
-# def markers(marker, city, dt_filter):
-#     Lat = pd.DataFrame(crime_dict[marker].Lat_midpoints[dt_filter].rename('Latitude'))
-#     Lng = pd.DataFrame(crime_dict[marker].Lng_midpoints[dt_filter].rename('Longitude'))
-#     counts = pd.DataFrame(crime_dict[marker].count_midpoints[dt_filter].rename('counts')).fillna(0)
-#     Lat = Lat[counts.counts>0].reset_index(drop=True).to_dict()
-#     Lng = Lng[counts.counts>0].reset_index(drop=True).to_dict()
-#     counts = counts[counts.counts>0].reset_index(drop=True).to_dict()
-#     counts.update(Lat)
-#     counts.update(Lng)
-#     return jsonify(counts)
 
 
 

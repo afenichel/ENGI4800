@@ -54,27 +54,36 @@ body {
     top: -35px;
     position: absolute;
     z-index: 100;
-    opacity: 0.9;
+    right: 15px;
+    margin-right: 75px;
 }
 
 #right-panel {
     right: 0; 
-    width: 400px;
-    position: absolute;
+    width: 100%;
+    position: relative;
     z-index:100;
 }
-
 
 #chart1 {
     top: 40px;
     right: 0; 
+    width: 500px;
     height: 400px;
-    width: 400px;
+    position: absolute;
+    z-index: 100;
+    padding-right: 60px;
+}
+
+#chart2 {
+    top: 40px;
+    right: 0; 
     position: absolute;
     z-index:100;
-    padding-right: 20px;
+    padding-right: 0px;
 }
 
 .highcharts-background {
     opacity: 0;
 }
+

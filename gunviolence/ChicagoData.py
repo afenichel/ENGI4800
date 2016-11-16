@@ -250,8 +250,8 @@ class PivotData(ChicagoData):
 		data.loc[:, dt_filter] = data[dt_filter].fillna(0)
 		if filter_zero:
 			data = data[data[dt_filter]>0].reset_index(drop=True)
-		data.loc[:, 'norm'] = np.linalg.norm(data[dt_filter].fillna(0))
-		data.loc[:, 'fill_opacity'] = data[dt_filter]/data['norm']
+		norm = np.linalg.norm(data[dt_filter].fillna(0))
+		data.loc[:, 'fill_opacity'] = data[dt_filter]/norm
 		data.loc[:, 'fill_opacity'] = data.loc[:, 'fill_opacity'] / max(data.loc[:, 'fill_opacity'] )
 		return data
 
@@ -363,9 +363,15 @@ def city_markers(dt_format, *args, **kwargs):
 	return data_obj
 
 def crime_descriptions(dt_format, *args, **kwargs):
-	kwargs['csv'] = 'crime_descriptions.csv'
-	data_obj = crimes(dt_format, ['Latitude', 'Longitude', 'Primary Type', 'Description'], *args, **kwargs)
+	kwargs['csv'] = 'crime_description.csv'
+	data_obj = crimes(dt_format, ['Primary Type', 'Description'], *args, **kwargs)
 	return data_obj
+
+def crime_locations(dt_format, *args, **kwargs):
+	kwargs['csv'] = 'crime_location.csv'
+	data_obj = crimes(dt_format, ['Primary Type', 'Location Description'], *args, **kwargs)
+	return data_obj
+
 
 def crimes(dt_format,  pivot_cols, *args, **kwargs):
 	cd = ChicagoData()
@@ -401,6 +407,7 @@ crime_dict['community_marker'] = community_markers('%Y-%m', ['WEAPON_FLAG', 1], 
 crime_dict['beat_marker'] = beat_markers('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
 crime_dict['city_marker'] = city_markers('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
 crime_dict['crime_description'] = crime_descriptions('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
+crime_dict['crime_location'] = crime_locations('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
 
 
 if __name__=="__main__":
