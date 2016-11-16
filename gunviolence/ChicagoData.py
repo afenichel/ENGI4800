@@ -362,6 +362,11 @@ def city_markers(dt_format, *args, **kwargs):
 	data_obj = crimes(dt_format, ['Latitude', 'Longitude', 'CITY', 'Primary Type'], *args, **kwargs)
 	return data_obj
 
+def crime_descriptions(dt_format, *args, **kwargs):
+	kwargs['csv'] = 'crime_descriptions.csv'
+	data_obj = crimes(dt_format, ['Latitude', 'Longitude', 'Primary Type', 'Description'], *args, **kwargs)
+	return data_obj
+
 def crimes(dt_format,  pivot_cols, *args, **kwargs):
 	cd = ChicagoData()
 	pivot_cols = cd._set_list(pivot_cols)
@@ -395,7 +400,7 @@ crime_dict['district_marker'] = district_markers('%Y-%m', ['WEAPON_FLAG', 1], re
 crime_dict['community_marker'] = community_markers('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
 crime_dict['beat_marker'] = beat_markers('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
 crime_dict['city_marker'] = city_markers('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
-
+crime_dict['crime_description'] = crime_descriptions('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
 
 
 if __name__=="__main__":

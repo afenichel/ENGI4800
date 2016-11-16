@@ -82,19 +82,17 @@
                 Markers
             </label>
         </div>
-        <div class="container">
-            <div id="map" style="display: inline-block; align: left">
-                <div id="view-side" class="map"></div>
-            </div>
-            <div style="display: inline-block; vertical-align: top; padding-top: 20px">
-                <div class="dropdown" id="censusDropdown">
-                    <select id="myDropdown" onchange="dropDownSelect()" class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                    </select>
-                </div>
-                <div id="chart-container1" style="width:400px; height: 400px;">
-                    <div id="chart1"></div>
-                </div>
-            </div>
+    
+        <div id="map">
+            <div id="view-side" class="map"></div>
         </div>
+        <div id="right-panel">
+            <div class="dropdown" id="censusDropdown">
+                <select id="myDropdown" onchange="dropDownSelect()" class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                </select>
+            </div>
+            <div id="chart1"></div>
+        </div>
+        
     </body>
 </html>
