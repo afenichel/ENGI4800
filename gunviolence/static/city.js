@@ -73,6 +73,8 @@ function sliderOption() {
 
 
 	if ($('.form-check-input[value="community"]').is(':checked')) {
+		$("#chart1").hide();
+		$("#myDropdown").hide();
 		$.getJSON($SCRIPT_ROOT + '/community/' + city + '/' + selected_dt, function(json) {
 			res = json;
 			removeMarkers();
@@ -114,6 +116,7 @@ function sliderOption() {
 		$("#chart1").hide();
 	}
 	if ($('.form-check-input[value="markers"]').is(':checked')) {
+		$("#chart1").hide();
 		if (map_heatmarks.length > 0) {
 			removeHeatmap();
 		}
