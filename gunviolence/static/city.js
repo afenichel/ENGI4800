@@ -153,7 +153,6 @@ function dropDownSelect() {
 		chartCensus();
 	}
 	else if ($('input[value="markers"]').is(':checked')) {
-		console.log(field);
 		drawMarkers(res, field);
 	}
 }
@@ -185,10 +184,7 @@ function createDropdownMarkers(res, field) {
 
 
 function drawMarkers(res, field) {
-	console.log(field);
-	console.log(res);
 	dt = res['selected_dt'];
-	console.log(dt);
 	var labels = {}
 	var bounds = {};
 	removeMarkers();
@@ -198,8 +194,6 @@ function drawMarkers(res, field) {
 		var comm_area = res.results[field][index];
 		var primary_type = res.results['Primary Type'][index];
 		var key = comm_area;
-		console.log(primary_type);
-		console.log(crimetype_opt);
 		if (primary_type==crimetype_opt) {
 			if (!bounds.hasOwnProperty(key)) {
 				bounds[key] = new google.maps.LatLngBounds();
@@ -209,7 +203,6 @@ function drawMarkers(res, field) {
 			labels[key] += Number(res.results[dt][index]);
 		}
 	});
-	console.log(labels);
 	console.log(Math.min.apply(null, Object.values(labels)));
 	$.each(bounds, function(index, bound) {
 		var mark = new google.maps.Marker({
@@ -228,8 +221,8 @@ function drawMarkers(res, field) {
 		});
 		mark.addListener('mouseover', hoverMarkers);
 		mark.addListener('mouseout', unhoverMarkers);
-		map_markers.push(mark) 
-
+		map_markers.push(mark);
+	// var markerCluster = new MarkerClusterer(map, map_markers);
 
 	});    
 }
@@ -241,12 +234,14 @@ function removeMarkers() {
 }
 
 function hoverMarkers(event) {
-	var idx = map_polygons.indexOf(this);
+	var idx = map_markers.indexOf(this);
 	var r = getResults();
+	console.log(Object.values(r.results[selected_dt])[idx]);
+	console.log(idx);
 	var content = "<p>Gun crimes: " + Object.values(r.results[selected_dt])[idx] + "</p>";
 	var position = this.getPosition()
 	console.log(position.lat())
-	var infowindow = new google.maps.InfoWindow({content: content, position: new google.maps.LatLng(position.lat()+.001, position.lng()) });
+	var infowindow = new google.maps.InfoWindow({content: content, position: new google.maps.LatLng(position.lat()+.01, position.lng()) });
 	infowindow.open(map);
 	prev_infowindow_marker = infowindow;
 }
