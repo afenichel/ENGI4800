@@ -9,6 +9,7 @@ var prev_infowindow_marker = null;
 var map_polygons = [];
 var map_heatmarks = [];
 var map_markers = [];
+var mark_labels = [];
 var city = $("meta[name='city']").attr("content"); 
 var date_dropdown = $("meta[name='date_dropdown']").attr("content").replace(/\[|\]|'/g, "").split(", ")
 var community_name;
@@ -225,6 +226,7 @@ function drawMarkers(res, field) {
 		mark.addListener('mouseover', hoverMarkers);
 		mark.addListener('mouseout', unhoverMarkers);
 		map_markers.push(mark);
+		mark_labels = labels;
 	// var markerCluster = new MarkerClusterer(map, map_markers);
 
 	});    
@@ -239,9 +241,9 @@ function removeMarkers() {
 function hoverMarkers(event) {
 	var idx = map_markers.indexOf(this);
 	var r = getResults();
-	console.log(Object.values(r.results[selected_dt])[idx]);
+	console.log(Object.values(mark_labels)[idx]);
 	console.log(idx);
-	var content = "<p>Gun crimes: " + Object.values(r.results[selected_dt])[idx] + "</p>";
+	var content = "<p>Gun crimes: " + Object.values(mark_labels)[idx] + "</p>";
 	var position = this.getPosition()
 	console.log(position.lat())
 	var infowindow = new google.maps.InfoWindow({content: content, position: new google.maps.LatLng(position.lat()+.01, position.lng()) });
