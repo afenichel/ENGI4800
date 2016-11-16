@@ -54,6 +54,7 @@ class ChicagoData():
 		self._apply_weapons_flag()
 		self.read_meta()
 		self.merge_meta()
+		self.df['CITY'] = 'Chicago'
 		return self
 
 	def read_data(self, limit=None):
@@ -206,12 +207,16 @@ class PivotData(ChicagoData):
 		self.dt_format = dt_format
 		if 'csv' in kwargs:
 			self.csv = self.DATA_PATH + kwargs['csv']
+		else:
+			self.csv = ""
 
-		if not kwargs['repull'] and self.csv and os.path.isfile(self.csv):
+		if not kwargs['repull'] and os.path.isfile(self.csv):
 			self._data = pd.read_csv(self.csv)
 		else:
 			self.initData(**kwargs)
 			self.pivot()
+		
+
 
 	def pivot(self):
 		data = self.df.copy()
@@ -344,12 +349,17 @@ def community_markers(dt_format, *args, **kwargs):
 
 def beat_markers(dt_format, *args, **kwargs):
 	kwargs['pickle'] = 'beat_marker.obj'
-	data_obj = crimes(dt_format, ['Latitude', 'Longitude', 'BEAT_NUM', 'Primary Type'], 'beat_marker.obj', *args, **kwargs)
+	data_obj = crimes(dt_format, ['Latitude', 'Longitude', 'BEAT_NUM', 'Primary Type'], *args, **kwargs)
 	return data_obj
 
 def incident_markers(dt_format, *args, **kwargs):
 	kwargs['csv'] = 'incident_marker.csv'
 	data_obj = crimes(dt_format, ['Latitude', 'Longitude', 'Location', 'Primary Type'], *args, **kwargs)
+	return data_obj
+
+def city_markers(dt_format, *args, **kwargs):
+	kwargs['pickle'] = 'city_marker.obj'
+	data_obj = crimes(dt_format, ['Latitude', 'Longitude', 'CITY', 'Primary Type'], *args, **kwargs)
 	return data_obj
 
 def crimes(dt_format,  pivot_cols, *args, **kwargs):
@@ -359,19 +369,21 @@ def crimes(dt_format,  pivot_cols, *args, **kwargs):
 	if 'csv' in kwargs:
 		filepath = cd.DATA_PATH + kwargs['csv']
 		data_obj = PivotData(pivot_cols, dt_format, *args, **kwargs)
+		print '%s saved to csv' % filepath
 	if 'pickle' in kwargs:
 		filepath = cd.DATA_PATH + kwargs['pickle']
 		if (not kwargs['repull']) and os.path.isfile(filepath):
 			f = open(filepath, 'rb')
 			data_obj = cPickle.load(f)
 			f.close()
+			print '%s pickle loaded' % filepath
 		else:
 			data_obj = PivotData(pivot_cols, dt_format, *args, **kwargs)
 			f = open(filepath, 'wb')
 			data_obj.df = pd.DataFrame([]) 
 			cPickle.dump(data_obj, f, protocol=cPickle.HIGHEST_PROTOCOL)
-			print '%s pickled' % filename
 			f.close()
+			print '%s pickled' % filepath
 	return data_obj
 
 
@@ -382,6 +394,7 @@ crime_dict['community'] = community_crimes('%Y-%m', ['WEAPON_FLAG', 1], repull=a
 crime_dict['district_marker'] = district_markers('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
 crime_dict['community_marker'] = community_markers('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
 crime_dict['beat_marker'] = beat_markers('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
+crime_dict['city_marker'] = city_markers('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
 
 
 

@@ -2,7 +2,7 @@ from gunviolence import app
 from flask import Flask, render_template, url_for, jsonify
 from werkzeug.serving import run_simple
 from ConfigUtil import config
-from gunviolence.ChicagoData import *
+from gunviolence.ChicagoData import crime_dict
 import pandas as pd
 import numpy as np
 import random

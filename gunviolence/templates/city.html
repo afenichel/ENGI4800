@@ -59,7 +59,7 @@
                 <div data-role="main" class="ui-content">
                     <form method="post" action="demoform.asp">
                         <label for="date-slider" id="date-label">Select Date</label>
-                        <input type="range" name="date-slider" id="date-slider" value="{{ (date_dropdown | length) // 2 }}"  min="0" max="{{ date_dropdown | length }}" data-show-value="true" onchange="sliderOption()">
+                        <input type="range" name="date-slider" id="date-slider" value="{{ date_dropdown|length // 2 }}"  min="0" max="{{ date_dropdown | length }}" data-show-value="true" onchange="sliderOption()">
                     </form>
                 </div>
 
@@ -69,7 +69,7 @@
         
         <div class="btn-group" data-toggle="buttons">
             <label class="btn btn-primary">
-                <input type="radio" class="form-check-input" name="optionsRadios" id="optionsRadios1" value="community" onchange="sliderOption()" checked>
+                <input type="radio" class="form-check-input" name="optionsRadios" id="optionsRadios1" value="community" onchange="sliderOption()">
                 Neighborhoods
             </label>
             <label class="btn btn-primary">

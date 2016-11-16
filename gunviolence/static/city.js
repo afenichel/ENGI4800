@@ -4,7 +4,8 @@ var comm_data = {};
 var polypaths = [];
 var map = null;
 var heatmap = null;
-var prev_infowindow_map = null;
+var prev_infowindow_poly = null;
+var prev_infowindow_marker = null;
 var map_polygons = [];
 var map_heatmarks = [];
 var map_markers = [];
@@ -27,171 +28,11 @@ $.getJSON($SCRIPT_ROOT + '/census/' + city , function(json) {
 		comm_data = json;
 	});
 
+$('.btn-primary').on('click', function(){
+    dropDownSelect();
+}); 
+
 google.maps.event.addDomListener(window, 'load', initMap);
-
-function sliderOption() {
-	var slider_idx = $("#date-slider").val();
-	selected_dt = date_dropdown[slider_idx];
-
-	var dt = document.getElementById("date-label");
-	var yr = selected_dt.split("-")[0];
-	var m = selected_dt.split("-")[1] - 1;
-	var dt_obj = new Date(yr, m);
-	var monthName = dt_obj.toString().split(" ")[1];
-	dt.innerHTML = "Date: " + monthName + " " + yr;
-
-
-	if ($('input[value="community"]').is(':checked')) {
-		console.log($("#chart1").is(":visible"))
-		$.getJSON($SCRIPT_ROOT + '/community/' + city + '/' + selected_dt, function(json) {
-			res = json;
-			if (map_polygons.length > 0) {
-		    	updatePoly(res);
-		    }
-		    else {
-				drawPoly(res);
-		    }
-	        if (map_heatmarks.length > 0) {
-		    	removeHeatmap();
-		    }
-			if (prev_infowindow_map) {
-				comm_idx = Object.values(res.results.COMMUNITY).indexOf(community_name);
-				var content = "<p>" + res.results.COMMUNITY[comm_idx] + "</p><p>Gun crimes: " + res.results[selected_dt][comm_idx] + "</p>";
-				prev_infowindow_map.setContent(content);
-			}
-		});
-	}
-	if ($('input[value="heatmap"]').is(':checked')) {
-		$.getJSON($SCRIPT_ROOT + '/heatmap/' + city + '/' + selected_dt, function(json) {
-			res = json;
-			if (map_heatmarks.length > 0) {
-				updateHeatmap(res);
-			}
-			else {
-				drawHeatmap(res);
-			}
-			if (map_polygons.length > 0) {
-				removePoly();
-			}
-			
-		});
-		if (prev_infowindow_map) {
-			prev_infowindow_map.close();
-		}
-		$("#myDropdown").hide();
-		$("#chart1").hide();
-	}
-	if ($('input[value="markers"]').is(':checked')) {
-		z = map.getZoom();
-
-			if (map_heatmarks.length > 0) {
-				removeHeatmap();
-			}
-			if (map_polygons.length > 0) {
-				removePoly();
-			}
-		z = map.getZoom();
-		console.log('z'+z)
-		if (z < 11) {
-			var endpoint = 'district_marker';
-			field = 'DIST_NUM';
-		} else if (z == 11 ) {
-			var endpoint = 'community_marker';
-			field = 'Community Area';
-		} else if (z == 12 ) {
-			var endpoint = 'beat_marker';
-			field = 'BEAT_NUM'
-		} else {
-			var endpoint = 'incident_marker';
-			field = 'Location'
-		}
-		console.log($SCRIPT_ROOT + '/' + endpoint + '/' + city + '/' + selected_dt);
-		$.getJSON($SCRIPT_ROOT + '/' + endpoint + '/' + city + '/' + selected_dt, function(json) {
-			res = json;
-			createDropdownMarkers(res, field);
-			drawMarkers(res, field);
-		});
-	}
-}
-
-
-function createDropdownMarkers(res, field) {
-	$("#myDropdown").empty();
-	p = new Set(Object.values(res.results['Primary Type']))
-	console.log(Array.from(p));
-	$.each(Array.from(p), function(index, value) {
-		console.log(value);
-		var opt = document.createElement("option");
-	    var t = document.createTextNode(value);
-	    if (index == 0) {
-	    	opt.setAttribute("selected", "selected");
-	    	crimetype_opt = value;
-	    }
-	    opt.setAttribute("value", "option" + index);
-	    opt.appendChild(t);
-		document.getElementById("myDropdown").appendChild(opt);
-	});
-	$("#myDropdown").show();
-}
-
-
-
-
-function drawMarkers(res, field) {
-	dt = res['selected_dt'];
-	console.log(dt);
-	var labels = {}
-	var bounds = {};
-
-
-	for(i = 0; i < map_markers.length; i++) {
-		map_markers[i].setMap(null);
-	}
-
-	$.each(res.results[dt], function(index, value) {
-		var comm_area = res.results[field][index];
-		var primary_type = res.results['Primary Type'][index];
-		var key = [comm_area, primary_type]
-		if (primary_type==crimetype_opt) {
-			if (~map_markers.hasOwnProperty(key)) {
-				bounds[key] = new google.maps.LatLngBounds();
-				labels[key] = 0
-			}
-			bounds[key].extend(new google.maps.LatLng(res.results['Latitude'][index], res.results['Longitude'][index]));
-			labels[key] += res.results[dt][index];
-		}
-	});
-	console.log('LENGTH '+Object.keys(bounds).length);
-	$.each(bounds, function(index, bound) {
-		var mark = new google.maps.Marker({
-			position: bound.getCenter(),
-			label: labels[index].toString(),
-			icon: {
-				path: google.maps.SymbolPath.CIRCLE,
-				fillOpacity: 0.3,
-				strokeOpacity: 0.5,
-				strokeWeight: 2,
-				strokeColor: res.polyargs.stroke_color,
-				fillColor: res.polyargs.fill_color,
-				scale: 10
-			},
-			map: map
-		});
-		map_markers.push(mark) 
-	});    
-}
-
-function updatePoly(res) {
-	if (res.results.hasOwnProperty(res.selected_dt)) {
-
-		// add polygons
-		for(i = 0; i < map_polygons.length; i++) {
-			map_polygons[i].setOptions({fillOpacity: res.results.fill_opacity[i]});
-		}
-	}
-}
-
-
 
 function initMap() {
 	$("#myDropdown").hide();
@@ -211,12 +52,214 @@ function initMap() {
         fullscreenControl: res.map_dict.fullscreen_control
     });
     map.addListener('click', function(event) {
-		if (prev_infowindow_map) {
-			prev_infowindow_map.close();
+		if (prev_infowindow_poly) {
+			prev_infowindow_poly.close();
 		}
 	})
 	map.addListener('zoom_changed', sliderOption);
 }
+
+
+function sliderOption() {
+	var slider_idx = $("#date-slider").val();
+	selected_dt = date_dropdown[slider_idx];
+
+	var dt = document.getElementById("date-label");
+	var yr = selected_dt.split("-")[0];
+	var m = selected_dt.split("-")[1] - 1;
+	var dt_obj = new Date(yr, m);
+	var monthName = dt_obj.toString().split(" ")[1];
+	dt.innerHTML = "Date: " + monthName + " " + yr;
+
+
+	if ($('.form-check-input[value="community"]').is(':checked')) {
+		$.getJSON($SCRIPT_ROOT + '/community/' + city + '/' + selected_dt, function(json) {
+			res = json;
+			removeMarkers();
+			if (map_polygons.length > 0) {
+		    	updatePoly(res);
+		    }
+		    else {
+				drawPoly(res);
+		    }
+	        if (map_heatmarks.length > 0) {
+		    	removeHeatmap();
+		    }
+			if (prev_infowindow_poly) {
+				comm_idx = Object.values(res.results.COMMUNITY).indexOf(community_name);
+				var content = "<p>" + res.results.COMMUNITY[comm_idx] + "</p><p>Gun crimes: " + res.results[selected_dt][comm_idx] + "</p>";
+				prev_infowindow_poly.setContent(content);
+			}
+		});
+	}
+	if ($('.form-check-input[value="heatmap"]').is(':checked')) {
+		$.getJSON($SCRIPT_ROOT + '/heatmap/' + city + '/' + selected_dt, function(json) {
+			res = json;
+			removeMarkers();
+			if (map_heatmarks.length > 0) {
+				updateHeatmap(res);
+			}
+			else {
+				drawHeatmap(res);
+			}
+			if (map_polygons.length > 0) {
+				removePoly();
+			}
+			
+		});
+		if (prev_infowindow_poly) {
+			prev_infowindow_poly.close();
+		}
+		$("#myDropdown").hide();
+		$("#chart1").hide();
+	}
+	if ($('.form-check-input[value="markers"]').is(':checked')) {
+		if (map_heatmarks.length > 0) {
+			removeHeatmap();
+		}
+		if (map_polygons.length > 0) {
+			removePoly();
+		}
+		z = map.getZoom();
+		console.log('z'+z)
+		if (z < 11) {
+			var endpoint = 'city_marker';
+			field = 'CITY';
+		} else if (z == 11) {
+			var endpoint = 'district_marker';
+			field = 'DIST_NUM';
+		} else if (z == 12 ) {
+			var endpoint = 'community_marker';
+			field = 'Community Area';
+		} else if (z == 13 ) {
+			var endpoint = 'beat_marker';
+			field = 'BEAT_NUM'
+		} else {
+			var endpoint = 'incident_marker';
+			field = 'Location'
+		}
+
+		$.getJSON($SCRIPT_ROOT + '/' + endpoint + '/' + city + '/' + selected_dt, function(json) {
+			res = json;
+			createDropdownMarkers(res, field);
+			drawMarkers(res, field);
+
+		});
+	}
+}
+
+function dropDownSelect() {
+	if ($('input[value="community"]').is(':checked')) {
+		chartCensus();
+	}
+	else if ($('input[value="markers"]').is(':checked')) {
+		console.log(field);
+		drawMarkers(res, field);
+	}
+}
+
+
+function createDropdownMarkers(res, field) {
+	$("#myDropdown").empty();
+	p = new Set(Object.values(res.results['Primary Type']))
+
+	$.each(Array.from(p), function(index, value) {
+		var opt = document.createElement("option");
+	    var t = document.createTextNode(value);
+	    if (!crimetype_opt) {
+		    if (index == 0) {
+		    	opt.setAttribute("selected", "selected");
+		    	crimetype_opt = value;
+			  }
+	    } else {
+	    	if (value==crimetype_opt) {
+	    		opt.setAttribute("selected", "selected");
+	    	}
+	    }
+	    opt.setAttribute("value", "option" + index);
+	    opt.appendChild(t);
+		document.getElementById("myDropdown").appendChild(opt);
+	});
+	$("#myDropdown").show();
+}
+
+
+function drawMarkers(res, field) {
+	console.log(field);
+	console.log(res);
+	dt = res['selected_dt'];
+	console.log(dt);
+	var labels = {}
+	var bounds = {};
+	removeMarkers();
+	crimetype_opt = $("#myDropdown option:selected").text();
+	
+	$.each(res.results[dt], function(index, value) {
+		var comm_area = res.results[field][index];
+		var primary_type = res.results['Primary Type'][index];
+		var key = comm_area;
+		console.log(primary_type);
+		console.log(crimetype_opt);
+		if (primary_type==crimetype_opt) {
+			if (!bounds.hasOwnProperty(key)) {
+				bounds[key] = new google.maps.LatLngBounds();
+				labels[key] = 0
+			}
+			bounds[key].extend(new google.maps.LatLng(res.results['Latitude'][index], res.results['Longitude'][index]));
+			labels[key] += Number(res.results[dt][index]);
+		}
+	});
+	console.log(labels);
+	console.log(Math.min.apply(null, Object.values(labels)));
+	$.each(bounds, function(index, bound) {
+		var mark = new google.maps.Marker({
+			position: bound.getCenter(),
+			label: '',
+			icon: {
+				path: google.maps.SymbolPath.CIRCLE,
+				fillOpacity: 0.3,
+				strokeOpacity: 0.5,
+				strokeWeight: 2,
+				strokeColor: res.polyargs.stroke_color,
+				fillColor: res.polyargs.fill_color,
+				scale: labels[index]/Math.sqrt(Math.min.apply(null, Object.values(labels)))+5
+			},
+			map: map
+		});
+		mark.addListener('mouseover', hoverMarkers);
+		mark.addListener('mouseout', unhoverMarkers);
+		map_markers.push(mark) 
+
+
+	});    
+}
+
+function removeMarkers() {
+	for(i = 0; i < map_markers.length; i++) {
+		map_markers[i].setMap(null);
+	}
+}
+
+function hoverMarkers(event) {
+	var idx = map_polygons.indexOf(this);
+	var r = getResults();
+	var content = "<p>Gun crimes: " + Object.values(r.results[selected_dt])[idx] + "</p>";
+	var position = this.getPosition()
+	console.log(position.lat())
+	var infowindow = new google.maps.InfoWindow({content: content, position: new google.maps.LatLng(position.lat()+.001, position.lng()) });
+	infowindow.open(map);
+	prev_infowindow_marker = infowindow;
+}
+
+function unhoverMarkers() {
+    if (prev_infowindow_marker) {
+        prev_infowindow_marker.close();
+    }
+}
+
+
+
+
 
 
 function drawHeatmap(res) {
@@ -267,62 +310,11 @@ function removeHeatmap() {
 }
 
 
-function drawPoly(res) {
-	if (res.results.hasOwnProperty(res.selected_dt)) {
-
-		// add polygons
-		for(i = 0; i < Object.keys(res.results[res.selected_dt]).length; i++) {
-			var path_len = res.results.the_geom_community[i].length;
-			polypaths[i] = []
-			for (j = 0; j < path_len; j++){
-				var lat_coord = res.results.the_geom_community[i][j][0];
-				var lng_coord = res.results.the_geom_community[i][j][1];
-				var coords = new google.maps.LatLng(Number(lat_coord), Number(lng_coord));
-				polypaths[i].push(coords);
-			}
-
-		    map_polygons[i] = new google.maps.Polygon({
-		        strokeColor: res.polyargs.stroke_color,
-		        strokeOpacity: res.polyargs.stroke_opacity,
-		        strokeWeight: res.polyargs.stroke_weight,
-		        fillOpacity: res.results.fill_opacity[i],
-		        fillColor: res.polyargs.fill_color,
-		        path: polypaths[i],
-		        map: map,
-		        geodesic: true
-		    });
-		    map_polygons[i].setMap(map);
-		    map_polygons[i].addListener('mouseover', hoverPoly);
-		    map_polygons[i].addListener('mouseout', function() {
-		    	unhoverPoly(this);
-		    });
-		    map_polygons[i].addListener('click', clickPoly);
-	    }
-	}
-}
 
 
 
-function clickPoly(event) {
-	var latlngclicked = event.latLng;
-	var idx = map_polygons.indexOf(this);
-	var r = getResults();
-	community_name = r.results.COMMUNITY[idx];
-	community_id = r.results['Community Area'][idx].toString() 
-	var content = "<p>" + r.results.COMMUNITY[idx] + "</p><p>Gun crimes: " + r.results[selected_dt][idx] + "</p>";
-	var infowindow = new google.maps.InfoWindow({content: content, position: latlngclicked});
 
-    if (prev_infowindow_map) {
-        prev_infowindow_map.close();
-    }
-	infowindow.open(map);
-	prev_infowindow_map = infowindow;
-	createDropdownCharts();
-	chartCensus();
-	
-}
-
-function createDropdownCharts() {
+function createDropdownPoly() {
 	$("#myDropdown").empty();
 	$.each(Object.keys(comm_data[community_id]), function(index, value) {
 		if ($.inArray(value, ["adj_list", "COMMUNITY AREA NAME"]) == -1) { 
@@ -342,17 +334,10 @@ function createDropdownCharts() {
 
 }
 
-function dropDownSelect() {
-	if ($('input[value="community"]').is(':checked')) {
-		chartCensus();
-	}
-	else if ($('input[value="markers"]').is(':checked')) {
-		drawMarkers(res, field);
-	}
-}
 
 function chartCensus() {
 	census_opt = $("#myDropdown option:selected").text();
+	console.log(comm_data);
 	var adj_list = comm_data[community_id]["adj_list"];
 	var census_data = [];
 	var census_labels = [];
@@ -408,13 +393,49 @@ function chartCensus() {
 }
 
 
-function getResults() {
-	return res;
+function drawPoly(res) {
+	if (res.results.hasOwnProperty(res.selected_dt)) {
+
+		// add polygons
+		for(i = 0; i < Object.keys(res.results[res.selected_dt]).length; i++) {
+			var path_len = res.results.the_geom_community[i].length;
+			polypaths[i] = []
+			for (j = 0; j < path_len; j++){
+				var lat_coord = res.results.the_geom_community[i][j][0];
+				var lng_coord = res.results.the_geom_community[i][j][1];
+				var coords = new google.maps.LatLng(Number(lat_coord), Number(lng_coord));
+				polypaths[i].push(coords);
+			}
+
+		    map_polygons[i] = new google.maps.Polygon({
+		        strokeColor: res.polyargs.stroke_color,
+		        strokeOpacity: res.polyargs.stroke_opacity,
+		        strokeWeight: res.polyargs.stroke_weight,
+		        fillOpacity: res.results.fill_opacity[i],
+		        fillColor: res.polyargs.fill_color,
+		        path: polypaths[i],
+		        map: map,
+		        geodesic: true
+		    });
+		    map_polygons[i].setMap(map);
+		    map_polygons[i].addListener('mouseover', hoverPoly);
+		    map_polygons[i].addListener('mouseout', function() {
+		    	unhoverPoly(this);
+		    });
+		    map_polygons[i].addListener('click', clickPoly);
+	    }
+	}
 }
 
 
-function getSelectedDt() {
-	return selected_dt;
+function updatePoly(res) {
+	if (res.results.hasOwnProperty(res.selected_dt)) {
+
+		// add polygons
+		for(i = 0; i < map_polygons.length; i++) {
+			map_polygons[i].setOptions({fillOpacity: res.results.fill_opacity[i]});
+		}
+	}
 }
 
 function removePoly() {
@@ -422,6 +443,24 @@ function removePoly() {
 		map_polygons[i].setMap(null);
 	}
 	map_polygons = [];
+}
+
+function clickPoly(event) {
+	var latlngclicked = event.latLng;
+	var idx = map_polygons.indexOf(this);
+	var r = getResults();
+	community_name = r.results.COMMUNITY[idx];
+	community_id = r.results['Community Area'][idx].toString() 
+	var content = "<p>" + r.results.COMMUNITY[idx] + "</p><p>Gun crimes: " + r.results[selected_dt][idx] + "</p>";
+	var infowindow = new google.maps.InfoWindow({content: content, position: latlngclicked});
+
+    if (prev_infowindow_poly) {
+        prev_infowindow_poly.close();
+    }
+	infowindow.open(map);
+	prev_infowindow_poly = infowindow;
+	createDropdownPoly();
+	chartCensus();	
 }
 
 function hoverPoly() {
@@ -433,6 +472,16 @@ function unhoverPoly(p) {
 	p.setOptions({fillOpacity: res.results.fill_opacity[idx]});
 }
 
+
+
+function getResults() {
+	return res;
+}
+
+
+function getSelectedDt() {
+	return selected_dt;
+}
 
 
 
