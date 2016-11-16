@@ -236,12 +236,15 @@ function removeMarkers() {
 	for(i = 0; i < map_markers.length; i++) {
 		map_markers[i].setMap(null);
 	}
+	map_markers = [];
 }
 
 function hoverMarkers(event) {
 	var idx = map_markers.indexOf(this);
 	var r = getResults();
-	console.log(Object.values(mark_labels)[idx]);
+	console.log('idx'+idx);
+	console.log(mark_labels);
+	console.log('mark_labels at idx'+Object.values(mark_labels)[idx]);
 	console.log(idx);
 	var content = "<p>" + crimetype_opt + "</p><p>Gun crimes: " + Object.values(mark_labels)[idx] + "</p>";
 	var position = this.getPosition()
