@@ -243,7 +243,7 @@ function hoverMarkers(event) {
 	var r = getResults();
 	console.log(Object.values(mark_labels)[idx]);
 	console.log(idx);
-	var content = "<p>Gun crimes: " + Object.values(mark_labels)[idx] + "</p>";
+	var content = "<p>" + crimetype_opt + "</p><p>Gun crimes: " + Object.values(mark_labels)[idx] + "</p>";
 	var position = this.getPosition()
 	console.log(position.lat())
 	var infowindow = new google.maps.InfoWindow({content: content, position: new google.maps.LatLng(position.lat()+.01, position.lng()) });
