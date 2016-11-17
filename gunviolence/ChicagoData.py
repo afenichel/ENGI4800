@@ -328,7 +328,7 @@ class PivotData(ChicagoData):
 
 
 def community_crimes(dt_format, *args, **kwargs):
-	kwargs['pickle'] = 'community_pivot.obj'
+	kwargs['csv'] = 'community_pivot.csv'
 	data_obj = crimes(dt_format, ['Community Area', 'COMMUNITY', 'the_geom_community'],  *args, **kwargs)
 	return data_obj
 
@@ -338,17 +338,17 @@ def heatmap_crimes(dt_format, *args, **kwargs):
 	return data_obj
 
 def district_markers(dt_format, *args, **kwargs):
-	kwargs['pickle'] = 'district_marker.obj'
+	kwargs['csv'] = 'district_marker.csv'
 	data_obj = crimes(dt_format, ['Latitude', 'Longitude', 'DIST_NUM', 'Primary Type'], *args, **kwargs)
 	return data_obj
 
 def community_markers(dt_format, *args, **kwargs):
-	kwargs['pickle'] = 'community_marker.obj'
+	kwargs['csv'] = 'community_marker.csv'
 	data_obj = crimes(dt_format, ['Latitude', 'Longitude', 'Community Area', 'Primary Type'], *args, **kwargs)
 	return data_obj
 
 def beat_markers(dt_format, *args, **kwargs):
-	kwargs['pickle'] = 'beat_marker.obj'
+	kwargs['csv'] = 'beat_marker.csv'
 	data_obj = crimes(dt_format, ['Latitude', 'Longitude', 'BEAT_NUM', 'Primary Type'], *args, **kwargs)
 	return data_obj
 
@@ -358,7 +358,7 @@ def incident_markers(dt_format, *args, **kwargs):
 	return data_obj
 
 def city_markers(dt_format, *args, **kwargs):
-	kwargs['pickle'] = 'city_marker.obj'
+	kwargs['csv'] = 'city_marker.csv'
 	data_obj = crimes(dt_format, ['Latitude', 'Longitude', 'CITY', 'Primary Type'], *args, **kwargs)
 	return data_obj
 
@@ -399,15 +399,15 @@ def crimes(dt_format,  pivot_cols, *args, **kwargs):
 
 
 crime_dict={}
-crime_dict['incident_marker'] = incident_markers('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
-crime_dict['heatmap'] = heatmap_crimes('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
-crime_dict['community'] = community_crimes('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
-crime_dict['district_marker'] = district_markers('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
 crime_dict['community_marker'] = community_markers('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
 crime_dict['beat_marker'] = beat_markers('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
 crime_dict['city_marker'] = city_markers('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
 crime_dict['crime_description'] = crime_descriptions('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
 crime_dict['crime_location'] = crime_locations('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
+crime_dict['incident_marker'] = incident_markers('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
+crime_dict['heatmap'] = heatmap_crimes('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
+crime_dict['community'] = community_crimes('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
+crime_dict['district_marker'] = district_markers('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
 
 
 if __name__=="__main__":
