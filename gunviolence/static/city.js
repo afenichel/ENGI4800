@@ -80,13 +80,6 @@ function sliderOption() {
 	var dt_list = getMonthName(selected_dt);
 	dt.innerHTML = city.toUpperCase() + " - " + dt_list[0].toUpperCase() + ". " + dt_list[1];	
 
-	if (last_point) {
-		last_point.update({marker: {fillColor: "#000000", lineWidth: 0, lineColor: "#000000", radius: 1}});
-	}
-	var this_point = $("#chart0").highcharts().series[0].data[slider_idx];
-	this_point.update({marker: {fillColor: "#888888", lineWidth: 1, lineColor: "#000000", radius: 6}});
-	last_point = this_point;
-
 	if (!$('.form-check-input:checked').val()){
 		$('.form-check-input[value="community"]').prop("checked", true)
 	}
@@ -177,6 +170,12 @@ function sliderOption() {
 
 		});
 	}
+	if (last_point) {
+		last_point.update({marker: {fillColor: "#000000", lineWidth: 0, lineColor: "#000000", radius: 1}});
+	}
+	var this_point = $("#chart0").highcharts().series[0].data[slider_idx];
+	this_point.update({marker: {fillColor: "#888888", lineWidth: 1, lineColor: "#000000", radius: 6}});
+	last_point = this_point;
 }
 
 function dropDownSelect() {
@@ -390,7 +389,7 @@ function chartCrimeTypes() {
 		            type: 'bar'
 		        },
 		        title: {
-		            text: 'Crime Breakdown by Type<br>' + getMonthName(selected_dt).join('. ')
+		            text: getMonthName(selected_dt).join('. ') + 'Crime Breakdown by Type<br>'
 
 		        },
 		        xAxis: {
@@ -480,6 +479,9 @@ function chartCrimeSeries() {
 
 		    // Build the chart
 		    $('#chart0').highcharts({
+		    	tooltip: {
+				    crosshairs: true
+				},
 		    	credits: {
 					enabled: false
 				},
@@ -560,9 +562,16 @@ function chartCensus() {
 	if (census_opt!="HARDSHIP INDEX") {
 		series.push({
 	        	type: "line",
-	        	name: "City Average",
+	        	name: "CITY AVERAGE",
 	        	data:  all_data,
-	        	color: "#000000"
+	        	color: "#000000",
+	        	marker: {
+	        		enabled: false
+	        	},
+	        	tooltip: {
+	        		headerFormat: "",
+		            pointFormat: '{series.name}: <b>{point.y}</b><br/>'
+		        }
 	        })
 	}
 

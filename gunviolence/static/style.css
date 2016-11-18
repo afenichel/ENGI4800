@@ -97,7 +97,7 @@ body {
 
 #chart0 {
     height: 200px;
-    width: 1150px;
+    width: 1158px;
     margin: auto;
 }
 
@@ -108,7 +108,7 @@ body {
 div.jumbotron {
     padding-bottom: 0px;
     padding-top: 100px;
-    margin-bottom: 0px 0px 0px 0px;
+    margin-bottom: 0px;
 }
 
 a.dropdown-toggle {
