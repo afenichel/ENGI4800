@@ -329,11 +329,13 @@ function removeHeatmap() {
 
 function createDropdownPoly() {
 	$("#myDropdown").empty();
+	var indexes = []
 	$.each(Object.keys(comm_data[community_id]), function(index, value) {
 		if ($.inArray(value, ["adj_list", "COMMUNITY AREA NAME"]) == -1) { 
+			indexes.push(index)
 			var opt = document.createElement("option");
 		    var t = document.createTextNode(value);
-		    if (index == 0) {
+		    if (index == Math.min.apply(null, indexes)) {
 		    	opt.setAttribute("selected", "selected");
 		    	census_opt = value;
 		    }
@@ -342,6 +344,7 @@ function createDropdownPoly() {
 			document.getElementById("myDropdown").appendChild(opt);
 		}
 	});
+	
 	$("#myDropdown").show();
 	$("#chart1").show();
 
@@ -422,7 +425,7 @@ function chartCensus() {
 		census_labels.push(comm_data[adj_list[i]]["COMMUNITY AREA NAME"]);
 		all_data.push(all_point);
 	}
-
+	console.log(census_opt);
 	series = [{
 	        	type: "column",
 	            name: census_opt,

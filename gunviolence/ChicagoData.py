@@ -153,7 +153,7 @@ class ChicagoData():
 		census = pd.read_csv("gunviolence/data/census_data.csv")
 		census['Community Area Number'] = census['Community Area Number'].fillna('All')
 		census = census.set_index('Community Area Number')
-		census.index = [str(idx) for idx in census.index]
+		census.index = [str(int(idx)) if idx!="All" else idx for idx in census.index]
 
 		if set(['the_geom_community', 'Community Area']) < set(df.columns):
 			for index1, row1 in df.iterrows():
@@ -169,7 +169,9 @@ class ChicagoData():
 							community[row1['Community Area']].setdefault('adj_list', []).append(row2['Community Area'])
 							community[row2['Community Area']].setdefault('adj_list', []).append(row1['Community Area'])
 		
-		return pd.DataFrame(community).T.join(census).fillna(-1)
+		community = pd.DataFrame(community).T
+		community.index =  [str(int(idx)) if idx!="All" else idx for idx in community.index]
+		return pd.DataFrame(community).join(census).fillna(-1)
 		
 
 	@staticmethod
