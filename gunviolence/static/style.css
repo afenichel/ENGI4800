@@ -29,7 +29,7 @@ body {
     position: absolute;
     left: 0;
     z-index: 0;  
-    padding-top: 30px;
+    padding-top: 0px;
 }
 
 
@@ -51,7 +51,7 @@ body {
 }
 
 #myDropdown {
-    top: -35px;
+    top: 0px;
     position: absolute;
     z-index: 100;
     right: 15px;
@@ -77,13 +77,61 @@ body {
 
 #chart2 {
     top: 40px;
-    right: 0; 
+    width: 500px;
+    height: 300px;
+    right: 0px; 
     position: absolute;
     z-index:100;
     padding-right: 0px;
+}
+
+#chart3 {
+    top: 340px;
+    width: 500px;
+    height: 300px;
+    right: 0px; 
+    position: absolute;
+    z-index:100;
+    padding-right: 0px;
+}
+
+#chart0 {
+    height: 200px;
+    width: 1150px;
+    margin: auto;
 }
 
 .highcharts-background {
     opacity: 0;
 }
 
+div.jumbotron {
+    padding-bottom: 0px;
+    padding-top: 100px;
+    margin-bottom: 0px 0px 0px 0px;
+}
+
+a.dropdown-toggle {
+    font-size: 20px
+}
+
+div.container-fluid {
+    height: 70px;
+}
+
+div.btn-group {
+    z-index: 100;
+    position: relative;
+    top: 75px;
+}
+
+#date-label {
+    position: absolute; 
+    width: 100%;
+    text-align: center;
+}
+
+div.ui-content {
+    width: 1140px;
+    margin: auto;
+}

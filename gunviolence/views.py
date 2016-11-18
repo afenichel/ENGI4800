@@ -32,6 +32,11 @@ def main_page():
 def city(city):
     return render_template('city.html', date_dropdown=crime_dict['community'].date_list, api_key=key, city=city)
 
+@app.route('/trends/<string:city>')
+def trends(city):
+    data = crime_dict['trends'].data.set_index('CITY')
+    data.index = [i.lower() for i in data.index]
+    return jsonify(data.T.to_dict())
 
 @app.route('/<string:api_endpoint>/<string:city>/<string:dt_filter>')
 def monthlty_data(api_endpoint, city, dt_filter, map_dict=map_dict):

@@ -19,6 +19,7 @@ var census_opt;
 var crimetype_opt;
 var field;
 var z;
+var last_point;
 
 
 $.getJSON($SCRIPT_ROOT + '/community/' + city + '/0', function(json) {
@@ -35,9 +36,11 @@ $('.btn-primary').on('click', function(){
 }); 
 
 google.maps.event.addDomListener(window, 'load', initMap);
+chartCrimeSeries();
 
 function initMap() {
 	$("#myDropdown").hide();
+	
 	z = res.map_dict.maptype_control;
     document.getElementById('view-side').style.display = 'block';
     map = new google.maps.Map(
@@ -75,12 +78,22 @@ function sliderOption() {
 	selected_dt = date_dropdown[slider_idx];
 	var dt = document.getElementById("date-label");
 	var dt_list = getMonthName(selected_dt);
-	dt.innerHTML = "Date: " + dt_list[0] + ". " + dt_list[1];
+	dt.innerHTML = city.toUpperCase() + " - " + dt_list[0].toUpperCase() + ". " + dt_list[1];	
 
+	if (last_point) {
+		last_point.update({marker: {fillColor: "#000000", lineWidth: 0, lineColor: "#000000", radius: 1}});
+	}
+	var this_point = $("#chart0").highcharts().series[0].data[slider_idx];
+	this_point.update({marker: {fillColor: "#888888", lineWidth: 1, lineColor: "#000000", radius: 6}});
+	last_point = this_point;
 
+	if (!$('.form-check-input:checked').val()){
+		$('.form-check-input[value="community"]').prop("checked", true)
+	}
 	if ($('.form-check-input[value="community"]').is(':checked')) {
 		$("#chart1").hide();
 		$("#chart2").hide();
+		$("#chart3").hide();
 		$("#myDropdown").hide();
 		$.getJSON($SCRIPT_ROOT + '/community/' + city + '/' + selected_dt, function(json) {
 			res = json;
@@ -105,6 +118,7 @@ function sliderOption() {
 		$("#myDropdown").hide();
 		$("#chart1").hide();
 		$("#chart2").hide();
+		$("#chart3").hide();
 		$.getJSON($SCRIPT_ROOT + '/heatmap/' + city + '/' + selected_dt, function(json) {
 			res = json;
 			removeMarkers();
@@ -127,6 +141,10 @@ function sliderOption() {
 	if ($('.form-check-input[value="markers"]').is(':checked')) {
 		$("#chart1").hide();
 		$("#chart2").show();
+		$("#chart3").show();
+		if (prev_infowindow_poly) {
+		    prev_infowindow_poly.close();
+		}
 		if (map_heatmarks.length > 0) {
 			removeHeatmap();
 		}
@@ -168,6 +186,7 @@ function dropDownSelect() {
 	else if ($('input[value="markers"]').is(':checked')) {
 		drawMarkers(res, field);
 		chartCrimeTypes();
+		chartCrimeLocations();
 	}
 }
 
@@ -195,12 +214,6 @@ function createDropdownMarkers(res, field) {
 	});
 	$("#myDropdown").show();
 
- 
-	$( "#myDropdown" ).position({
-			  my: "center top",
-			  at: "center top",
-			  of: "#chart2"
-			});
 
 }
 
@@ -354,20 +367,6 @@ function chartCrimeTypes() {
 	var data = [];
 	var xLabels = [];
 	$(function () {
-	    // Make monochrome colors and set them as default for all pies
-	    Highcharts.getOptions().plotOptions.pie.colors = (function () {
-	        var colors = [],
-	            base = Highcharts.getOptions().colors[0],
-	            i;
-
-	        for (i = 0; i < 10; i += 1) {
-	            // Start out with a darkened base color (negative brighten), and end
-	            // up with a much brighter color
-	            colors.push(Highcharts.Color(base).brighten((i - 3) / 7).get());
-	        }
-	        return colors;
-	    }());
-
 		$.getJSON($SCRIPT_ROOT + '/crime_description/' + city + '/' + selected_dt, function(json) {
 			$.each(json.results['Primary Type'], function(index, value) {
 				if (value==crimetype_opt) {
@@ -381,6 +380,9 @@ function chartCrimeTypes() {
 
 		    // Build the chart
 		    $('#chart2').highcharts({
+		    	credits: {
+					enabled: false
+				},
 		        chart: {
 		            plotBackgroundColor: null,
 		            plotBorderWidth: null,
@@ -409,6 +411,115 @@ function chartCrimeTypes() {
 	});
 }
 
+function chartCrimeLocations() {
+	var data = [];
+	var xLabels = [];
+	$(function () {
+
+		$.getJSON($SCRIPT_ROOT + '/crime_location/' + city + '/' + selected_dt, function(json) {
+			$.each(json.results['Primary Type'], function(index, value) {
+				if (value==crimetype_opt) {
+					var name = json.results['Location Description'][index];
+					var y = json.results[selected_dt][index];
+					data.push({color: "#900C3F", y: y});
+					xLabels.push(name);
+
+				}
+			});
+
+		    // Build the chart
+		    $('#chart3').highcharts({
+		    	credits: {
+					enabled: false
+				},
+		        chart: {
+		            plotBackgroundColor: null,
+		            plotBorderWidth: null,
+		            plotShadow: false,
+		            type: 'bar'
+		        },
+		        title: {
+		            text: 'Crime Breakdown by Location<br>'
+
+		        },
+		        xAxis: {
+		            categories: xLabels
+		        },
+		        yAxis: {
+		        	title: {
+		        		text: crimetype_opt + " CRIME COUNT"
+		        	}
+		        },
+		      	series: [{
+		      		name: 'CRIME COUNT',
+		            showInLegend: false,
+		            data: data,
+		        }]
+		    });
+		});
+	});
+}
+
+
+
+function chartCrimeSeries() {
+	var data = [];
+	var xLabels = [];
+	$(function () {
+
+		$.getJSON($SCRIPT_ROOT + '/trends/' + city , function(json) {
+			$.each(json[city], function(month, value) {
+				var data_point = {
+								color: "#000000", 
+								y: value, 
+								marker: {radius: 1}
+								};
+				data.push(data_point);
+				xLabels.push(month);
+			});
+
+		    // Build the chart
+		    $('#chart0').highcharts({
+		    	credits: {
+					enabled: false
+				},
+		        chart: {
+		            plotBackgroundColor: null,
+		            plotBorderWidth: null,
+		            plotShadow: false,
+		            type: 'line'
+		        },
+		        title: {
+		            text: ''
+
+		        },
+		        xAxis: {
+		            categories: xLabels
+		        },
+		        yAxis: {
+		        	visible: false
+		        },
+		        plotOptions: {
+		        	line: {
+		        		color: "#000000"
+		        	}
+
+		        },
+		      	series: [{
+		      		name: 'CRIME COUNT',
+		            showInLegend: false,
+		            data: data,
+    		        events: {
+	                    click: function(event){
+	                    	 $("#date-slider").val(event.point.x);
+	                    	sliderOption();
+	                    }
+	                }
+		        }]
+		    });
+		});
+	});
+}
 
 
 function chartCensus() {
@@ -425,11 +536,11 @@ function chartCensus() {
 		census_labels.push(comm_data[adj_list[i]]["COMMUNITY AREA NAME"]);
 		all_data.push(all_point);
 	}
-	console.log(census_opt);
 	series = [{
 	        	type: "column",
 	            name: census_opt,
 	            data: census_data,
+	            colorByPoint: true,
 	            events: {
 	                    click: function (event) {
 	                    	community_name = event.point.category.toUpperCase();
@@ -450,7 +561,8 @@ function chartCensus() {
 		series.push({
 	        	type: "line",
 	        	name: "City Average",
-	        	data:  all_data
+	        	data:  all_data,
+	        	color: "#000000"
 	        })
 	}
 
@@ -459,11 +571,14 @@ function chartCensus() {
 	}
 	$(function () {
 	    censusChart = Highcharts.chart('chart1', {
+	    	credits: {
+					enabled: false
+				},
 		    chart: {
 		            type: 'column'
 		        },
 		        title: {
-		            text: 'Census Data'
+		            text: 'CENSUS DATA'
 		        },
 		        subtitle: {
 		        	text: community_name + ': Compared with Adjacent Neighborhoods'

@@ -374,6 +374,10 @@ def crime_locations(dt_format, *args, **kwargs):
 	data_obj = crimes(dt_format, ['Primary Type', 'Location Description'], *args, **kwargs)
 	return data_obj
 
+def trends(dt_format, *args, **kwargs):
+	kwargs['csv'] = 'trend.csv'
+	data_obj = crimes(dt_format, ['CITY'], *args, **kwargs)
+	return data_obj
 
 def crimes(dt_format,  pivot_cols, *args, **kwargs):
 	cd = ChicagoData()
@@ -410,6 +414,7 @@ crime_dict['incident_marker'] = incident_markers('%Y-%m', ['WEAPON_FLAG', 1], re
 crime_dict['heatmap'] = heatmap_crimes('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
 crime_dict['community'] = community_crimes('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
 crime_dict['district_marker'] = district_markers('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
+crime_dict['trends'] = trends('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
 
 
 if __name__=="__main__":

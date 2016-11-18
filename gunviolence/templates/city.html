@@ -28,6 +28,7 @@
     	<nav class="navbar navbar-default navbar-fixed-top">
             <div class="container-fluid">
                 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <h3 id="date-label">{{ city.upper() | replace("_", " ") }}</h3>
                     <ul class="nav navbar-nav">
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Menu<span class="caret"></span></a>
@@ -44,29 +45,14 @@
             </div>
         </nav>
         <div class="jumbotron">
-            <div class="container">
-                <h3 class="page-header">{{ city.upper() | replace("_", " ") }}</h3>
-                <!-- <div class="dropdown">
-                    <select id="myDropdown" onchange="changeOption()" class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                        <option value=0 selected="selected">Select Month</option>
-                            {% for t in date_dropdown %}
-                        <option value={{ t }}>{{ t }}</option>
-                            {% endfor %}
-                    </select>
-                </div> -->
-                                
-
-
-                <div data-role="main" class="ui-content">
-                    <form method="post" action="demoform.asp">
-                        <label for="date-slider" id="date-label">Select Date</label>
-                        <input type="range" name="date-slider" id="date-slider" value="{{ date_dropdown|length // 2 }}"  min="0" max="{{ date_dropdown | length }}" data-show-value="true" onchange="sliderOption()">
-                    </form>
-                </div>
-
-
-            </div>   
+            <div data-role="main" class="ui-content">
+                <form method="post" action="demoform.asp">
+                    <input type="range" name="date-slider" id="date-slider" value="{{ date_dropdown|length // 2 }}"  min="0" max="{{ date_dropdown | length - 1 }}" data-show-value="true" onchange="sliderOption()">
+                </form>
+            </div>  
+            <div id="chart0"></div>
         </div> 
+        
         
         <div class="btn-group" data-toggle="buttons">
             <label class="btn btn-primary">
@@ -91,8 +77,10 @@
                 <select id="myDropdown" onchange="dropDownSelect()" class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                 </select>
             </div>
-            <div id="chart2"></div>
             <div id="chart1"></div>
+            <div id="chart2"></div>
+            <div id="chart3"></div>
+            
 
         </div>
         
