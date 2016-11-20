@@ -47,6 +47,9 @@ function initMap() {
 	    document.getElementById('view-side'), {
 	        center: new google.maps.LatLng(res.map_dict.center[0], res.map_dict.center[1]),
 	        zoom: res.map_dict.zoom,
+	        zoomControlOptions: {
+		        position: google.maps.ControlPosition.LEFT_BOTTOM
+		    },
 	        mapTypeId: google.maps.MapTypeId.ROADMAP,
 	        zoomControl: res.map_dict.zoom_control,
 	        mapTypeControl: z,
@@ -389,7 +392,8 @@ function chartCrimeTypes() {
 		            type: 'bar'
 		        },
 		        title: {
-		            text: getMonthName(selected_dt).join('. ') + 'Crime Breakdown by Type<br>'
+		            text: getMonthName(selected_dt).join('. ') + '<br>Crime Breakdown by Type<br>',
+		            style: {"fontSize": "14px"}
 
 		        },
 		        xAxis: {
@@ -438,8 +442,8 @@ function chartCrimeLocations() {
 		            type: 'bar'
 		        },
 		        title: {
-		            text: 'Crime Breakdown by Location<br>'
-
+		            text: 'Crime Breakdown by Location<br>',
+		            style: {"fontSize": "14px"}
 		        },
 		        xAxis: {
 		            categories: xLabels
@@ -493,7 +497,6 @@ function chartCrimeSeries() {
 		        },
 		        title: {
 		            text: ''
-
 		        },
 		        xAxis: {
 		            categories: xLabels
@@ -587,7 +590,8 @@ function chartCensus() {
 		            type: 'column'
 		        },
 		        title: {
-		            text: 'CENSUS DATA'
+		            text: 'CENSUS DATA',
+		            style: {"fontSize": "14px"}
 		        },
 		        subtitle: {
 		        	text: community_name + ': Compared with Adjacent Neighborhoods'
