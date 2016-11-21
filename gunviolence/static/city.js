@@ -95,6 +95,7 @@ function sliderOption() {
 		}
 		$("#chart2").hide();
 		$("#chart3").hide();
+		$("#chart4").hide();
 		$.getJSON($SCRIPT_ROOT + '/community/' + city + '/' + selected_dt, function(json) {
 			res = json;
 			removeMarkers();
@@ -113,12 +114,14 @@ function sliderOption() {
 				prev_infowindow_poly.setContent(content);
 			}
 		});
+		moveWithSlider(slider_idx);
 	}
 	if ($('.form-check-input[value="heatmap"]').is(':checked')) {
 		$("#myDropdown").hide();
 		$("#chart1").hide();
 		$("#chart2").hide();
 		$("#chart3").hide();
+		$("#chart4").hide();
 		community_name = city;
 		census_opt = null;
 		$.getJSON($SCRIPT_ROOT + '/heatmap/' + city + '/' + selected_dt, function(json) {
@@ -138,12 +141,14 @@ function sliderOption() {
 		if (prev_infowindow_poly) {
 			prev_infowindow_poly.close();
 		}
+		moveWithSlider(slider_idx);
 	}
 
 	if ($('.form-check-input[value="markers"]').is(':checked')) {
 		$("#chart1").hide();
 		$("#chart2").show();
 		$("#chart3").show();
+		$("#chart4").hide();
 		community_name = city;
 		census_opt = null;
 		if (prev_infowindow_poly) {
@@ -180,14 +185,18 @@ function sliderOption() {
 			dropDownSelect();
 
 		});
-		if (last_point) {
-			last_point.update({marker: {fillColor: "#000000", lineWidth: 0, lineColor: "#000000", radius: 1}});
-		}
-		var this_point = $("#chart0").highcharts().series[0].data[slider_idx];
-		this_point.update({marker: {fillColor: "#888888", lineWidth: 1, lineColor: "#000000", radius: 6}});
-		last_point = this_point;
+		moveWithSlider(slider_idx);
 	}
 	
+}
+
+function moveWithSlider(slider_idx) {
+	if (last_point) {
+		last_point.update({marker: {fillColor: "#000000", lineWidth: 0, lineColor: "#000000", radius: 1}});
+	}
+	var this_point = $("#chart0").highcharts().series[0].data[slider_idx];
+	this_point.update({marker: {fillColor: "#888888", lineWidth: 1, lineColor: "#000000", radius: 6}});
+	last_point = this_point;
 }
 
 function dropDownSelect() {
@@ -565,9 +574,8 @@ function chartCensus() {
 	            events: {
 	                    click: function (event) {
 	                    	community_name = event.point.category.toUpperCase();
-	                    	console.log(community_name)
 	                    	var idx = Object.values(res.results['COMMUNITY']).indexOf(community_name);
-							community_id = res.results['Community Area'][idx].toString() 
+							community_id = res.results['Community Area'][idx].toString();
 							if (prev_infowindow_poly) {
 						        prev_infowindow_poly.close();
 						    }

@@ -79,6 +79,7 @@ body {
     position: absolute;
     z-index: 100;
     padding-right: 60px;
+    z-index: 100;
 }
 
 #chart2 {

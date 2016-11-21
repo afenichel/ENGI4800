@@ -15,7 +15,7 @@ from runserver import args
 
 class ChicagoData():
 	def __init__(self, *args):
-		self.DATA_PATH =  os.path.join(os.path.dirname(__file__), "data/")
+		self.DATA_PATH =  os.path.join(os.path.dirname(__file__), "data/chicago/")
 		self.CSV_FILE = self.DATA_PATH + "Crimes_2010-2016.csv"
 		self.df = pd.DataFrame()
 		self.meta = dict()
@@ -152,7 +152,7 @@ class ChicagoData():
 		community = dict()
 		community.setdefault('All', {})
 
-		census = pd.read_csv("gunviolence/data/census_data.csv")
+		census = pd.read_csv("gunviolence/data/chicago/census_data.csv")
 		census['Community Area Number'] = census['Community Area Number'].fillna('All')
 		census = census.set_index('Community Area Number')
 		census.index = [str(int(idx)) if idx!="All" else idx for idx in census.index]
@@ -272,52 +272,6 @@ class PivotData(ChicagoData):
 			for n in set(cluster_labels(num_clusters)):
 				print n
 			print cluster_labels
-
-
-	def get_geo_midpoints(self):
-		# http://www.geomidpoint.com/calculation.html
-		data = self._data.fillna(0)
-		groupby_cols = list(set(data.columns) - set(self.date_list) - set(['Longitude', 'Latitude']))
-		if (set(['Longitude', 'Latitude']) < set(data.columns)) and (len(groupby_cols) > 0):
-			lat = data['Latitude'].map(lambda x: float(x))
-			lng = data['Longitude'].map(lambda x: float(x))
-			lat = np.radians(lat)
-			lng = np.radians(lng)
-			for d in self.date_list:
-				data[d + '_X'] = np.cos(lat) * np.cos(lng) * data[d]
-				data[d + '_Y'] = np.cos(lat) * np.sin(lng) * data[d]
-				data[d + '_Z'] = np.sin(lat) * data[d]
-				data = data.groupby(groupby_cols, as_index=False).sum()
-				X = data[d + '_X']/data[d]
-				Y = data[d + '_Y']/data[d]
-				Z = data[d + '_Z']/data[d]
-				data[d + '_Lng'] = np.degrees(np.arctan2(Y, X))
-				Hyp = np.sqrt(np.power(X, 2) + np.power(Y, 2))
-				data[d + '_Lat'] = np.degrees(np.arctan2(Z, Hyp))
-			Lat = data[groupby_cols + [d + '_Lat' for d in self.date_list]].fillna(0)
-			Lat.columns = groupby_cols + self.date_list
-			Lng = data[groupby_cols + [d + '_Lng' for d in self.date_list]].fillna(0)
-			Lng.columns = groupby_cols + self.date_list
-			return Lat, Lng
-		else:
-			return pd.DataFrame([], columns=[groupby_cols + self.date_list]), pd.DataFrame([], columns=[groupby_cols + self.date_list])
-
-	def get_midpoint_counts(self):
-		data = self._data.fillna(0)
-		groupby_cols = list(set(data.columns) - set(self.date_list) - set(['Longitude', 'Latitude']))
-		return self._data.groupby(groupby_cols, as_index=False).sum()
-
-	@property
-	def Lat_midpoints(self):
-		return self.get_geo_midpoints()[0]
-
-	@property
-	def Lng_midpoints(self):
-		return self.get_geo_midpoints()[1]
-
-	@property
-	def count_midpoints(self):
-		return self.get_midpoint_counts()
 	
 	@property
 	def data(self):
@@ -332,7 +286,6 @@ class PivotData(ChicagoData):
 
 
 def community_crimes(dt_format, *args, **kwargs):
-	kwargs['csv'] = 'community_pivot.csv'
 	data_obj = crimes(dt_format, ['Community Area', 'COMMUNITY', 'the_geom_community'],  *args, **kwargs)
 	return data_obj
 
@@ -409,17 +362,17 @@ def crimes(dt_format,  pivot_cols, *args, **kwargs):
 crime_dict={}
 # cd = ChicagoData()
 # cd.initData(download_metadata=args.download_metadata, download_data=args.download_data)
+crime_dict['community'] = community_crimes('%Y-%m', ['WEAPON_FLAG', 1], csv='community_pivot.csv', srepull=args.repull)
+crime_dict['census_correlation'] = community_crimes('%Y', ['WEAPON_FLAG', 1], ['Year', [2010, 2011, 2012, 2013, 2014]], csv='census_correlation.csv', repull=args.repull)
+crime_dict['crime_location'] = crime_locations('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
+crime_dict['incident_marker'] = incident_markers('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
+crime_dict['heatmap'] = heatmap_crimes('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
+crime_dict['district_marker'] = district_markers('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
+crime_dict['trends'] = trends('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
 crime_dict['community_marker'] = community_markers('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
 crime_dict['beat_marker'] = beat_markers('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
 crime_dict['city_marker'] = city_markers('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
 crime_dict['crime_description'] = crime_descriptions('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
-crime_dict['crime_location'] = crime_locations('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
-crime_dict['incident_marker'] = incident_markers('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
-crime_dict['heatmap'] = heatmap_crimes('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
-crime_dict['community'] = community_crimes('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
-crime_dict['district_marker'] = district_markers('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
-crime_dict['trends'] = trends('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
-crime_dict['census_correlation'] = community_crimes('%Y', ['WEAPON_FLAG', 1], ['Year', [2010, 2011, 2012, 2013, 2014]], repull=args.repull)
 
 
 if __name__=="__main__":
