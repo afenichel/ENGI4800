@@ -65,6 +65,12 @@ body {
     z-index:100;
 }
 
+#chart0 {
+    height: 200px;
+    width: 1158px;
+    margin: auto;
+}
+
 #chart1 {
     top: 40px;
     right: 0; 
@@ -77,29 +83,34 @@ body {
 
 #chart2 {
     top: 40px;
-    width: 500px;
+    width: 600px;
     height: 300px;
     right: 0px; 
     position: absolute;
     z-index:100;
-    padding-right: 0px;
+    padding-right: 60px;
 }
 
 #chart3 {
     top: 340px;
-    width: 500px;
+    width: 600px;
     height: 300px;
     right: 0px; 
     position: absolute;
     z-index:100;
-    padding-right: 0px;
+    padding-right: 60px;
 }
 
-#chart0 {
-    height: 200px;
-    width: 1158px;
-    margin: auto;
+#chart4 {
+    top: 40px;
+    right: 0; 
+    width: 500px;
+    height: 400px;
+    position: absolute;
+    z-index: 100;
+    padding-right: 60px;
 }
+
 
 .highcharts-background {
     opacity: 0;

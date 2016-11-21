@@ -13,7 +13,7 @@ var map_markers = [];
 var mark_labels = [];
 var city = $("meta[name='city']").attr("content"); 
 var date_dropdown = $("meta[name='date_dropdown']").attr("content").replace(/\[|\]|'/g, "").split(", ")
-var community_name;
+var community_name = city;
 var community_id;
 var censusChart;
 var census_opt;
@@ -83,16 +83,18 @@ function sliderOption() {
 	selected_dt = date_dropdown[slider_idx];
 	var dt = document.getElementById("date-label");
 	var dt_list = getMonthName(selected_dt);
-	dt.innerHTML = city.toUpperCase() + " - " + dt_list[0].toUpperCase() + ". " + dt_list[1];	
+	dt.innerHTML = community_name.toUpperCase() + " - " + dt_list[0].toUpperCase() + ". " + dt_list[1];	
 
 	if (!$('.form-check-input:checked').val()){
 		$('.form-check-input[value="community"]').prop("checked", true)
 	}
 	if ($('.form-check-input[value="community"]').is(':checked')) {
-		$("#chart1").hide();
+		if (community_name.toUpperCase()==city.toUpperCase()) {
+			$("#chart1").hide();
+			$("#myDropdown").hide();
+		}
 		$("#chart2").hide();
 		$("#chart3").hide();
-		$("#myDropdown").hide();
 		$.getJSON($SCRIPT_ROOT + '/community/' + city + '/' + selected_dt, function(json) {
 			res = json;
 			removeMarkers();
@@ -117,6 +119,7 @@ function sliderOption() {
 		$("#chart1").hide();
 		$("#chart2").hide();
 		$("#chart3").hide();
+		community_name = city;
 		census_opt = null;
 		$.getJSON($SCRIPT_ROOT + '/heatmap/' + city + '/' + selected_dt, function(json) {
 			res = json;
@@ -141,6 +144,7 @@ function sliderOption() {
 		$("#chart1").hide();
 		$("#chart2").show();
 		$("#chart3").show();
+		community_name = city;
 		census_opt = null;
 		if (prev_infowindow_poly) {
 		    prev_infowindow_poly.close();
@@ -561,6 +565,7 @@ function chartCensus() {
 	            events: {
 	                    click: function (event) {
 	                    	community_name = event.point.category.toUpperCase();
+	                    	console.log(community_name)
 	                    	var idx = Object.values(res.results['COMMUNITY']).indexOf(community_name);
 							community_id = res.results['Community Area'][idx].toString() 
 							if (prev_infowindow_poly) {
@@ -572,7 +577,11 @@ function chartCensus() {
 						    map_polygons[idx].setOptions({strokeColor: "#000000", strokeWeight: 1});
 						    prev_poly = map_polygons[idx];
 							createDropdownPoly();
-							chartCensus();	
+							chartCensus();
+							addCommunitySeries(community_id);
+							var dt = document.getElementById("date-label");
+							var dt_list = getMonthName(selected_dt);
+							dt.innerHTML = community_name.toUpperCase() + " - " + dt_list[0].toUpperCase() + ". " + dt_list[1];	
 	                    }
 	                }
 	        }]
@@ -601,11 +610,11 @@ function chartCensus() {
 	    	credits: {
 					enabled: false
 				},
-		    chart: {
+			    chart: {
 		            type: 'column'
 		        },
 		        title: {
-		            text: 'CENSUS DATA',
+		            text: 'SOCIOECONOMIC CENSUS DATA 2008-2012',
 		            style: {"fontSize": "14px"}
 		        },
 		        subtitle: {
@@ -696,7 +705,23 @@ function clickPoly(event) {
 	prev_infowindow_poly = infowindow;
 	prev_poly = this;
 	createDropdownPoly();
-	chartCensus();	
+	chartCensus();
+	addCommunitySeries(community_id);
+	var dt = document.getElementById("date-label");
+	var dt_list = getMonthName(selected_dt);
+	dt.innerHTML = community_name.toUpperCase() + " - " + dt_list[0].toUpperCase() + ". " + dt_list[1];	
+
+}
+
+function addCommunitySeries(community_id) {
+	$.getJSON($SCRIPT_ROOT + "/community_trends/" + city + "/" + community_id, function(json) {
+		var data = [];
+		$.each(json.results, function(month, count) {
+			data.push(count);
+			
+		});
+		$("#chart0").highcharts().series[0].setData(data);		
+	});
 }
 
 function hoverPoly() {

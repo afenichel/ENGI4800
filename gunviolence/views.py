@@ -60,6 +60,18 @@ def monthlty_data(api_endpoint, city, dt_filter, map_dict=map_dict):
     polyargs['stroke_weight'] = .5
     return jsonify({'selected_dt': dt_filter, 'map_dict': map_dict, 'polyargs': polyargs, 'results': crime_data.to_dict()})
 
+@app.route('/community_trends/<string:city>/<int:community_id>')
+def community_data(city, community_id, map_dict=map_dict):
+    crime_obj = crime_dict["community"]
+    filter_zeros = False
+    crime_data = crime_obj.geom_to_list(crime_obj.data).fillna(0)
+    crime_data = crime_data[crime_data['Community Area']==community_id]
+    results = crime_data[crime_obj.date_list].reset_index(drop=True).ix[0]
+    meta_cols = set(crime_data.columns) - set(crime_obj.date_list)
+    meta = crime_data[list(meta_cols)].reset_index(drop=True).ix[0]
+    return jsonify({'meta': meta.to_dict(), 'results': results.to_dict()})
+
+
 
 
 @app.route('/census/<string:city>')

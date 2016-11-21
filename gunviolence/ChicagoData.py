@@ -16,7 +16,7 @@ from runserver import args
 class ChicagoData():
 	def __init__(self, *args):
 		self.DATA_PATH =  os.path.join(os.path.dirname(__file__), "data/")
-		self.CSV_FILE = self.DATA_PATH + "Crimes_-_2010_to_present.csv"
+		self.CSV_FILE = self.DATA_PATH + "Crimes_2010-2016.csv"
 		self.df = pd.DataFrame()
 		self.meta = dict()
 		self.gun_fbi_codes = ['01A', '2', '3', '04B', '04A', '15']
@@ -102,7 +102,7 @@ class ChicagoData():
 		return self
 
 	def pull_data(self):
-		os.system("curl 'https://data.cityofchicago.org/api/views/diig-85pa/rows.csv?accessType=DOWNLOAD' -o '%sCrimes_-_2010_to_present.csv'" % self.DATA_PATH)
+		os.system("curl 'https://data.cityofchicago.org/api/views/h8e4-zn48/rows.csv?accessType=DOWNLOAD' -o '%sCrimes_2010-2016.csv'" % self.DATA_PATH)
 		return self
 
 	def merge_meta(self):
@@ -122,6 +122,8 @@ class ChicagoData():
 		os.system("curl 'https://data.cityofchicago.org/api/views/k9yb-bpqx/rows.csv?accessType=DOWNLOAD' -o '%swards.csv'" % self.DATA_PATH)
 		os.system("curl 'https://data.cityofchicago.org/api/views/igwz-8jzy/rows.csv?accessType=DOWNLOAD' -o '%scommunity_areas.csv'" % self.DATA_PATH)		
 		os.system("curl 'https://data.cityofchicago.org/api/views/kn9c-c2s2/rows.csv?accessType=DOWNLOAD' -o '%scensus_data.csv'" % self.DATA_PATH)
+		# CODE LOOKUP: https://datahub.cmap.illinois.gov/dataset/1d2dd970-f0a6-4736-96a1-3caeb431f5e4/resource/d23fc5b1-0bb5-4bcc-bf70-688201534833/download/CDSFieldDescriptions.pdf
+		os.system("curl 'https://datahub.cmap.illinois.gov/dataset/1d2dd970-f0a6-4736-96a1-3caeb431f5e4/resource/8c4e096e-c90c-4bef-9cf1-9028d094296e/download/ReferenceCCA20102014.csv' -o '%sCMAP_census_data.csv'" % self.DATA_PATH)
 		return self
 
 
@@ -405,6 +407,8 @@ def crimes(dt_format,  pivot_cols, *args, **kwargs):
 
 
 crime_dict={}
+# cd = ChicagoData()
+# cd.initData(download_metadata=args.download_metadata, download_data=args.download_data)
 crime_dict['community_marker'] = community_markers('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
 crime_dict['beat_marker'] = beat_markers('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
 crime_dict['city_marker'] = city_markers('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
@@ -415,6 +419,7 @@ crime_dict['heatmap'] = heatmap_crimes('%Y-%m', ['WEAPON_FLAG', 1], repull=args.
 crime_dict['community'] = community_crimes('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
 crime_dict['district_marker'] = district_markers('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
 crime_dict['trends'] = trends('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
+crime_dict['census_correlation'] = community_crimes('%Y', ['WEAPON_FLAG', 1], ['Year', [2010, 2011, 2012, 2013, 2014]], repull=args.repull)
 
 
 if __name__=="__main__":
