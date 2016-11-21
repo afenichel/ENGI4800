@@ -23,6 +23,7 @@ var z;
 var last_point;
 
 
+
 $.getJSON($SCRIPT_ROOT + '/community/' + city + '/0', function(json) {
 		res = json;
 	});
