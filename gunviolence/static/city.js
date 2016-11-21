@@ -4,6 +4,7 @@ var comm_data = {};
 var polypaths = [];
 var map = null;
 var heatmap = null;
+var prev_poly = null;
 var prev_infowindow_poly = null;
 var prev_infowindow_marker = null;
 var map_polygons = [];
@@ -115,6 +116,7 @@ function sliderOption() {
 		$("#chart1").hide();
 		$("#chart2").hide();
 		$("#chart3").hide();
+		census_opt = null;
 		$.getJSON($SCRIPT_ROOT + '/heatmap/' + city + '/' + selected_dt, function(json) {
 			res = json;
 			removeMarkers();
@@ -138,6 +140,7 @@ function sliderOption() {
 		$("#chart1").hide();
 		$("#chart2").show();
 		$("#chart3").show();
+		census_opt = null;
 		if (prev_infowindow_poly) {
 		    prev_infowindow_poly.close();
 		}
@@ -172,13 +175,14 @@ function sliderOption() {
 			dropDownSelect();
 
 		});
+		if (last_point) {
+			last_point.update({marker: {fillColor: "#000000", lineWidth: 0, lineColor: "#000000", radius: 1}});
+		}
+		var this_point = $("#chart0").highcharts().series[0].data[slider_idx];
+		this_point.update({marker: {fillColor: "#888888", lineWidth: 1, lineColor: "#000000", radius: 6}});
+		last_point = this_point;
 	}
-	if (last_point) {
-		last_point.update({marker: {fillColor: "#000000", lineWidth: 0, lineColor: "#000000", radius: 1}});
-	}
-	var this_point = $("#chart0").highcharts().series[0].data[slider_idx];
-	this_point.update({marker: {fillColor: "#888888", lineWidth: 1, lineColor: "#000000", radius: 6}});
-	last_point = this_point;
+	
 }
 
 function dropDownSelect() {
@@ -350,10 +354,14 @@ function createDropdownPoly() {
 			indexes.push(index)
 			var opt = document.createElement("option");
 		    var t = document.createTextNode(value);
-		    if (index == Math.min.apply(null, indexes)) {
-		    	opt.setAttribute("selected", "selected");
-		    	census_opt = value;
-		    }
+		    if (!census_opt) {
+    		    if (index == Math.min.apply(null, indexes)) {
+    		    	opt.setAttribute("selected", "selected");
+    		    	census_opt = value;
+    		    }
+    		} else if (value==census_opt) {
+    			opt.setAttribute("selected", "selected");
+    		}
 		    opt.setAttribute("value", "option" + index);
 		    opt.appendChild(t);
 			document.getElementById("myDropdown").appendChild(opt);
@@ -391,8 +399,11 @@ function chartCrimeTypes() {
 		            plotShadow: false,
 		            type: 'bar'
 		        },
+		        tooltip: {
+		        	pointFormat: '<span style="color:{point.color}">\u25CF</span> {series.name}: <b>{point.y:,.0f}</b><br/>'
+		        },
 		        title: {
-		            text: getMonthName(selected_dt).join('. ') + '<br>Crime Breakdown by Type<br>',
+		            text: getMonthName(selected_dt).join('. ') + '<br>Crimes by Type<br>',
 		            style: {"fontSize": "14px"}
 
 		        },
@@ -442,7 +453,7 @@ function chartCrimeLocations() {
 		            type: 'bar'
 		        },
 		        title: {
-		            text: 'Crime Breakdown by Location<br>',
+		            text: 'Crimes by Location<br>',
 		            style: {"fontSize": "14px"}
 		        },
 		        xAxis: {
@@ -551,11 +562,14 @@ function chartCensus() {
 	                    	community_name = event.point.category.toUpperCase();
 	                    	var idx = Object.values(res.results['COMMUNITY']).indexOf(community_name);
 							community_id = res.results['Community Area'][idx].toString() 
-							
-						    if (prev_infowindow_poly) {
+							if (prev_infowindow_poly) {
 						        prev_infowindow_poly.close();
 						    }
-
+					        if (prev_poly) {
+								prev_poly.setOptions({strokeColor: "#FFFFFF", strokeWeight: 0.5});
+						    }
+						    map_polygons[idx].setOptions({strokeColor: "#000000", strokeWeight: 1});
+						    prev_poly = map_polygons[idx];
 							createDropdownPoly();
 							chartCensus();	
 	                    }
@@ -670,12 +684,16 @@ function clickPoly(event) {
 	community_id = r.results['Community Area'][idx].toString() 
 	var content = "<p>" + r.results.COMMUNITY[idx] + "</p><p>Gun crimes: " + r.results[selected_dt][idx] + "</p>";
 	var infowindow = new google.maps.InfoWindow({content: content, position: latlngclicked});
-
-    if (prev_infowindow_poly) {
+	if (prev_infowindow_poly) {
         prev_infowindow_poly.close();
     }
-	infowindow.open(map);
+    if (prev_poly) {
+		prev_poly.setOptions({strokeColor: "#FFFFFF", strokeWeight: 0.5});
+    } 
+	this.setOptions({strokeColor: "#000000", strokeWeight: 1});
+    infowindow.open(map);
 	prev_infowindow_poly = infowindow;
+	prev_poly = this;
 	createDropdownPoly();
 	chartCensus();	
 }
