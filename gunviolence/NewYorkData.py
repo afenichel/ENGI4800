@@ -97,21 +97,27 @@ class NewYorkData():
 
 
 
-	@classmethod
-	def check_in_geom(cls, df):
-		for c in df.columns: 
+	def check_in_geom(self):
+		neighborhood_data = self._pull_geom()
+		print neighborhood_data
+		for c in neighborhood_data.columns: 
 			if re.match('the_geom.*', c):
-				df[c] = df[c].map(lambda x: cls._parse_geom(x))
+				neighborhood_data['path'] = neighborhood_data[c].map(lambda x: Path(x))
+		self.df['Community Area Name'] = self.df['Location'].map(lambda x: [row['COMMUNITY'] for i, row in neighborhood_data.iterrows() if row['path'].contains_point(x)])
 		return df
 
 
-	def _pull_geom(self, coords):
+
+	def _pull_geom(self):
 		results = requests.get(self.NEIGHBORHOOD_URL)
 		j = json.loads(results.content)
 		neighborhood_data = []
 		for n in j['features']:
 			neighborhood_dict = n['properties']
-			neighborhood_dict['the_geom_community'] = [(i[1], i[0]) for i in n['geometry']['coordinates'][0]]
+			# print [len(i[0]) for i in n['geometry']['coordinates'][0]]
+			print [([i[1], i[0]], len(i))  for i in n['geometry']['coordinates'][0]  if len(i)!=2]
+
+			neighborhood_dict['the_geom_community'] = [[i[1], i[0]]  if len(i)==2 else [i[0][1], i[0][0]] for i in n['geometry']['coordinates'][0]]
 			neighborhood_data.append(neighborhood_dict)
 		return pd.DataFrame(neighborhood_data).rename(columns={'NTAName': 'COMMUNITY', 'NTACode': 'Community Area'})
 
@@ -351,5 +357,6 @@ def crimes(dt_format,  pivot_cols, *args, **kwargs):
 if __name__=="__main__":
 	nd = NewYorkData()
 	nd.initData(limit=200)
-	print nd._pull_geom(nd.df)
+	print nd.df
+	print nd.check_in_geom()
 	
