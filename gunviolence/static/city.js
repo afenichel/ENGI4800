@@ -21,6 +21,8 @@ var crimetype_opt;
 var field;
 var z;
 var last_point;
+var scatterX;
+var scatterY;
 
 
 
@@ -42,6 +44,10 @@ chartCrimeSeries();
 
 function initMap() {
 	$("#myDropdown").hide();
+	$("#xDropdown").hide();
+	$("#yDropdown").hide();	
+	$("#censusDropdownX").hide();
+	$("#censusDropdownY").hide();
 	
 	z = res.map_dict.maptype_control;
     document.getElementById('view-side').style.display = 'block';
@@ -93,6 +99,10 @@ function sliderOption() {
 			$("#chart1").hide();
 			$("#chart4").hide();
 			$("#myDropdown").hide();
+			$("#xDropdown").hide();
+			$("#yDropdown").hide();
+			$("#censusDropdownX").hide();
+			$("#censusDropdownY").hide();
 		}
 		$("#chart2").hide();
 		$("#chart3").hide();
@@ -118,6 +128,10 @@ function sliderOption() {
 	}
 	if ($('.form-check-input[value="heatmap"]').is(':checked')) {
 		$("#myDropdown").hide();
+		$("#xDropdown").hide();
+		$("#yDropdown").hide();
+		$("#censusDropdownX").hide();
+		$("#censusDropdownY").hide();
 		$("#chart1").hide();
 		$("#chart2").hide();
 		$("#chart3").hide();
@@ -202,6 +216,7 @@ function moveWithSlider(slider_idx) {
 function dropDownSelect() {
 	if ($('input[value="community"]').is(':checked')) {
 		chartCensus();
+		scatterCensus();
 	}
 	else if ($('input[value="markers"]').is(':checked')) {
 		drawMarkers(res, field);
@@ -233,10 +248,54 @@ function createDropdownMarkers(res, field) {
 		document.getElementById("myDropdown").appendChild(opt);
 	});
 	$("#myDropdown").show();
-
-
 }
 
+
+
+function createDropdownScatter(res) {
+	$("#xDropdown").empty();
+	$("#yDropdown").empty();
+	p = new Set(Object.keys(res.results));
+
+	$.each(Array.from(p), function(index, value) {
+		var optX = document.createElement("option");
+		var optY = document.createElement("option");
+	    var xText = document.createTextNode(value);
+	    var yText = document.createTextNode(value);
+
+	    if (!scatterX) {
+		    if (index == 0) {
+		    	optX.setAttribute("selected", "selected");
+		    	scatterX = value;
+			  }
+	    } else {
+	    	if (value==scatterX) {
+	    		optX.setAttribute("selected", "selected");
+	    	}
+	    }
+	    if (!scatterY) {
+		    if (index == 1) {
+		    	optY.setAttribute("selected", "selected");
+		    	scatterY = value;
+			  }
+	    } else {	
+	    	if (value==scatterY) {
+	    		optY.setAttribute("selected", "selected");
+	    	}
+	    }
+	    optX.setAttribute("value", "option" + index);
+	    optX.appendChild(xText);
+		document.getElementById("xDropdown").appendChild(optX);
+	    optY.setAttribute("value", "option" + index);
+	    optY.appendChild(yText);
+		document.getElementById("yDropdown").appendChild(optY);
+	});
+	$("#xDropdown").show();
+	$("#yDropdown").show();
+	$("#censusDropdownX").show();
+	$("#censusDropdownY").show();
+	console.log(document.getElementById("xDropdown"))
+}
 
 function drawMarkers(res, field) {
 	dt = res['selected_dt'];
@@ -654,8 +713,13 @@ function chartCensus() {
 function scatterCensus() {
 	$.getJSON($SCRIPT_ROOT + '/census_correlation/' + city, function(json) {
 		var series = []
-		$.each(json.results['2010_POP'], function(index, scatter_x) {
-			var scatter_y = json.results['avg_annual_crimes'][index];
+
+		scatterX = $("#xDropdown option:selected").text();
+		scatterY = $("#yDropdown option:selected").text();
+
+		createDropdownScatter(json);
+		$.each(json.results[scatterX], function(index, scatter_x) {
+			var scatter_y = json.results[scatterY][index];
 			var label = json.results['COMMUNITY'][index];
 			if (label == community_name) {
 				var color = "#FF0000";
@@ -689,13 +753,13 @@ function scatterCensus() {
 			        xAxis: {
 			        	enabled: true,
 			        	title: {
-			        		text: "2010_POP"
+			        		text: scatterX
 			        	}
 			        },
 			        yAxis: {
 			        	enabled: true,
 			        	title: {
-			        		text: "avg_annual_crimes"
+			        		text: scatterY
 			        	}
 			        },
 			        title: {
@@ -703,7 +767,7 @@ function scatterCensus() {
 			            style: {"fontSize": "14px"}
 			        },
 			        tooltip: {
-			        	pointFormat: '2010_POP: <b>{point.x:,.0f}</b><br>avg_annual_crimes: <b>{point.y:,.0f}</b><br/>' 
+			        	pointFormat: '{scatterX}: <b>{point.x:,.0f}</b><br>{scatterY}: <b>{point.y:,.0f}</b><br/>' 
 			        },
 			        series: series
 			});

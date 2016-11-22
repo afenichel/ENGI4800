@@ -51,6 +51,14 @@ div#view-side.map {
     margin: auto;
 }
 
+li.dropdown {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    z-index: 999;
+    margin: auto;
+}
+
 #myDropdown {
     top: 0px;
     position: absolute;
@@ -105,7 +113,7 @@ div#view-side.map {
 }
 
 #chart4 {
-    top: 490px;
+    top: 520px;
     right: 0; 
     width: 500px;
     height: 400px;
@@ -145,6 +153,21 @@ div.btn-group {
     text-align: center;
 }
 
+div#censusDropdownX {
+    top: 500px;
+    right: 270px; 
+    position: absolute;
+    z-index: 100;
+    padding-right: 20px;
+}
+
+div#censusDropdownY {
+    top: 500px;
+    right: 20px; 
+    position: absolute;
+    z-index: 100;
+    padding-right: 20px;
+}
 div.ui-content {
     width: 1140px;
     margin: auto;

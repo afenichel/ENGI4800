@@ -77,7 +77,7 @@ def census_scatter(city):
     crime_obj = crime_dict["census_correlation"]
     crime_data = crime_obj.data[['COMMUNITY', 'Community Area']]
     crime_data['avg_annual_crimes'] = crime_obj.data[crime_obj.date_list].mean(axis=1)
-    census_extended = crime_obj.read_census_extended()
+    census_extended = crime_obj.read_census_extended().dropna(axis=1)
     census_data = crime_data.merge(census_extended, left_on='COMMUNITY', right_on='GEOG').fillna(0)
     return jsonify({'results': census_data.to_dict()})
 
