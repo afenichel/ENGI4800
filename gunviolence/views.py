@@ -61,7 +61,7 @@ def monthlty_data(api_endpoint, city, dt_filter, map_dict=map_dict):
     return jsonify({'selected_dt': dt_filter, 'map_dict': map_dict, 'polyargs': polyargs, 'results': crime_data.to_dict()})
 
 @app.route('/community_trends/<string:city>/<int:community_id>')
-def community_data(city, community_id, map_dict=map_dict):
+def community_data(city, community_id):
     crime_obj = crime_dict["community"]
     filter_zeros = False
     crime_data = crime_obj.geom_to_list(crime_obj.data).fillna(0)
@@ -72,7 +72,14 @@ def community_data(city, community_id, map_dict=map_dict):
     return jsonify({'meta': meta.to_dict(), 'results': results.to_dict()})
 
 
-
+@app.route('/census_correlation/<string:city>')
+def census_scatter(city):
+    crime_obj = crime_dict["census_correlation"]
+    crime_data = crime_obj.data[['COMMUNITY', 'Community Area']]
+    crime_data['avg_annual_crimes'] = crime_obj.data[crime_obj.date_list].mean(axis=1)
+    census_extended = crime_obj.read_census_extended()
+    census_data = crime_data.merge(census_extended, left_on='COMMUNITY', right_on='GEOG').fillna(0)
+    return jsonify({'results': census_data.to_dict()})
 
 @app.route('/census/<string:city>')
 def community(city):

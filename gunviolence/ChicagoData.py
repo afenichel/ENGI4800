@@ -126,7 +126,10 @@ class ChicagoData():
 		os.system("curl 'https://datahub.cmap.illinois.gov/dataset/1d2dd970-f0a6-4736-96a1-3caeb431f5e4/resource/8c4e096e-c90c-4bef-9cf1-9028d094296e/download/ReferenceCCA20102014.csv' -o '%sCMAP_census_data.csv'" % self.DATA_PATH)
 		return self
 
-
+	def read_census_extended(self):
+		census_extended = pd.read_csv("gunviolence/data/chicago/CMAP_census_data.csv")
+		census_extended['GEOG'] = census_extended['GEOG'].map(lambda x: x.upper())
+		return census_extended
 
 	@classmethod
 	def geom_to_list(cls, df):
@@ -200,6 +203,7 @@ class ChicagoData():
 				indexes.append(i)
 		self.df.loc[indexes, 'WEAPON_FLAG'] = 1
 		return self
+
 
 
 

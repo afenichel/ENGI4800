@@ -23,9 +23,9 @@ body {
 
 
 
-#view-side {
+div#view-side.map {
     width: 100%;
-    height: 100%;
+    height: 1000px;
     position: absolute;
     left: 0;
     z-index: 0;  
@@ -45,9 +45,10 @@ body {
 
 .dropdown {
     position: absolute;
-    right: 10px;
-    top: 10px;
+    right: 40px;
+    top: 50px;
     z-index: 999;
+    margin: auto;
 }
 
 #myDropdown {
@@ -55,6 +56,7 @@ body {
     position: absolute;
     z-index: 100;
     right: 15px;
+    width: 300px;
     margin-right: 75px;
 }
 
@@ -72,7 +74,7 @@ body {
 }
 
 #chart1 {
-    top: 40px;
+    top: 90px;
     right: 0; 
     width: 500px;
     height: 400px;
@@ -83,9 +85,9 @@ body {
 }
 
 #chart2 {
-    top: 40px;
+    top: 90px;
     width: 600px;
-    height: 300px;
+    height: 400px;
     right: 0px; 
     position: absolute;
     z-index:100;
@@ -93,9 +95,9 @@ body {
 }
 
 #chart3 {
-    top: 340px;
+    top: 490px;
     width: 600px;
-    height: 300px;
+    height: 400px;
     right: 0px; 
     position: absolute;
     z-index:100;
@@ -103,7 +105,7 @@ body {
 }
 
 #chart4 {
-    top: 40px;
+    top: 490px;
     right: 0; 
     width: 500px;
     height: 400px;

@@ -91,11 +91,11 @@ function sliderOption() {
 	if ($('.form-check-input[value="community"]').is(':checked')) {
 		if (community_name.toUpperCase()==city.toUpperCase()) {
 			$("#chart1").hide();
+			$("#chart4").hide();
 			$("#myDropdown").hide();
 		}
 		$("#chart2").hide();
 		$("#chart3").hide();
-		$("#chart4").hide();
 		$.getJSON($SCRIPT_ROOT + '/community/' + city + '/' + selected_dt, function(json) {
 			res = json;
 			removeMarkers();
@@ -384,6 +384,7 @@ function createDropdownPoly() {
 	
 	$("#myDropdown").show();
 	$("#chart1").show();
+	$("#chart4").show();
 
 }
 
@@ -621,6 +622,14 @@ function chartCensus() {
 			    chart: {
 		            type: 'column'
 		        },
+		        legend: {
+		            align: 'right',
+		            verticalAlign: 'top',
+		            layout: 'vertical',
+		            floating: true,
+		            x: 0,
+		            y: 50
+		        },
 		        title: {
 		            text: 'SOCIOECONOMIC CENSUS DATA 2008-2012',
 		            style: {"fontSize": "14px"}
@@ -641,6 +650,66 @@ function chartCensus() {
 	});
 }
 
+
+function scatterCensus() {
+	$.getJSON($SCRIPT_ROOT + '/census_correlation/' + city, function(json) {
+		var series = []
+		$.each(json.results['2010_POP'], function(index, scatter_x) {
+			var scatter_y = json.results['avg_annual_crimes'][index];
+			var label = json.results['COMMUNITY'][index];
+			if (label == community_name) {
+				var color = "#FF0000";
+				var zIndex = 100;
+				var symbol = 'diamond';
+				var radius = 6
+			} else {
+				var color = "#808080";
+				var zIndex = 0;
+				var symbol = 'circle';
+				var radius = 4;
+			}
+			series.push({data: [[scatter_x, scatter_y]], 
+						color: color, 
+						name: label, 
+						marker: {symbol: symbol, radius: radius}, 
+						zIndex: zIndex});
+		});
+
+		$(function () {
+		    cencsusScatter = Highcharts.chart('chart4', {
+		    	credits: {
+						enabled: false
+					},
+				    chart: {
+			            type: 'scatter'
+			        },
+			        legend: {
+			        	enabled: false
+			        },
+			        xAxis: {
+			        	enabled: true,
+			        	title: {
+			        		text: "2010_POP"
+			        	}
+			        },
+			        yAxis: {
+			        	enabled: true,
+			        	title: {
+			        		text: "avg_annual_crimes"
+			        	}
+			        },
+			        title: {
+			            text: 'CENSUS DATA 2010-2014',
+			            style: {"fontSize": "14px"}
+			        },
+			        tooltip: {
+			        	pointFormat: '2010_POP: <b>{point.x:,.0f}</b><br>avg_annual_crimes: <b>{point.y:,.0f}</b><br/>' 
+			        },
+			        series: series
+			});
+		});
+	});
+}
 
 function drawPoly(res) {
 	if (res.results.hasOwnProperty(res.selected_dt)) {
@@ -714,6 +783,7 @@ function clickPoly(event) {
 	prev_poly = this;
 	createDropdownPoly();
 	chartCensus();
+	scatterCensus();
 	addCommunitySeries(community_id);
 	var dt = document.getElementById("date-label");
 	var dt_list = getMonthName(selected_dt);
