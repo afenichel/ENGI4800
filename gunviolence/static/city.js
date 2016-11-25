@@ -159,6 +159,10 @@ function sliderOption() {
 	}
 
 	if ($('.form-check-input[value="markers"]').is(':checked')) {
+		$("#xDropdown").hide();
+		$("#yDropdown").hide();
+		$("#censusDropdownX").hide();
+		$("#censusDropdownY").hide();
 		$("#chart1").hide();
 		$("#chart2").show();
 		$("#chart3").show();
@@ -290,6 +294,7 @@ function createDropdownScatter(res) {
 	    optY.appendChild(yText);
 		document.getElementById("yDropdown").appendChild(optY);
 	});
+	$("#chart4").show()
 	$("#xDropdown").show();
 	$("#yDropdown").show();
 	$("#censusDropdownX").show();
@@ -443,8 +448,6 @@ function createDropdownPoly() {
 	
 	$("#myDropdown").show();
 	$("#chart1").show();
-	$("#chart4").show();
-
 }
 
 function chartCrimeTypes() {

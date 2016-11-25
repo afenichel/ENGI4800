@@ -2,11 +2,17 @@ from gunviolence import app
 from flask import Flask, render_template, url_for, jsonify
 from werkzeug.serving import run_simple
 from ConfigUtil import config
-from gunviolence.ChicagoData import crime_dict
+from gunviolence.NewYorkData import crime_dict as crime_dict_newyork
+from gunviolence.ChicagoData import crime_dict as crime_dict_chicago
 import pandas as pd
 import numpy as np
 import random
 import json
+
+crime_dict = {}
+crime_dict['chicago'] = crime_dict_chicago
+crime_dict['new_york'] = crime_dict_newyork
+
 
 key=config['GOOGLE_MAPS_KEY']
 
@@ -30,18 +36,18 @@ def main_page():
 
 @app.route('/city/<string:city>')
 def city(city):
-    return render_template('city.html', date_dropdown=crime_dict['community'].date_list, api_key=key, city=city)
+    return render_template('city.html', date_dropdown=crime_dict[city]['community'].date_list, api_key=key, city=city)
 
 @app.route('/trends/<string:city>')
 def trends(city):
-    data = crime_dict['trends'].data.set_index('CITY')
+    data = crime_dict[city]['trends'].data.set_index('CITY')
     data.index = [i.lower() for i in data.index]
     return jsonify(data.T.to_dict())
 
 @app.route('/<string:api_endpoint>/<string:city>/<string:dt_filter>')
 def monthlty_data(api_endpoint, city, dt_filter, map_dict=map_dict):
     map_dict['center'] = tuple(config['center'][city])
-    crime_obj = crime_dict[api_endpoint]
+    crime_obj = crime_dict[city][api_endpoint]
     filter_zeros = True
     if api_endpoint=="community":
         filter_zeros = False
@@ -62,7 +68,7 @@ def monthlty_data(api_endpoint, city, dt_filter, map_dict=map_dict):
 
 @app.route('/community_trends/<string:city>/<int:community_id>')
 def community_data(city, community_id):
-    crime_obj = crime_dict["community"]
+    crime_obj = crime_dict[city]["community"]
     filter_zeros = False
     crime_data = crime_obj.geom_to_list(crime_obj.data).fillna(0)
     crime_data = crime_data[crime_data['Community Area']==community_id]
@@ -74,7 +80,7 @@ def community_data(city, community_id):
 
 @app.route('/census_correlation/<string:city>')
 def census_scatter(city):
-    crime_obj = crime_dict["census_correlation"]
+    crime_obj = crime_dict[city]["census_correlation"]
     crime_data = crime_obj.data[['COMMUNITY', 'Community Area']]
     crime_data['avg_annual_crimes'] = crime_obj.data[crime_obj.date_list].mean(axis=1)
     census_extended = crime_obj.read_census_extended().dropna(axis=1)
@@ -83,7 +89,7 @@ def census_scatter(city):
 
 @app.route('/census/<string:city>')
 def community(city):
-    crime_obj = crime_dict['community']
+    crime_obj = crime_dict[city]['community']
     data = crime_obj.data
     crime_data = crime_obj.geom_to_list(data)
     community_meta = crime_obj.communities(crime_data)

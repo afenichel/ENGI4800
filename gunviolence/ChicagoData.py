@@ -364,8 +364,8 @@ def crimes(dt_format,  pivot_cols, *args, **kwargs):
 
 
 crime_dict={}
-# cd = ChicagoData()
-# cd.initData(download_metadata=args.download_metadata, download_data=args.download_data)
+cd = ChicagoData()
+cd.initData(download_metadata=args.download_metadata, download_data=args.download_data)
 crime_dict['community'] = community_crimes('%Y-%m', ['WEAPON_FLAG', 1], csv='community_pivot.csv', srepull=args.repull)
 crime_dict['census_correlation'] = community_crimes('%Y', ['WEAPON_FLAG', 1], ['Year', [2010, 2011, 2012, 2013, 2014]], csv='census_correlation.csv', repull=args.repull)
 crime_dict['crime_location'] = crime_locations('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
