@@ -133,19 +133,25 @@ class NewYorkData():
 		return df
 
 	def _get_area_name(self, df, meta_key, col):
-		area_data = self.geom_to_list(self.meta[meta_key])
+		area_data = self.meta[meta_key].copy()
+		area_data = self.geom_to_list(area_data)
 		for c in area_data.columns: 
 			if re.match('the_geom.*', c):
-				area_data['path'] = area_data[c].map(lambda x: Path(x))
+				self.meta[meta_key]['path'] = area_data[c].map(lambda x: Path(x))
 		df[col] = df.index.map(lambda x: self._match_neighborhood(x, df, meta_key, col))
 		df[col] = df[col].map(lambda x: x[0] if len(x)>0 else np.nan)
-		df = df.merge(area_data, how='left', on=col, suffixes=('_%s' % meta_key, ''))
-		return df[df['Community Area'].notnull()]
+		df = df.merge(self.meta[meta_key], how='left', on=col, suffixes=('_%s' % meta_key, ''))
+		df.rename(columns={'the_geom': 'the_geom_%s' % meta_key}, inplace=True)
+		return df[df[col].notnull()]
 
 	def _match_neighborhood(self, x, df, meta_key, col):
 		lat = float(df.ix[x]['Latitude'])
 		lng = float(df.ix[x]['Longitude'])
-		return [row[col] for i, row in self.meta[meta_key].iterrows() if row['path'].contains_point([lat, lng])]
+		area_data = self.meta[meta_key].copy()
+		if meta_key=='community':
+			area_data['use_flag'] = area_data['COMMUNITY'].map(lambda x: 1 if not re.match('park-cemetery-etc.*|Airport', x) else 0)
+			area_data = area_data[area_data.use_flag==1]
+		return [row[col] for i, row in area_data.iterrows() if row['path'].contains_point([lat, lng])]
 
 	@classmethod
 	def geom_to_list(cls, df):
@@ -174,10 +180,9 @@ class NewYorkData():
 		community = dict()
 		community.setdefault('All', {})
 
-		econ_census = pd.read_csv("gunviolence/data/economic_census.csv").rename({'GeoID': 'Community Area Number'})
-		demo_census = pd.read_csv("gunviolence/data/demo_census.csv").rename({'GeoID': 'Community Area Number'})
-		census = econ_census.merge(demo_census, on='Community Area Number').set_index('Community Area Number')
-		census.index = [str(int(idx)) if idx!="All" else idx for idx in census.index]
+		econ_census = pd.read_csv("gunviolence/data/new_york/economic_census_data.csv")
+		demo_census = pd.read_csv("gunviolence/data/new_york/demo_census_data.csv")
+		census = econ_census.merge(demo_census, on='GeoID').rename(columns={'GeoID': 'Community Area Number'}).set_index('Community Area Number')
 
 		if set(['the_geom_community', 'Community Area']) < set(df.columns):
 			for index1, row1 in df.iterrows():
@@ -194,7 +199,6 @@ class NewYorkData():
 							community[row2['Community Area']].setdefault('adj_list', []).append(row1['Community Area'])
 		
 		community = pd.DataFrame(community).T
-		community.index =  [str(int(idx)) if idx!="All" else idx for idx in community.index]
 		return pd.DataFrame(community).join(census).fillna(-1)
 		
 
@@ -252,6 +256,9 @@ class PivotData(NewYorkData):
 			data = self.get_precinct_name(data)
 		sep = '---'
 		data['Period'] = data['Date'].map(lambda x: datetime.strptime(x, '%m/%d/%Y').strftime(self.dt_format))
+		print data
+		for c in data.columns:
+			print c
 		counts = data.fillna(0).groupby(['Period']+self.fields, as_index=False).count()
 		counts = counts.iloc[:, 0:len(self.fields)+2]
 		counts.columns = ['Period']+self.fields+['count']
@@ -299,11 +306,11 @@ class PivotData(NewYorkData):
 if __name__=="__main__":
 	csv = 'community_pivot.csv'
 	fields = ['Community Area', 'COMMUNITY', 'the_geom_community']
-	p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv)
+	p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
 
-	# csv = 'community_marker.csv'
-	# fields = ['Latitude', 'Longitude', 'Community Area', 'Primary Type']
-	# p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv)
+	csv = 'community_marker.csv'
+	fields = ['Latitude', 'Longitude', 'Community Area', 'Primary Type']
+	p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
 
 	# csv = 'precinct_marker.csv'
 	# fields = ['Latitude', 'Longitude', 'Precinct', 'Primary Type']
@@ -316,3 +323,7 @@ if __name__=="__main__":
 	# csv = 'incident_marker.csv'
 	# fields = ['Latitude', 'Longitude', 'Location', 'Primary Type']
 	# p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv)
+
+	csv = 'census_correlation.csv'
+	fields = ['Community Area', 'COMMUNITY', 'the_geom_community']
+	p = PivotData(fields, '%Y', ['WEAPON_FLAG', 1], csv=csv, repull=True)
