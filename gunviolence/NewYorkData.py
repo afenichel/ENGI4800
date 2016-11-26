@@ -12,7 +12,6 @@ from sklearn.cluster import DBSCAN
 import requests
 import json
 from matplotlib.path import Path
-from runserver import args
 
 
 class NewYorkData():
@@ -58,6 +57,7 @@ class NewYorkData():
 	def read_data(self, limit=None):
 		self.df = pd.read_csv(self.CSV_FILE, nrows=limit, dtype={'CMPLNT_NUM': str, 'KY_CD': str, 'PD_CD': str, 'ADDR_PCT_CD': str, 'PARKS_NM': str, 'X_COORD_CD': str, 'Y_COORD_CD': str, 'Latitude': str, 'Longitude': str})
 		self.df.rename(columns={'RPT_DT': 'Date', 'PREM_TYP_DESC': 'Location Description', 'Lat_Lon': 'Location', 'BORO_NM': 'DIST_NUM', 'OFNS_DESC': 'Primary Type', 'PD_DESC': 'Description'}, inplace=True)
+		self.df = self.df[self.df.Location.notnull()]
 		return self	
 
 	def read_meta(self):
@@ -124,31 +124,28 @@ class NewYorkData():
 		return pd.DataFrame(neighborhood_data).rename(columns={'NTAName': 'COMMUNITY', 'NTACode': 'Community Area'})
 
 	def get_neighborhood_name(self, df):
-		# neighborhood_data = cls._pull_geom()
-		neighborhood_data = self.geom_to_list(self.meta['community'])
-		for c in neighborhood_data.columns: 
-			if re.match('the_geom.*', c):
-				neighborhood_data['path'] = neighborhood_data[c].map(lambda x: Path(x))
-		df['Community Area'] = df.index.map(lambda x: self._match_neighborhood(x, df, 'community', 'Community Area'))
-		df['Community Area'] = df['Community Area'].map(lambda x: x[0] if len(x)>0 else np.nan)
+		df = self._get_area_name(df, 'community', 'Community Area')
 		df['Community Area Number'] = df['Community Area']
 		return df
 	
 	def get_precinct_name(self, df):
-		precint_data = self.meta['precinct']
-		precint_data = self.geom_to_list(precint_data)
-		for c in precint_data.columns: 
-			if re.match('the_geom.*', c):
-				precint_data['path'] = precint_data[c].map(lambda x: Path(x))
-		df['Precinct'] = df.index.map(lambda x: self._match_neighborhood(x, df, 'precinct', 'Precinct'))
-		df['Precinct'] = df['Precinct'].map(lambda x: x[0] if len(x)>0 else np.nan)
+		df = self._get_area_name(df, 'precinct', 'Precinct')
 		return df
 
+	def _get_area_name(self, df, meta_key, col):
+		area_data = self.geom_to_list(self.meta[meta_key])
+		for c in data.columns: 
+			if re.match('the_geom.*', c):
+				area_data['path'] = area_data[c].map(lambda x: Path(x))
+		df[col] = df.index.map(lambda x: self._match_neighborhood(x, df, meta_key, col))
+		df[col] = df[col].map(lambda x: x[0] if len(x)>0 else np.nan)
+		df = df.merge(area_data, how='left', on=col, suffixes=('_%s' % meta_key, ''))
+		return df[df['Community Area'].notnull()]
+
 	def _match_neighborhood(self, x, df, meta_key, col):
-		neighborhood_data = self.geom_to_list(self.meta[meta_key])
 		lat = float(df.ix[x]['Latitude'])
 		lng = float(df.ix[x]['Longitude'])
-		return [row[col] for i, row in neighborhood_data.iterrows() if row['path'].contains_point([lat, lng])]
+		return [row[col] for i, row in self.meta[meta_key].iterrows() if row['path'].contains_point([lat, lng])]
 
 	@classmethod
 	def geom_to_list(cls, df):
@@ -161,9 +158,12 @@ class NewYorkData():
 	@staticmethod
 	def _parse_geom(coords):
 		if isinstance(coords, basestring):
-			coord_sets = re.match("MULTIPOLYGON \(\(\((.*)\)\)\)", coords).group(1)
-			coord_strings = [re.sub("\(|\)", "", c).split(" ") for c in coord_sets.split(", ")]
-			coord_list = tuple([(float(c[1]), float(c[0])) for c in coord_strings])
+			if str(coords) != '0':
+				coord_sets = re.match("MULTIPOLYGON \(\(\((.*)\)\)\)", coords).group(1)
+				coord_strings = [re.sub("\(|\)", "", c).split(" ") for c in coord_sets.split(", ")]
+				coord_list = tuple([(float(c[1]), float(c[0])) for c in coord_strings])
+			else:
+				coord_list = tuple([])
 		elif isinstance(coords, (list, tuple)):
 			coord_list = tuple(coords)
 		return coord_list
@@ -242,20 +242,14 @@ class PivotData(NewYorkData):
 		else:
 			self.initData(**kwargs)
 			self.pivot()
-		
-
 
 	def pivot(self):
 		data = self.df.copy()
 		data = self.filter_df(data)
-		if ('Community Area' in self.fields) or ('Community Area Number' in self.fields):
+		if ('COMMUNITY' in self.fields) or ('Community Area' in self.fields) or ('Community Area Number' in self.fields):
 			data = self.get_neighborhood_name(data)
-			data = data.merge(self.meta['community'], how='left', left_on='Community Area', right_on='Community Area', suffixes=('', '_community'))
-			data.rename(columns={'the_geom': 'the_geom_community'}, inplace=True)
 		if 'Precinct' in self.fields:
 			data = self.get_precinct_name(data)
-			data = data.merge(self.meta['precinct'], how='left', left_on='Precinct', right_on='Precinct', suffixes=('', '_precinct'))
-			data.rename(columns={'the_geom': 'the_geom_precinct'}, inplace=True)
 		sep = '---'
 		data['Period'] = data['Date'].map(lambda x: datetime.strptime(x, '%m/%d/%Y').strftime(self.dt_format))
 		counts = data.fillna(0).groupby(['Period']+self.fields, as_index=False).count()
@@ -302,93 +296,23 @@ class PivotData(NewYorkData):
 		return dt_list
 
 
-
-def community_crimes(dt_format, *args, **kwargs):
-	data_obj = crimes(dt_format, ['Community Area', 'Community Area Number', 'the_geom_community'],  *args, **kwargs)
-	return data_obj
-
-def heatmap_crimes(dt_format, *args, **kwargs):
-	kwargs['csv'] = 'heatmap.csv'
-	data_obj = crimes(dt_format, ['Latitude', 'Longitude'],  *args, **kwargs)
-	return data_obj
-
-def district_markers(dt_format, *args, **kwargs):
-	kwargs['csv'] = 'district_marker.csv'
-	data_obj = crimes(dt_format, ['Latitude', 'Longitude', 'DIST_NUM', 'Primary Type'], *args, **kwargs)
-	return data_obj
-
-def community_markers(dt_format, *args, **kwargs):
-	kwargs['csv'] = 'community_marker.csv'
-	data_obj = crimes(dt_format, ['Latitude', 'Longitude', 'Community Area', 'Primary Type'], *args, **kwargs)
-	return data_obj
-
-def precinct_markers(dt_format, *args, **kwargs):
-	kwargs['csv'] = 'precinct_marker.csv'
-	data_obj = crimes(dt_format, ['Latitude', 'Longitude', 'Precinct', 'Primary Type'], *args, **kwargs)
-	return data_obj
-
-def incident_markers(dt_format, *args, **kwargs):
-	kwargs['csv'] = 'incident_marker.csv'
-	data_obj = crimes(dt_format, ['Latitude', 'Longitude', 'Location', 'Primary Type'], *args, **kwargs)
-	return data_obj
-
-def city_markers(dt_format, *args, **kwargs):
-	kwargs['csv'] = 'city_marker.csv'
-	data_obj = crimes(dt_format, ['Latitude', 'Longitude', 'CITY', 'Primary Type'], *args, **kwargs)
-	return data_obj
-
-def crime_descriptions(dt_format, *args, **kwargs):
-	kwargs['csv'] = 'crime_description.csv'
-	data_obj = crimes(dt_format, ['Primary Type', 'Description'], *args, **kwargs)
-	return data_obj
-
-def crime_locations(dt_format, *args, **kwargs):
-	kwargs['csv'] = 'crime_location.csv'
-	data_obj = crimes(dt_format, ['Primary Type', 'Location Description'], *args, **kwargs)
-	return data_obj
-
-def trends(dt_format, *args, **kwargs):
-	kwargs['csv'] = 'trend.csv'
-	data_obj = crimes(dt_format, ['CITY'], *args, **kwargs)
-	return data_obj
-
-def crimes(dt_format,  pivot_cols, *args, **kwargs):
-	nd = NewYorkData()
-	pivot_cols = nd._set_list(pivot_cols)
-	kwargs.setdefault('repull', False)
-	if 'csv' in kwargs:
-		filepath = nd.DATA_PATH + kwargs['csv']
-		data_obj = PivotData(pivot_cols, dt_format, *args, **kwargs)
-		print '%s saved to csv' % filepath
-	if 'pickle' in kwargs:
-		filepath = nd.DATA_PATH + kwargs['pickle']
-		if (not kwargs['repull']) and os.path.isfile(filepath):
-			f = open(filepath, 'rb')
-			data_obj = cPickle.load(f)
-			f.close()
-			print '%s pickle loaded' % filepath 
-		else:
-			data_obj = PivotData(pivot_cols, dt_format, *args, **kwargs)
-			f = open(filepath, 'wb')
-			data_obj.df = pd.DataFrame([]) 
-			cPickle.dump(data_obj, f, protocol=cPickle.HIGHEST_PROTOCOL)
-			f.close()
-			print '%s pickled' % filepath
-	return data_obj
-
-crime_dict={}
-nd = NewYorkData()
-nd.initData(download_metadata=args.download_metadata, download_data=args.download_data)
-crime_dict['incident_marker'] = incident_markers('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
-crime_dict['heatmap'] = heatmap_crimes('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
-crime_dict['crime_location'] = crime_locations('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
-crime_dict['community'] = community_crimes('%Y-%m', ['WEAPON_FLAG', 1], csv='community_pivot.csv', repull=args.repull)
-crime_dict['community_marker'] = community_markers('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
-crime_dict['district_marker'] = district_markers('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
-crime_dict['trends'] = trends('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
-crime_dict['beat_marker'] = precinct_markers('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
-crime_dict['city_marker'] = city_markers('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
-crime_dict['crime_description'] = crime_descriptions('%Y-%m', ['WEAPON_FLAG', 1], repull=args.repull)
-
 if __name__=="__main__":
-	pd = PivotData(['Latitude', 'Longitude'], '%Y-%m', ['WEAPON_FLAG', 1], csv='heatmap.csv')
+	csv = 'community_pivot.csv'
+	fields = ['Community Area', 'COMMUNITY', 'the_geom_community']
+	p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv)
+
+	# csv = 'community_marker.csv'
+	# fields = ['Latitude', 'Longitude', 'Community Area', 'Primary Type']
+	# p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv)
+
+	# csv = 'precinct_marker.csv'
+	# fields = ['Latitude', 'Longitude', 'Precinct', 'Primary Type']
+	# p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv)
+
+	# csv = 'heatmap.csv'
+	# fields = ['Latitude', 'Longitude']
+	# p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv)
+
+	# csv = 'incident_marker.csv'
+	# fields = ['Latitude', 'Longitude', 'Location', 'Primary Type']
+	# p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv)

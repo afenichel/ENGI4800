@@ -834,6 +834,7 @@ function clickPoly(event) {
 	var latlngclicked = event.latLng;
 	var idx = map_polygons.indexOf(this);
 	var r = getResults();
+	console.log(r.results)
 	community_name = r.results.COMMUNITY[idx];
 	community_id = r.results['Community Area'][idx].toString() 
 	var content = "<p>" + r.results.COMMUNITY[idx] + "</p><p>Gun crimes: " + r.results[selected_dt][idx] + "</p>";
