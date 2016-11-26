@@ -134,7 +134,7 @@ class NewYorkData():
 
 	def _get_area_name(self, df, meta_key, col):
 		area_data = self.geom_to_list(self.meta[meta_key])
-		for c in data.columns: 
+		for c in area_data.columns: 
 			if re.match('the_geom.*', c):
 				area_data['path'] = area_data[c].map(lambda x: Path(x))
 		df[col] = df.index.map(lambda x: self._match_neighborhood(x, df, meta_key, col))
