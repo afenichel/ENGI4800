@@ -86,7 +86,7 @@ def monthlty_data(api_endpoint, city, dt_filter, map_dict=map_dict):
     elif api_endpoint=='community':
         csv = 'community_pivot.csv'
         fields = ['Community Area', 'COMMUNITY', 'the_geom_community']
-    elif api_endpoint=='precinct':
+    elif api_endpoint=='precinct_marker':
         csv = 'precinct_pivot.csv'
         fields = ['Precinct', 'the_geom_precinct']
     crime_obj = crimes(city, '%Y-%m', fields,  ['WEAPON_FLAG', 1], csv=csv) 
@@ -108,7 +108,7 @@ def monthlty_data(api_endpoint, city, dt_filter, map_dict=map_dict):
     polyargs['stroke_weight'] = .5
     return jsonify({'selected_dt': dt_filter, 'map_dict': map_dict, 'polyargs': polyargs, 'results': crime_data.to_dict()})
 
-@app.route('/community_trends/<string:city>/<int:community_id>')
+@app.route('/community_trends/<string:city>/<string:community_id>')
 def community_data(city, community_id):
     csv = 'community_pivot.csv'
     fields = ['Community Area', 'COMMUNITY', 'the_geom_community']
@@ -116,6 +116,8 @@ def community_data(city, community_id):
     # crime_obj = crime_dict[city]["community"]
     filter_zeros = False
     crime_data = crime_obj.geom_to_list(crime_obj.data).fillna(0)
+    if city==chicago:
+        community_id=int(community_id)
     crime_data = crime_data[crime_data['Community Area']==community_id]
     results = crime_data[crime_obj.date_list].reset_index(drop=True).ix[0]
     meta_cols = set(crime_data.columns) - set(crime_obj.date_list)
@@ -132,7 +134,11 @@ def census_scatter(city):
     crime_data = crime_obj.data[['COMMUNITY', 'Community Area']]
     crime_data['avg_annual_crimes'] = crime_obj.data[crime_obj.date_list].mean(axis=1)
     census_extended = crime_obj.read_census_extended().dropna(axis=1)
-    census_data = crime_data.merge(census_extended, left_on='COMMUNITY', right_on='GEOG').fillna(0)
+    if city=='chicago':
+        right_on='GEOG'
+    elif city=='new_york':
+        right_on='GeogName'
+    census_data = crime_data.merge(census_extended, left_on='COMMUNITY', right_on=right_on).fillna(0)
     return jsonify({'results': census_data.to_dict()})
 
 @app.route('/census/<string:city>')

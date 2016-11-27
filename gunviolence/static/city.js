@@ -187,11 +187,23 @@ function sliderOption() {
 			var endpoint = 'district_marker';
 			field = 'DIST_NUM';
 		} else if (z == 12 ) {
-			var endpoint = 'community_marker';
-			field = 'Community Area';
+			if (city=='chicago'){
+				field = 'Community Area';
+				var endpoint = 'community_marker';
+			}
+			else if (city=='new_york'){
+				field = 'Precinct';
+				var endpoint = 'precinct_marker';
+			}
 		} else if (z == 13 ) {
-			var endpoint = 'beat_marker';
-			field = 'BEAT_NUM'
+			if (city=='chicago'){
+				field = 'BEAT_NUM';
+				var endpoint = 'beat_marker';
+			}
+			else if (city=='new_york'){
+				field = 'Community Area';
+				var endpoint = 'community_marker';
+			}
 		} else {
 			var endpoint = 'incident_marker';
 			field = 'Location'
