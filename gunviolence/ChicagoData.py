@@ -10,6 +10,7 @@ from statsmodels.api import OLS
 import cPickle
 from sklearn.cluster import DBSCAN
 from runserver import args
+from matplotlib import colors, cm
 
 
 
@@ -265,19 +266,21 @@ class PivotData(ChicagoData):
 		data.loc[:, 'fill_opacity'] = data.loc[:, 'fill_opacity'] / max(data.loc[:, 'fill_opacity'] )
 		return data
 
+	def color_data(self, dt_filter, filter_zero=True):
+		h = cm.get_cmap('hot')
+		data = self.norm_data(dt_filter, filter_zero)
+		data.loc[:, 'fill_color'] = data.loc[:, 'fill_opacity'].map(lambda x: colors.rgb2hex(h(1.0-x)).upper())
+		return data
+
 	def clusters(self):
 		kms_per_radian = 6371.0088
 		epsilon = 1.5 / kms_per_radian
 		db = DBSCAN(eps=epsilon, min_samples=1, algorithm='ball_tree', metric='haversine')
 		for d in self.date_list:
 			data = self._data[self._data[d]>0][['Longitude', 'Latitude']]
-			print 'DATA\n', data
 			db.fit(np.radians(data))
 			cluster_labels = db.labels_
 			num_clusters = len(set(cluster_labels))
-			for n in set(cluster_labels(num_clusters)):
-				print n
-			print cluster_labels
 	
 	@property
 	def data(self):

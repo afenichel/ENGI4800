@@ -340,7 +340,7 @@ function drawMarkers(res, field) {
 			label: '',
 			icon: {
 				path: google.maps.SymbolPath.CIRCLE,
-				fillOpacity: 0.3,
+				fillOpacity: 0.4,
 				strokeOpacity: 0.5,
 				strokeWeight: 2,
 				strokeColor: res.polyargs.stroke_color,
@@ -816,8 +816,10 @@ function drawPoly(res) {
 		        strokeColor: res.polyargs.stroke_color,
 		        strokeOpacity: res.polyargs.stroke_opacity,
 		        strokeWeight: res.polyargs.stroke_weight,
-		        fillOpacity: res.results.fill_opacity[i],
-		        fillColor: res.polyargs.fill_color,
+		        // fillOpacity: res.results.fill_opacity[i],
+		        // fillColor: res.polyargs.fill_color,
+		        fillOpacity: res.polyargs.fill_opacity,
+		        fillColor: res.results.fill_color[i],
 		        path: polypaths[i],
 		        map: map,
 		        geodesic: true
@@ -838,7 +840,8 @@ function updatePoly(res) {
 
 		// add polygons
 		for(i = 0; i < map_polygons.length; i++) {
-			map_polygons[i].setOptions({fillOpacity: res.results.fill_opacity[i]});
+			// map_polygons[i].setOptions({fillOpacity: res.results.fill_opacity[i]});
+			map_polygons[i].setOptions({fillOpacity: res.polyargs.fill_opacity});
 		}
 	}
 }
@@ -895,7 +898,8 @@ function hoverPoly() {
 
 function unhoverPoly(p) {
 	var idx = map_polygons.indexOf(p);
-	p.setOptions({fillOpacity: res.results.fill_opacity[idx]});
+	// p.setOptions({fillOpacity: res.results.fill_opacity[idx]});
+	p.setOptions({fillOpacity: res.polyargs.fill_opacity});
 }
 
 

@@ -12,6 +12,7 @@ from sklearn.cluster import DBSCAN
 import requests
 import json
 from matplotlib.path import Path
+from matplotlib import colors, cm
 
 
 class NewYorkData():
@@ -356,6 +357,11 @@ class PivotData(NewYorkData):
 		data.loc[:, 'fill_opacity'] = data.loc[:, 'fill_opacity'] / max(data.loc[:, 'fill_opacity'] )
 		return data
 
+	def color_data(self, dt_filter, filter_zero=True):
+		h = cm.get_cmap('hot')
+		data = self.norm_data(dt_filter, filter_zero)
+		data.loc[:, 'fill_color'] = data.loc[:, 'fill_opacity'].map(lambda x: colors.rgb2hex(h(1.0-x)).upper())
+		return data
 	
 	@property
 	def data(self):
