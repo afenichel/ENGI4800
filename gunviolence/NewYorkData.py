@@ -87,6 +87,11 @@ class NewYorkData():
 		census = census.merge(demo_census, on=identifiers)
 		census = census.merge(hous_census, on=identifiers)
 		census = census.merge(soc_census, on=identifiers)
+		for c in census.columns:
+			if c not in identifiers:
+				if census[c].dtype=='object':
+					census[c] = census[c].str.replace(",", "")
+					census[c] = census[c].apply(pd.to_numeric)
 
 		col_filter = []
 		col_levels = []
