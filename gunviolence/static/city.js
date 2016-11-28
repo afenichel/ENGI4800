@@ -25,7 +25,7 @@ var scatterX;
 var scatterY;
 
 
-
+chartCrimeSeries();
 $.getJSON($SCRIPT_ROOT + '/community_pivot/' + city + '/0', function(json) {
 		res = json;
 	});
@@ -40,7 +40,7 @@ $('.btn-primary').on('click', function(){
 }); 
 
 google.maps.event.addDomListener(window, 'load', initMap);
-chartCrimeSeries();
+
 
 function initMap() {
 	$("#myDropdown").hide();
@@ -56,7 +56,7 @@ function initMap() {
 	        center: new google.maps.LatLng(res.map_dict.center[0], res.map_dict.center[1]),
 	        zoom: res.map_dict.zoom,
 	        zoomControlOptions: {
-		        position: google.maps.ControlPosition.LEFT_BOTTOM
+		        position: google.maps.ControlPosition.LEFT_CENTER
 		    },
 	        mapTypeId: google.maps.MapTypeId.ROADMAP,
 	        zoomControl: res.map_dict.zoom_control,
@@ -180,13 +180,13 @@ function sliderOption() {
 		}
 		z = map.getZoom();
 		console.log('z'+z)
-		if (z < 11) {
+		if (z < 10) {
 			var endpoint = 'city_marker';
 			field = 'CITY';
-		} else if (z == 11) {
+		} else if (z == 10) {
 			var endpoint = 'district_marker';
 			field = 'DIST_NUM';
-		} else if (z == 12 ) {
+		} else if (z == 11 ) {
 			if (city=='chicago'){
 				field = 'Community Area';
 				var endpoint = 'community_marker';
@@ -195,7 +195,7 @@ function sliderOption() {
 				field = 'Precinct';
 				var endpoint = 'precinct_marker';
 			}
-		} else if (z == 13 ) {
+		} else if (z == 12 ) {
 			if (city=='chicago'){
 				field = 'BEAT_NUM';
 				var endpoint = 'beat_marker';
@@ -311,7 +311,6 @@ function createDropdownScatter(res) {
 	$("#yDropdown").show();
 	$("#censusDropdownX").show();
 	$("#censusDropdownY").show();
-	console.log(document.getElementById("xDropdown"))
 }
 
 function drawMarkers(res, field) {
@@ -346,7 +345,7 @@ function drawMarkers(res, field) {
 				strokeWeight: 2,
 				strokeColor: res.polyargs.stroke_color,
 				fillColor: res.polyargs.fill_color,
-				scale: labels[index]/Math.sqrt(Math.min.apply(null, Object.values(labels)))+5
+				scale: (labels[index]/Math.sqrt(Math.min.apply(null, Object.values(labels)))+4) * z/12
 			},
 			map: map
 		});
@@ -371,7 +370,7 @@ function hoverMarkers(event) {
 	var r = getResults();
 	var content = "<p>" + crimetype_opt + "</p><p>Gun crimes: " + Object.values(mark_labels)[idx] + "</p>";
 	var position = this.getPosition()
-	var infowindow = new google.maps.InfoWindow({content: content, position: new google.maps.LatLng(position.lat()+.01, position.lng()) });
+	var infowindow = new google.maps.InfoWindow({content: content, position: new google.maps.LatLng(position.lat()+.0001, position.lng()) });
 	infowindow.open(map);
 	prev_infowindow_marker = infowindow;
 }
@@ -568,10 +567,8 @@ function chartCrimeLocations() {
 function chartCrimeSeries() {
 	var data = [];
 	var xLabels = [];
-	console.log($SCRIPT_ROOT + '/trends/' + city )
 	$(function () {
 		$.getJSON($SCRIPT_ROOT + '/trends/' + city , function(json) {
-			console.log(json)
 			$.each(json[city], function(month, value) {
 				var data_point = {
 								color: "#000000", 
@@ -634,7 +631,6 @@ function chartCrimeSeries() {
 
 function chartCensus() {
 	census_opt = $("#myDropdown option:selected").text();
-	console.log(comm_data);
 	var adj_list = comm_data[community_id]["adj_list"];
 	var census_data = [];
 	var census_labels = [];
@@ -651,7 +647,7 @@ function chartCensus() {
 				all_data.push(all_point);
 			}
 	}
-	console.log(census_data);
+
 	series = [{
 	        	type: "column",
 	            name: census_opt,
@@ -659,9 +655,9 @@ function chartCensus() {
 	            colorByPoint: true,
 	            events: {
 	                    click: function (event) {
-	                    	console.log(event.point)
 	                    	community_name = event.point.category.toUpperCase();
-	                    	var idx = Object.values(res.results['COMMUNITY']).indexOf(community_name);
+	                    	var idx = Object.values(res.results['COMMUNITY']).indexOf(community_name.trim());
+
 							community_id = res.results['Community Area'][idx].toString();
 							if (prev_infowindow_poly) {
 						        prev_infowindow_poly.close();

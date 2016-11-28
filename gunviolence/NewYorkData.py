@@ -124,8 +124,9 @@ class NewYorkData():
 			return x
 
 	def _read_neighborhood(self):
-		precinct = pd.read_csv(self.DATA_PATH + 'tabulation_areas.csv').rename(columns={'NTAName': 'COMMUNITY', 'NTACode': 'Community Area'})
-		return precinct
+		neighborhood = pd.read_csv(self.DATA_PATH + 'tabulation_areas.csv').rename(columns={'NTAName': 'COMMUNITY', 'NTACode': 'Community Area'})
+		neighborhood['COMMUNITY'] = neighborhood['COMMUNITY'].map(lambda x: x.upper())
+		return neighborhood
 
 	def _read_precinct(self):
 		precinct = pd.read_csv(self.DATA_PATH + 'precinct.csv')
@@ -208,7 +209,7 @@ class NewYorkData():
 		lng = float(df.ix[x]['Longitude'])
 		area_data = self.meta[meta_key].copy()
 		if meta_key=='community':
-			area_data['use_flag'] = area_data['COMMUNITY'].map(lambda x: 1 if not re.match('park-cemetery-etc.*|Airport', x) else 0)
+			area_data['use_flag'] = area_data['COMMUNITY'].map(lambda x: 1 if not re.match('park-cemetery-etc.*|airport', x.lower()) else 0)
 			area_data = area_data[area_data.use_flag==1]
 		return [row[col] for i, row in area_data.iterrows() if row['path'].contains_point([lat, lng])]
 
@@ -370,7 +371,7 @@ class PivotData(NewYorkData):
 if __name__=="__main__":
 	csv = 'community_pivot.csv'
 	fields = ['Community Area', 'COMMUNITY', 'the_geom_community']
-	p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=False, download_metadata=True)
+	p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
 
 	# csv = 'precinct_marker.csv'
 	# fields = ['Latitude', 'Longitude', 'Precinct', 'Primary Type']

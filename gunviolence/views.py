@@ -77,7 +77,7 @@ def monthlty_data(api_endpoint, city, dt_filter, map_dict=map_dict):
         fields = ['Latitude', 'Longitude', 'BEAT_NUM', 'Primary Type']
     elif api_endpoint=='precinct_marker':
         csv = '%s.csv' % api_endpoint
-        fields = ['Precinct', 'the_geom_precinct']
+        fields = ['Latitude', 'Longitude', 'Precinct', 'Primary Type']
     elif api_endpoint=='city_marker':
         csv = '%s.csv' % api_endpoint
         fields = ['Latitude', 'Longitude', 'CITY', 'Primary Type']
@@ -102,7 +102,9 @@ def monthlty_data(api_endpoint, city, dt_filter, map_dict=map_dict):
         crime_data = crime_data[list(cols)]    
     else: 
         crime_data=pd.DataFrame([])
-
+    
+    if dt_filter in crime_data.columns:
+        crime_data  = crime_data.sort_values(dt_filter, ascending=False).reset_index(drop=True)
     polyargs = {}
     polyargs['stroke_color'] = '#FFFFFF' 
     polyargs['fill_color'] = '#FF0000' 
