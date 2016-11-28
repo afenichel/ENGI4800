@@ -349,16 +349,16 @@ class PivotData(NewYorkData):
 
 	def norm_data(self, dt_filter, filter_zero=True):
 		data = self.data.copy()
-		data.loc[:, dt_filter] = data[dt_filter].fillna(0)
-		if filter_zero:
-			data = data[data[dt_filter]>0].reset_index(drop=True)
-		norm = np.linalg.norm(data[dt_filter].fillna(0))
+		data.loc[:, self.date_list] = data.loc[:, self.date_list].fillna(0)
+		norm = np.linalg.norm(data.loc[:, self.date_list].fillna(0))
 		data.loc[:, 'fill_opacity'] = data[dt_filter]/norm
 		data.loc[:, 'fill_opacity'] = data.loc[:, 'fill_opacity'] / max(data.loc[:, 'fill_opacity'] )
+		if filter_zero:
+			data = data[data[dt_filter]>0].reset_index(drop=True)
 		return data
 
 	def color_data(self, dt_filter, filter_zero=True):
-		h = cm.get_cmap('hot')
+		h = cm.get_cmap('RdYlGn')
 		data = self.norm_data(dt_filter, filter_zero)
 		data.loc[:, 'fill_color'] = data.loc[:, 'fill_opacity'].map(lambda x: colors.rgb2hex(h(1.0-x)).upper())
 		return data
