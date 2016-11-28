@@ -247,12 +247,10 @@ class NewYorkData():
 	@classmethod
 	def communities(cls, df):
 		community = dict()
-		# community.setdefault('All', {})
 		census = cls._read_census()
 		
 		if set(['the_geom_community', 'Community Area']) < set(df.columns):
 			for index1, row1 in df.iterrows():
-				# community['All'].setdefault('adj_list', []).append(row1['Community Area'])
 				for index2, row2 in df.iterrows():
 					community.setdefault(row1['Community Area'], {})
 					community.setdefault(row2['Community Area'], {})

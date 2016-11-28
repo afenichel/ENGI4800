@@ -497,8 +497,10 @@ function chartCrimeTypes() {
 		            plotBackgroundColor: "#FFFFFF",
 		            backgroundColor: null,
 		            plotBorderWidth: null,
-		            plotShadow: true,
-		            type: 'bar'
+		            plotShadow: false,
+		            type: 'bar',
+		            plotBorderColor: "#373C44",
+		            plotBorderWidth: 1
 		        },
 		        tooltip: {
 		        	pointFormat: '<span style="color:{point.color}">\u25CF</span> {series.name}: <b>{point.y:,.0f}</b><br/>'
@@ -551,8 +553,10 @@ function chartCrimeLocations() {
 		        	backgroundColor: null,
 		            plotBackgroundColor: "#FFFFFF",
 		            plotBorderWidth: null,
-		            plotShadow: true,
-		            type: 'bar'
+		            plotShadow: false,
+		            type: 'bar',
+		            plotBorderColor: "#373C44",
+		            plotBorderWidth: 1
 		        },
 		        title: {
 		            text: 'Crimes by Location<br>',
@@ -605,9 +609,9 @@ function chartCrimeSeries() {
 		        chart: {
 		        	backgroundColor: null,
 		            plotBackgroundColor: null,
-		            plotBorderWidth: null,
+		            plotBorderWidth: 0,
 		            plotShadow: false,
-		            type: 'line'
+		            type: 'line',
 		        },
 		        title: {
 		            text: ''
@@ -719,7 +723,9 @@ function chartCensus() {
 		            type: 'column',
 			        plotBackgroundColor: "#FFFFFF",
 		            backgroundColor: null,
-		            plotShadow: true
+		            plotShadow: false,
+		            plotBorderColor: "#373C44",
+		            plotBorderWidth: 1
 		        },
 		        legend: {
 		            align: 'right',
@@ -789,7 +795,9 @@ function scatterCensus() {
 			            type: 'scatter',
 			            plotBackgroundColor: "#FFFFFF",
 			            backgroundColor: null,
-			            plotShadow: true
+			            plotShadow: false,
+			            plotBorderColor: "#373C44",
+			            plotBorderWidth: 1
 			        },
 			        legend: {
 			        	enabled: false
