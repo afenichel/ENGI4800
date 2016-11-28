@@ -288,7 +288,7 @@ function createDropdownScatter(res) {
 	    var yText = document.createTextNode(value);
 
 	    if (!scatterX) {
-		    if (value == 'avg_annual_crimes') {
+		    if (value == 'Avg. Annual Crimes') {
 		    	optX.setAttribute("selected", "selected");
 		    	scatterX = value;
 			  }
@@ -490,7 +490,8 @@ function chartCrimeTypes() {
 					enabled: false
 				},
 		        chart: {
-		            plotBackgroundColor: null,
+		            plotBackgroundColor: "#FFFFFF",
+		            backgroundColor: null,
 		            plotBorderWidth: null,
 		            plotShadow: false,
 		            type: 'bar'
@@ -543,7 +544,8 @@ function chartCrimeLocations() {
 					enabled: false
 				},
 		        chart: {
-		            plotBackgroundColor: null,
+		        	backgroundColor: null,
+		            plotBackgroundColor: "#FFFFFF",
 		            plotBorderWidth: null,
 		            plotShadow: false,
 		            type: 'bar'
@@ -596,6 +598,7 @@ function chartCrimeSeries() {
 					enabled: false
 				},
 		        chart: {
+		        	backgroundColor: null,
 		            plotBackgroundColor: null,
 		            plotBorderWidth: null,
 		            plotShadow: false,
@@ -708,7 +711,9 @@ function chartCensus() {
 					enabled: false
 				},
 			    chart: {
-		            type: 'column'
+		            type: 'column',
+			        plotBackgroundColor: "#FFFFFF",
+		            backgroundColor: null
 		        },
 		        legend: {
 		            align: 'right',
@@ -774,7 +779,9 @@ function scatterCensus() {
 						enabled: false
 					},
 				    chart: {
-			            type: 'scatter'
+			            type: 'scatter',
+			            plotBackgroundColor: "#FFFFFF",
+			            backgroundColor: null
 			        },
 			        legend: {
 			        	enabled: false
@@ -796,7 +803,7 @@ function scatterCensus() {
 			            style: {"fontSize": "14px"}
 			        },
 			        tooltip: {
-			        	pointFormat: '{scatterX}: <b>{point.x:,.0f}</b><br>{scatterY}: <b>{point.y:,.0f}</b><br/>' 
+			        	pointFormat: 'X: <b>{point.x:,.0f}</b><br>Y: <b>{point.y:,.0f}</b><br/>' 
 			        },
 			        series: series
 			});

@@ -13,10 +13,6 @@ import json
 from runserver import args
 
 print args
-# crime_dict = {}
-# crime_dict['chicago'] = crime_dict_chicago(args)
-# crime_dict['new_york'] = crime_dict_newyork(args)
-
 
 key=config['GOOGLE_MAPS_KEY']
 
@@ -50,7 +46,6 @@ def trends(city):
     csv = 'trend.csv'
     fields = ['CITY']
     crime_obj = crimes(city, '%Y-%m', fields,  ['WEAPON_FLAG', 1], csv=csv) 
-    # data = crime_dict[city]['trends'].data.set_index('CITY')
     data = crime_obj.data.set_index('CITY')
     data.index = [i.lower().replace(" ", "_") for i in data.index]
     return jsonify(data.T.to_dict())
@@ -58,7 +53,6 @@ def trends(city):
 @app.route('/<string:api_endpoint>/<string:city>/<string:dt_filter>')
 def monthlty_data(api_endpoint, city, dt_filter, map_dict=map_dict):
     map_dict['center'] = tuple(config['center'][city])
-    # crime_obj = crime_dict[city][api_endpoint]
     
     if api_endpoint=='heatmap':
         csv = '%s.csv' % api_endpoint
@@ -96,7 +90,6 @@ def monthlty_data(api_endpoint, city, dt_filter, map_dict=map_dict):
     if api_endpoint=="community_pivot":
         filter_zeros = False
     if dt_filter!='0':
-        # norm_data = crime_obj.norm_data(dt_filter, filter_zeros)
         norm_data = crime_obj.color_data(dt_filter, filter_zeros)
         crime_data = crime_obj.geom_to_list(norm_data)
         cols = (set(crime_data.columns) - set(crime_obj.date_list)) | set([dt_filter])
@@ -119,7 +112,6 @@ def community_data(city, community_id):
     csv = 'community_pivot.csv'
     fields = ['Community Area', 'COMMUNITY', 'the_geom_community']
     crime_obj = crimes(city, '%Y-%m', fields,  ['WEAPON_FLAG', 1], csv=csv) 
-    # crime_obj = crime_dict[city]["community"]
     filter_zeros = False
     crime_data = crime_obj.geom_to_list(crime_obj.data).fillna(0)
     if city=='chicago':
@@ -136,10 +128,9 @@ def census_scatter(city):
     csv='census_correlation.csv'
     fields = ['Community Area', 'COMMUNITY', 'the_geom_community']
     crime_obj = crimes(city, '%Y', fields,  ['WEAPON_FLAG', 1], ['Year', [2010, 2011, 2012, 2013, 2014]], csv=csv) 
-    # crime_obj = crime_dict[city]["census_correlation"]
     crime_data = crime_obj.data[['COMMUNITY', 'Community Area']]
-    crime_data['avg_annual_crimes'] = crime_obj.data[crime_obj.date_list].mean(axis=1)
-    census_extended = crime_obj.read_census_extended() #.dropna(axis=1)
+    crime_data['Avg. Annual Crimes'] = crime_obj.data[crime_obj.date_list].mean(axis=1)
+    census_extended = crime_obj.read_census_extended()
     if city=='chicago':
         left_on='COMMUNITY'
         right_on='GEOG'
@@ -154,7 +145,7 @@ def census_scatter(city):
 def community(city):
     csv = 'community_pivot.csv'
     fields = ['Community Area', 'COMMUNITY', 'the_geom_community']
-    crime_obj = crimes(city, '%Y-%m', fields,  ['WEAPON_FLAG', 1], csv=csv) #crime_dict[city]['community']
+    crime_obj = crimes(city, '%Y-%m', fields,  ['WEAPON_FLAG', 1], csv=csv) 
     data = crime_obj.data
     crime_data = crime_obj.geom_to_list(data)
     community_meta = crime_obj.communities(crime_data)
