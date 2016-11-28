@@ -280,7 +280,7 @@ function createDropdownScatter(res) {
 	    var yText = document.createTextNode(value);
 
 	    if (!scatterX) {
-		    if (index == 0) {
+		    if (value == 'avg_annual_crimes') {
 		    	optX.setAttribute("selected", "selected");
 		    	scatterX = value;
 			  }
@@ -290,7 +290,7 @@ function createDropdownScatter(res) {
 	    	}
 	    }
 	    if (!scatterY) {
-		    if (index == 1) {
+		    if (index == 0) {
 		    	optY.setAttribute("selected", "selected");
 		    	scatterY = value;
 			  }
