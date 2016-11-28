@@ -84,12 +84,16 @@ function getMonthName(selected_dt) {
 	return [monthName, yr]
 }
 
+function dateLabel() {
+	var dt = document.getElementById("date-label");
+	var dt_list = getMonthName(selected_dt);
+	dt.innerHTML = community_name.toUpperCase().replace("_", " ") + " - " + dt_list[0].toUpperCase() + ". " + dt_list[1];
+}
+
 function sliderOption() {
 	var slider_idx = $("#date-slider").val();
 	selected_dt = date_dropdown[slider_idx];
-	var dt = document.getElementById("date-label");
-	var dt_list = getMonthName(selected_dt);
-	dt.innerHTML = community_name.toUpperCase().replace("_", " ") + " - " + dt_list[0].toUpperCase() + ". " + dt_list[1];	
+	dateLabel();	
 
 	if (!$('.form-check-input:checked').val()){
 		$('.form-check-input[value="community"]').prop("checked", true)
@@ -137,6 +141,8 @@ function sliderOption() {
 		$("#chart3").hide();
 		$("#chart4").hide();
 		community_name = city;
+		dateLabel();
+		addCitySeries();
 		census_opt = null;
 		$.getJSON($SCRIPT_ROOT + '/heatmap/' + city + '/' + selected_dt, function(json) {
 			res = json;
@@ -168,6 +174,8 @@ function sliderOption() {
 		$("#chart3").show();
 		$("#chart4").hide();
 		community_name = city;
+		dateLabel();
+		addCitySeries();
 		census_opt = null;
 		if (prev_infowindow_poly) {
 		    prev_infowindow_poly.close();
@@ -670,9 +678,7 @@ function chartCensus() {
 							createDropdownPoly();
 							chartCensus();
 							addCommunitySeries(community_id);
-							var dt = document.getElementById("date-label");
-							var dt_list = getMonthName(selected_dt);
-							dt.innerHTML = community_name.toUpperCase().replace("_", " ") + " - " + dt_list[0].toUpperCase() + ". " + dt_list[1];	
+							dateLabel();	
 	                    }
 	                }
 	        }]
@@ -875,10 +881,7 @@ function clickPoly(event) {
 	chartCensus();
 	scatterCensus();
 	addCommunitySeries(community_id);
-	var dt = document.getElementById("date-label");
-	var dt_list = getMonthName(selected_dt);
-	dt.innerHTML = community_name.toUpperCase().replace("_", " ") + " - " + dt_list[0].toUpperCase() + ". " + dt_list[1];	
-
+	dateLabel();
 }
 
 function addCommunitySeries(community_id) {
@@ -886,11 +889,21 @@ function addCommunitySeries(community_id) {
 		var data = [];
 		$.each(json.results, function(month, count) {
 			data.push(count);
-			
 		});
 		$("#chart0").highcharts().series[0].setData(data);		
 	});
 }
+
+function addCitySeries() {
+	$.getJSON($SCRIPT_ROOT + "/trends/" + city, function(json) {
+		var data = [];
+		$.each(json[city], function(month, count) {
+			data.push(count);
+		});
+		$("#chart0").highcharts().series[0].setData(data);		
+	});
+}
+
 
 function hoverPoly() {
 	this.setOptions({fillOpacity: 1});
