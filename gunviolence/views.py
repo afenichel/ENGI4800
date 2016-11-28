@@ -93,7 +93,7 @@ def monthlty_data(api_endpoint, city, dt_filter, map_dict=map_dict):
     
     crime_obj = crimes(city, '%Y-%m', fields,  ['WEAPON_FLAG', 1], csv=csv) 
     filter_zeros = True
-    if api_endpoint=="community":
+    if api_endpoint=="community_pivot":
         filter_zeros = False
     if dt_filter!='0':
         # norm_data = crime_obj.norm_data(dt_filter, filter_zeros)
