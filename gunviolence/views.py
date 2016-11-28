@@ -52,43 +52,45 @@ def trends(city):
     crime_obj = crimes(city, '%Y-%m', fields,  ['WEAPON_FLAG', 1], csv=csv) 
     # data = crime_dict[city]['trends'].data.set_index('CITY')
     data = crime_obj.data.set_index('CITY')
-    data.index = [i.lower() for i in data.index]
+    data.index = [i.lower().replace(" ", "_") for i in data.index]
     return jsonify(data.T.to_dict())
 
 @app.route('/<string:api_endpoint>/<string:city>/<string:dt_filter>')
 def monthlty_data(api_endpoint, city, dt_filter, map_dict=map_dict):
     map_dict['center'] = tuple(config['center'][city])
     # crime_obj = crime_dict[city][api_endpoint]
-    if api_endpoint=='crime_location':
-        csv = 'crime_location.csv'
-        fields = ['Primary Type', 'Location Description']
-    elif api_endpoint=='heatmap':
-        csv = 'heatmap.csv'
+    
+    if api_endpoint=='heatmap':
+        csv = '%s.csv' % api_endpoint
         fields = ['Latitude', 'Longitude']
     elif api_endpoint=='incident_marker':
-        csv = 'incident_marker.csv'
+        csv = '%s.csv' % api_endpoint
         fields = ['Latitude', 'Longitude', 'Location', 'Primary Type']
     elif api_endpoint=='community_marker':
-        csv = 'community_marker.csv'
+        csv = '%s.csv' % api_endpoint
         fields = ['Latitude', 'Longitude', 'Community Area', 'Primary Type']
     elif api_endpoint=='district_marker':
-        csv = 'district_marker.csv'
+        csv = '%s.csv' % api_endpoint
         fields = ['Latitude', 'Longitude', 'DIST_NUM', 'Primary Type']
     elif api_endpoint=='beat_marker':
-        csv = 'beat_marker.csv'
+        csv = '%s.csv' % api_endpoint
         fields = ['Latitude', 'Longitude', 'BEAT_NUM', 'Primary Type']
+    elif api_endpoint=='precinct_marker':
+        csv = '%s.csv' % api_endpoint
+        fields = ['Precinct', 'the_geom_precinct']
     elif api_endpoint=='city_marker':
-        csv = 'city_marker.csv'
+        csv = '%s.csv' % api_endpoint
         fields = ['Latitude', 'Longitude', 'CITY', 'Primary Type']
     elif api_endpoint=='crime_description':
-        csv = 'crime_description.csv'
+        csv = '%s.csv' % api_endpoint
         fields = ['Primary Type', 'Description']
-    elif api_endpoint=='community':
-        csv = 'community_pivot.csv'
+    elif api_endpoint=='crime_location':
+        csv = '%s.csv' % api_endpoint
+        fields = ['Primary Type', 'Location Description']
+    elif api_endpoint=='community_pivot':
+        csv = '%s.csv' % api_endpoint
         fields = ['Community Area', 'COMMUNITY', 'the_geom_community']
-    elif api_endpoint=='precinct_marker':
-        csv = 'precinct_pivot.csv'
-        fields = ['Precinct', 'the_geom_precinct']
+    
     crime_obj = crimes(city, '%Y-%m', fields,  ['WEAPON_FLAG', 1], csv=csv) 
     filter_zeros = True
     if api_endpoint=="community":
@@ -116,7 +118,7 @@ def community_data(city, community_id):
     # crime_obj = crime_dict[city]["community"]
     filter_zeros = False
     crime_data = crime_obj.geom_to_list(crime_obj.data).fillna(0)
-    if city==chicago:
+    if city=='chicago':
         community_id=int(community_id)
     crime_data = crime_data[crime_data['Community Area']==community_id]
     results = crime_data[crime_obj.date_list].reset_index(drop=True).ix[0]
@@ -133,12 +135,15 @@ def census_scatter(city):
     # crime_obj = crime_dict[city]["census_correlation"]
     crime_data = crime_obj.data[['COMMUNITY', 'Community Area']]
     crime_data['avg_annual_crimes'] = crime_obj.data[crime_obj.date_list].mean(axis=1)
-    census_extended = crime_obj.read_census_extended().dropna(axis=1)
+    census_extended = crime_obj.read_census_extended() #.dropna(axis=1)
     if city=='chicago':
+        left_on='COMMUNITY'
         right_on='GEOG'
     elif city=='new_york':
-        right_on='GeogName'
-    census_data = crime_data.merge(census_extended, left_on='COMMUNITY', right_on=right_on).fillna(0)
+        left_on='Community Area'
+        right_on='GeoID'
+        census_extended = census_extended
+    census_data = crime_data.merge(census_extended, left_on=left_on, right_on=right_on).fillna(0)
     return jsonify({'results': census_data.to_dict()})
 
 @app.route('/census/<string:city>')
@@ -147,12 +152,15 @@ def community(city):
     fields = ['Community Area', 'COMMUNITY', 'the_geom_community']
     crime_obj = crimes(city, '%Y-%m', fields,  ['WEAPON_FLAG', 1], csv=csv) #crime_dict[city]['community']
     data = crime_obj.data
-    for d in data.columns:
-        print d
-    print 'neighborhood\n', data
     crime_data = crime_obj.geom_to_list(data)
     community_meta = crime_obj.communities(crime_data)
-    return jsonify(community_meta.T.to_dict())
+    if city=='chicago':
+        return jsonify(community_meta.T.to_dict())
+    elif city=='new_york':
+        community_meta = community_meta.T.reset_index(drop=False)
+        community_meta = community_meta[community_meta.Heading.isin(['adj_list', 'estimates'])]
+        community_meta.index = ['%s: %s (%s)' % (row['Category'], row['Variable'], row['Unit of Analysis']) if row['Category']!='adj_list' else 'adj_list' for i, row in community_meta.iterrows()]
+        return jsonify(community_meta.to_dict())
 
 def cityPivot(city):
     if city=='chicago':

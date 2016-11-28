@@ -1,0 +1,410 @@
+Category,Variable,Code,Source(s),Start Column,Unit of Analysis
+YEAR OF ENTRY,Entered before 2010,FbBf2010,DP02,QO,Persons
+SCHOOL ENROLLMENT,High school (grades 9-12),SE_G9t12,DP02,IM,Persons
+DISABILITY STATUS OF THE CIVILIAN NONINSTITUTIONALIZED POPULATION,18 to 64 years,CvNI18t64,DP02,LY,Persons
+SEX AND AGE,10 to 14 years,Pop10t14,DP05,AF,Persons
+SEX AND AGE,20 to 24 years,Pop20t24,DP05,AP,Persons
+SEX AND AGE,25 to 34 years,Pop25t34,DP05,AU,Persons
+SEX AND AGE,35 to 44 years,Pop35t44,DP05,AZ,Persons
+SEX AND AGE,45 to 54 years,Pop45t54,DP05,BE,Persons
+SEX AND AGE,60 to 64 years,Pop60t64,DP05,BO,Persons
+SEX AND AGE,65 to 74 years,Pop65t74,DP05,BT,Persons
+SEX AND AGE,75 to 84 years,Pop75t84,DP05,BY,Persons
+SEX AND AGE,Under 5 years,PopU5,DP05,V,Persons
+DISABILITY STATUS OF THE CIVILIAN NONINSTITUTIONALIZED POPULATION,Under 18 years,CvNIU18,DP02,LO,Persons
+GRANDPARENTS,Number of grandparents living with own grandchildren under 18 years,GpLGcU18,DP02,FZ,Persons
+GRANDPARENTS,Responsible for grandchildren,GpRGcU18,DP02,GE,Persons
+GRANDPARENTS,Number of grandparents responsible for own grandchildren under 18 years,GpRGcU18,DP02,HD,Persons
+SCHOOL ENROLLMENT,Elementary school (grades 1-8),SE_G1t8,DP02,IH,Persons
+SEX AND AGE,15 to 19 years,Pop15t19,DP05,AK,Persons
+SEX AND AGE,55 to 59 years,Pop55t59,DP05,BJ,Persons
+SEX AND AGE,5 to 9 years,Pop5t9,DP05,AA,Persons
+WORLD REGION OF BIRTH OF FOREIGN BORN,Asia,Fb_Asia,DP02,RD,Persons
+ANCESTRY,Arab,AncArb,DP02,UU,Persons
+PLACE OF BIRTH,Foreign born,Fb,DP02,PK,Persons
+U.S. CITIZENSHIP STATUS,Foreign-born population,Fb,DP02,PP,Persons
+YEAR OF ENTRY,Foreign-born population,Fb,DP02,QE,Persons
+MUTUALLY EXCLUSIVE RACE/HISPANIC GROUPS,Cuban,HspCub,DP05,EL,Persons
+PLACE OF BIRTH,"Born in Puerto Rico, U.S. Island areas, or born abroad to American parent(s)",NtvPRUSAb,DP02,PF,Persons
+ASIAN ALONE BY SELECTED SUBGROUPS,Asian Alone,Asn1Rc,DP05,GJ,Persons
+GRANDPARENTS,Who are female,GpFRGc,DP02,HI,Persons
+GRANDPARENTS,Who are married,GpMrdRGc,DP02,HN,Persons
+SCHOOL ENROLLMENT,College or graduate school,SE_ClgGSc,DP02,IR,Persons
+SCHOOL ENROLLMENT,"Nursery school, preschool",SE_NScPSc,DP02,HX,Persons
+RESIDENCE 1 YEAR AGO,Abroad,Abroad,DP02,OB,Persons
+ANCESTRY,French Canadian,AncFrnCnd,DP02,VY,Persons
+ANCESTRY,Swedish,AncSwd,DP02,YV,Persons
+ANCESTRY,West Indian (excluding Hispanic origin groups),AncWInd,DP02,ZP,Persons
+ASIAN ALONE BY SELECTED SUBGROUPS,Asian Indian,AsnInd,DP05,GO,Persons
+DISABILITY STATUS OF THE CIVILIAN NONINSTITUTIONALIZED POPULATION,With a disability,CNI18t64D,DP02,MD,Persons
+DISABILITY STATUS OF THE CIVILIAN NONINSTITUTIONALIZED POPULATION,With a disability,CvNI65plD,DP02,MN,Persons
+DISABILITY STATUS OF THE CIVILIAN NONINSTITUTIONALIZED POPULATION,With a disability,CvNID,DP02,LJ,Persons
+DISABILITY STATUS OF THE CIVILIAN NONINSTITUTIONALIZED POPULATION,With a disability,CvNIU18D,DP02,LT,Persons
+EDUCATIONAL ATTAINMENT (HIGHEST GRADE COMPLETED),"9th to 12th grade, no diploma",EA_9t12ND,DP02,JG,Persons
+EDUCATIONAL ATTAINMENT (HIGHEST GRADE COMPLETED),Associate's degree,EA_AscD,DP02,JV,Persons
+EDUCATIONAL ATTAINMENT (HIGHEST GRADE COMPLETED),Bachelor's degree,EA_BchD,DP02,KA,Persons
+EDUCATIONAL ATTAINMENT (HIGHEST GRADE COMPLETED),Graduate or professional degree,EA_GrdPfD,DP02,KF,Persons
+EDUCATIONAL ATTAINMENT (HIGHEST GRADE COMPLETED),High school graduate (includes equivalency),EA_HScGrd,DP02,JL,Persons
+EDUCATIONAL ATTAINMENT (HIGHEST GRADE COMPLETED),"Some college, no degree",EA_SClgND,DP02,JQ,Persons
+U.S. CITIZENSHIP STATUS,Naturalized U.S. citizen,FbNtlzd,DP02,PU,Persons
+MARITAL STATUS,Divorced,MS_FDvcd,DP02,FU,Persons
+MARITAL STATUS,Never married,MS_FNvMrd,DP02,FA,Persons
+MARITAL STATUS,Widowed,MS_FWd,DP02,FP,Persons
+MARITAL STATUS,Divorced,MS_MDvcd,DP02,EQ,Persons
+MARITAL STATUS,Never married,MS_MNvMrd,DP02,DW,Persons
+MARITAL STATUS,Widowed,MS_MWd,DP02,EL,Persons
+SEX AND AGE,Male,Male,DP05,L,Persons
+SEX AND AGE,Median age (years),MdAge,DP05,CI,Persons
+ANCESTRY,Subsaharan African,AncSubsAf,DP02,YQ,Persons
+SEX AND AGE,Female,Pop18plF,DP05,CX,Persons
+SEX AND AGE,Female,Pop65plF,DP05,DM,Persons
+ANCESTRY,English,AncEng,DP02,VO,Persons
+ANCESTRY,Hungarian,AncHng,DP02,WN,Persons
+EDUCATIONAL ATTAINMENT (HIGHEST GRADE COMPLETED),Less than 9th grade,EA_LT9G,DP02,JB,Persons
+LANGUAGE SPOKEN AT HOME,Language other than English,LgOEng,DP02,SM,Persons
+LANGUAGE SPOKEN AT HOME,Other languages,LgOLg,DP02,UA,Persons
+MUTUALLY EXCLUSIVE RACE/HISPANIC GROUPS,American Indian and Alaska Native alone,AIANNH,DP05,FK,Persons
+ANCESTRY,Czech,AncCzh,DP02,UZ,Persons
+ANCESTRY,Danish,AncDnsh,DP02,VE,Persons
+ANCESTRY,Dutch,AncDtch,DP02,VJ,Persons
+ANCESTRY,Polish,AncPlsh,DP02,XM,Persons
+ANCESTRY,Welsh,AncWelsh,DP02,ZK,Persons
+MUTUALLY EXCLUSIVE RACE/HISPANIC GROUPS,Asian alone,AsnNH,DP05,FP,Persons
+MUTUALLY EXCLUSIVE RACE/HISPANIC GROUPS,Black or African American alone,BlNH,DP05,FF,Persons
+EDUCATIONAL ATTAINMENT (HIGHEST GRADE COMPLETED),Bachelor's degree or higher,EA_BchDH,DP02,KP,Persons
+EDUCATIONAL ATTAINMENT (HIGHEST GRADE COMPLETED),High school graduate or higher,EA_HSGrdH,DP02,KK,Persons
+MUTUALLY EXCLUSIVE RACE/HISPANIC GROUPS,Other Hispanic or Latino,HspOth,DP05,EQ,Persons
+MUTUALLY EXCLUSIVE RACE/HISPANIC GROUPS,Native Hawaiian and Other Pacific Islander alone,NHPINH,DP05,FU,Persons
+MUTUALLY EXCLUSIVE RACE/HISPANIC GROUPS,Some other race alone,OthNH,DP05,FZ,Persons
+MUTUALLY EXCLUSIVE RACE/HISPANIC GROUPS,Two or more races,Rc2plNH,DP05,GE,Persons
+RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER),Child,Rshp_Ch,DP02,CX,Persons
+MUTUALLY EXCLUSIVE RACE/HISPANIC GROUPS,White alone,WtNH,DP05,FA,Persons
+ASIAN ALONE BY SELECTED SUBGROUPS,Chinese,AsnChi,DP05,GT,Persons
+LANGUAGE SPOKEN AT HOME,Asian and Pacific Islander languages,LgAsPI,DP02,TQ,Persons
+ANCESTRY,Greek,AncGrk,DP02,WI,Persons
+ANCESTRY,Slovak,AncSlvk,DP02,YL,Persons
+ANCESTRY,Italian,AncItl,DP02,WX,Persons
+DISABILITY STATUS OF THE CIVILIAN NONINSTITUTIONALIZED POPULATION,65 years and over,CvNI65pl,DP02,MI,Persons
+VETERAN STATUS,Civilian population 18 years and over,CvPop18pl,DP02,KU,Persons
+VETERAN STATUS,Civilian veterans,CvVet18pl,DP02,KZ,Persons
+EDUCATIONAL ATTAINMENT (HIGHEST GRADE COMPLETED),Population 25 years and over,EA_P25pl,DP02,IW,Persons
+MARITAL STATUS,Females 15 years and over,MS_F15pl,DP02,EV,Persons
+MARITAL STATUS,Males 15 years and over,MS_M15pl,DP02,DR,Persons
+SEX AND AGE,18 years and over,Pop18pl,DP05,CN,Persons
+RESIDENCE 1 YEAR AGO,Population 1 year and over,Pop1pl,DP02,MS,Persons
+LANGUAGE SPOKEN AT HOME,Population 5 years and over,Pop5pl,DP02,SC,Persons
+SEX AND AGE,65 years and over,Pop65pl,DP05,DC,Persons
+SEX AND AGE,85 years and over,Pop85pl,DP05,CD,Persons
+ANCESTRY,American,AncAm,DP02,UP,Persons
+ANCESTRY,German,AncGrm,DP02,WD,Persons
+WORLD REGION OF BIRTH OF FOREIGN BORN,Latin America,Fb_LtnAm,DP02,RS,Persons
+WORLD REGION OF BIRTH OF FOREIGN BORN,Northern America,Fb_NAm,DP02,RX,Persons
+SEX AND AGE,Female,Fem,DP05,Q,Persons
+SEX AND AGE,Male,Pop18plM,DP05,CS,Persons
+SEX AND AGE,Male,Pop65plM,DP05,DH,Persons
+ANCESTRY,French (except Basque),AncFrn,DP02,VT,Persons
+ANCESTRY,Lithuanian,AncLthn,DP02,XC,Persons
+ANCESTRY,Norwegian,AncNrwgn,DP02,XH,Persons
+ANCESTRY,Russian,AncRsn,DP02,XW,Persons
+ANCESTRY,Ukrainian,AncUkn,DP02,ZF,Persons
+ASIAN ALONE BY SELECTED SUBGROUPS,Japanese,AsnJpn,DP05,HD,Persons
+ASIAN ALONE BY SELECTED SUBGROUPS,Vietnamese,AsnVtn,DP05,HN,Persons
+WORLD REGION OF BIRTH OF FOREIGN BORN,Oceania,Fb_Ocn,DP02,RN,Persons
+U.S. CITIZENSHIP STATUS,Not a U.S. citizen,FbNotCzn,DP02,PZ,Persons
+ASIAN ALONE BY SELECTED SUBGROUPS,Other Asian,OthAsn,DP05,HS,Persons
+SCHOOL ENROLLMENT,Population 3 years and over enrolled in school,Pop3plEn,DP02,HS,Persons
+SCHOOL ENROLLMENT,Kindergarten,SE_Kndgtn,DP02,IC,Persons
+ASIAN ALONE BY SELECTED SUBGROUPS,Filipino,AsnFlp,DP05,GY,Persons
+DISABILITY STATUS OF THE CIVILIAN NONINSTITUTIONALIZED POPULATION,Total Civilian Noninstitutionalized Population,CvNIPop,DP02,LE,Persons
+RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER),Population in households,HHPop,DP02,CI,Persons
+MUTUALLY EXCLUSIVE RACE/HISPANIC GROUPS,Hispanic or Latino (of any race),Hsp,DP05,DW,Persons
+LANGUAGE SPOKEN AT HOME,"Speak English less than ""very well""",LgAsPILEP,DP02,TV,Persons
+LANGUAGE SPOKEN AT HOME,"Speak English less than ""very well""",LgOEngLEP,DP02,SR,Persons
+LANGUAGE SPOKEN AT HOME,"Speak English less than ""very well""",LgOEurLEP,DP02,TL,Persons
+LANGUAGE SPOKEN AT HOME,"Speak English less than ""very well""",LgOLgLEP,DP02,UF,Persons
+LANGUAGE SPOKEN AT HOME,Spanish,LgSp,DP02,SW,Persons
+LANGUAGE SPOKEN AT HOME,"Speak English less than ""very well""",LgSpLEP,DP02,TB,Persons
+MARITAL STATUS,"Now married, except separated",MS_FMrdSp,DP02,FF,Persons
+MARITAL STATUS,Separated,MS_FSp,DP02,FK,Persons
+MARITAL STATUS,"Now married, except separated",MS_MMrdSp,DP02,EB,Persons
+MARITAL STATUS,Separated,MS_MSp,DP02,EG,Persons
+MUTUALLY EXCLUSIVE RACE/HISPANIC GROUPS,Not Hispanic or Latino,NHsp,DP05,EV,Persons
+PLACE OF BIRTH,Total population,Pop,DP02,OG,Persons
+ANCESTRY,Total population,Pop,DP02,UK,Persons
+SEX AND AGE,Total population,Pop,DP05,G,Persons
+MUTUALLY EXCLUSIVE RACE/HISPANIC GROUPS,Total population,Pop,DP05,DR,Persons
+RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER),Unmarried partner,Rshp_NRUP,DP02,DM,Persons
+RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER),Spouse,Rshp_Sp,DP02,CS,Persons
+ASIAN ALONE BY SELECTED SUBGROUPS,Korean,AsnKor,DP05,HI,Persons
+WORLD REGION OF BIRTH OF FOREIGN BORN,Africa,Fb_Afr,DP02,RI,Persons
+WORLD REGION OF BIRTH OF FOREIGN BORN,Europe,Fb_Eur,DP02,QY,Persons
+YEAR OF ENTRY,Entered 2010 or later,Fb2010Ltr,DP02,QJ,Persons
+MUTUALLY EXCLUSIVE RACE/HISPANIC GROUPS,Puerto Rican,HspPR,DP05,EG,Persons
+LANGUAGE SPOKEN AT HOME,Other Indo-European languages,LgOEur,DP02,TG,Persons
+RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER),Nonrelatives,Rshp_NR,DP02,DH,Persons
+RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER),Other relatives,Rshp_OthR,DP02,DC,Persons
+RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER),Householder,RshpHHldr,DP02,CN,Persons
+ANCESTRY,Irish,AncIrs,DP02,WS,Persons
+ANCESTRY,Portuguese,AncPrtgs,DP02,XR,Persons
+ANCESTRY,Scotch-Irish,AncSctIrs,DP02,YB,Persons
+ANCESTRY,Swiss,AncSws,DP02,ZA,Persons
+RESIDENCE 1 YEAR AGO,Different house in the U.S.,DfHsUS,DP02,NC,Persons
+WORLD REGION OF BIRTH OF FOREIGN BORN,"Foreign-born population, excluding population born at sea",FbNotBAS,DP02,QT,Persons
+PLACE OF BIRTH,State of residence,NtvStRs,DP02,OV,Persons
+PLACE OF BIRTH,Born in United States,NtvUS,DP02,OQ,Persons
+RESIDENCE 1 YEAR AGO,Same house,SmHs,DP02,MX,Persons
+ANCESTRY,Scottish,AncSct,DP02,YG,Persons
+RESIDENCE 1 YEAR AGO,Different state,DfCntDfSt,DP02,NW,Persons
+RESIDENCE 1 YEAR AGO,Same state,DfCntSmSt,DP02,NR,Persons
+RESIDENCE 1 YEAR AGO,Different county,DfHsDfCnt,DP02,NM,Persons
+RESIDENCE 1 YEAR AGO,Same county,DfHsSmCnt,DP02,NH,Persons
+PLACE OF BIRTH,Different state,NtvDfSt,DP02,PA,Persons
+PLACE OF BIRTH,Native,Ntv,DP02,OL,Persons
+MUTUALLY EXCLUSIVE RACE/HISPANIC GROUPS,Mexican,HspMex,DP05,EB,Persons
+LANGUAGE SPOKEN AT HOME,English only,EngOnly,DP02,SH,Persons
+GRANDPARENTS,1 or 2 years,GpRGc1t2Y,DP02,GO,Persons
+GRANDPARENTS,3 or 4 years,GpRGc3t4Y,DP02,GT,Persons
+GRANDPARENTS,5 or more years,GpRGc5plY,DP02,GY,Persons
+GRANDPARENTS,Less than 1 year,GpRGcU1Y,DP02,GJ,Persons
+EMPLOYMENT STATUS,Unemployed,CvLFUEm2,DP03,AU,Person
+HEALTH INSURANCE COVERAGE,In labor force,CvLF18t64,DP03,QY,Person
+HEALTH INSURANCE COVERAGE,Civilian noninstitutionalized population 18 to 64 years,CvNI18t64,DP03,QT,Person
+EMPLOYMENT STATUS,Own children under 6 years,OChU6,DP03,BT,Person
+EMPLOYMENT STATUS,Own children 6 to 17 years,OCh6t17,DP03,CD,Person
+HEALTH INSURANCE COVERAGE,Civilian noninstitutionalized population under 18 years,CvNIU18,DP03,QJ,Person
+INDUSTRY,"Educational services, and health care and social assistance",EdHlthCSA,DP03,HD,Person
+INDUSTRY,"Other services, except public administration",OthnotPA,DP03,HN,Person
+Families,Per capita income (dollars),PerCapInc,DP03,PF,Person
+CLASS OF WORKER,Self-employed workers in own not incorporated business,SlfEmNInc,DP03,IM,Person
+OCCUPATION,Service occupations,Srvc,DP03,EL,Person
+COMMUTING TO WORK,"Car, truck, or van -- carpooled",CW_Crpld,DP03,CX,Person
+COMMUTING TO WORK,Walked,CW_Wlkd,DP03,DH,Person
+EMPLOYMENT STATUS,Employed,F16plCLFE,DP03,BO,Person
+INDUSTRY,"Finance and insurance, and real estate and rental and leasing",FIRE,DP03,GT,Person
+INDUSTRY,Wholesale trade,Whlsale,DP03,FZ,Person
+EMPLOYMENT STATUS,Civilian labor force,CvLF,DP03,Q,Person
+EMPLOYMENT STATUS,Civilian labor force,CvLF,DP03,AP,Person
+EMPLOYMENT STATUS,Civilian labor force,F16plCvLF,DP03,BJ,Person
+EMPLOYMENT STATUS,In labor force,F16plLF,DP03,BE,Person
+EMPLOYMENT STATUS,In labor force,LF,DP03,L,Person
+EMPLOYMENT STATUS,Armed Forces,LFArmdF,DP03,AF,Person
+EMPLOYMENT STATUS,Not in labor force,NLF,DP03,AK,Person
+HEALTH INSURANCE COVERAGE,Not in labor force,NLF,DP03,TB,Person
+EMPLOYMENT STATUS,All parents in family in labor force,OC6t17PLF,DP03,CI,Person
+EMPLOYMENT STATUS,All parents in family in labor force,OChU6PLF,DP03,BY,Person
+OCCUPATION,Sales and office occupations,SalesOff,DP03,EQ,Person
+INDUSTRY,Manufacturing,Mnfctrng,DP03,FU,Person
+COMMUTING TO WORK,Other means,CW_Oth,DP03,DM,Person
+Families,"Median earnings for female full-time, year-round workers (dollars)",MdEFFTWrk,DP03,PA,Person
+Families,"Median earnings for male full-time, year-round workers (dollars)",MdEMFTWrk,DP03,OV,Person
+Families,Median earnings for workers (dollars),MdEWrk,DP03,OQ,Person
+EMPLOYMENT STATUS,Employed,CvEm16pl,DP03,V,Person
+OCCUPATION,Civilian employed population 16 years and over,CvEm16pl,DP03,EB,Person
+INDUSTRY,Civilian employed population 16 years and over,CvEm16pl,DP03,FF,Person
+CLASS OF WORKER,Civilian employed population 16 years and over,CvEm16pl,DP03,HX,Person
+EMPLOYMENT STATUS,Females 16 years and over,F16pl,DP03,AZ,Person
+EMPLOYMENT STATUS,Population 16 years and over,Pop16pl,DP03,G,Person
+INDUSTRY,Retail trade,Retail,DP03,GE,Person
+COMMUTING TO WORK,Workers 16 years and over,Wrkr16pl,DP03,CN,Person
+INDUSTRY,"Agriculture, forestry, fishing and hunting, and mining",AgFFHM,DP03,FK,Person
+HEALTH INSURANCE COVERAGE,Employed,CvLFEm,DP03,RD,Person
+EMPLOYMENT STATUS,Unemployed,CvLFUEm,DP03,AA,Person
+COMMUTING TO WORK,Worked at home,CW_WrkdHm,DP03,DR,Person
+COMMUTING TO WORK,Mean travel time to work (minutes),MnTrvTm,DP03,DW,Person
+OCCUPATION,"Production, transportation, and material moving occupations",PrdTrnsMM,DP03,FA,Person
+INDUSTRY,"Professional, scientific, and management, and administrative and waste management services",PrfSMgAWM,DP03,GY,Person
+HEALTH INSURANCE COVERAGE,Unemployed,UEm,DP03,SC,Person
+INDUSTRY,Construction,Constctn,DP03,FP,Person
+COMMUTING TO WORK,"Car, truck, or van -- drove alone",CW_DrvAln,DP03,CS,Person
+INDUSTRY,Public administration,PubAdmin,DP03,HS,Person
+INDUSTRY,Information,Info,DP03,GO,Person
+HEALTH INSURANCE COVERAGE,Civilian noninstitutionalized population,CvNIPop,DP03,PK,Person
+CLASS OF WORKER,Government workers,GvtWrkr,DP03,IH,Person
+CLASS OF WORKER,Private wage and salary workers,PrvWSWrkr,DP03,IC,Person
+CLASS OF WORKER,Unpaid family workers,UpdFmWrkr,DP03,IR,Person
+INDUSTRY,"Arts, entertainment, and recreation, and accommodation, and food services",ArtEnRAFS,DP03,HI,Person
+COMMUTING TO WORK,Public transportation (excluding taxicab),CW_PbTrns,DP03,DC,Person
+HEALTH INSURANCE COVERAGE,With health insurance coverage,EmHIns,DP03,RI,Person
+HEALTH INSURANCE COVERAGE,No health insurance coverage,EmNHIns,DP03,RX,Person
+HEALTH INSURANCE COVERAGE,With public coverage,EmPbHIns,DP03,RS,Person
+HEALTH INSURANCE COVERAGE,With private health insurance,EmPvHIns,DP03,RN,Person
+HEALTH INSURANCE COVERAGE,With health insurance coverage,HIns,DP03,PP,Person
+HEALTH INSURANCE COVERAGE,No health insurance coverage,NHIns,DP03,QE,Person
+HEALTH INSURANCE COVERAGE,With health insurance coverage,NLFHIns,DP03,TG,Person
+HEALTH INSURANCE COVERAGE,No health insurance coverage,NLFNHIns,DP03,TV,Person
+HEALTH INSURANCE COVERAGE,With public coverage,NLFPbHIns,DP03,TQ,Person
+HEALTH INSURANCE COVERAGE,With private health insurance,NLFPvHIns,DP03,TL,Person
+HEALTH INSURANCE COVERAGE,With public coverage,PbHIns,DP03,PZ,Person
+HEALTH INSURANCE COVERAGE,With private health insurance,PvHIns,DP03,PU,Person
+HEALTH INSURANCE COVERAGE,No health insurance coverage,U18NHIns,DP03,QO,Person
+HEALTH INSURANCE COVERAGE,With health insurance coverage,UEmHIns,DP03,SH,Person
+HEALTH INSURANCE COVERAGE,No health insurance coverage,UEmNHIns,DP03,SW,Person
+HEALTH INSURANCE COVERAGE,With public coverage,UEmPbHIns,DP03,SR,Person
+HEALTH INSURANCE COVERAGE,With private health insurance,UEmPvHIns,DP03,SM,Person
+OCCUPATION,"Management, business, science, and arts occupations",MgBSciArt,DP03,EG,Person
+OCCUPATION,"Natural resources, construction, and maintenance occupations",NRCnstMnt,DP03,EV,Person
+INDUSTRY,"Transportation and warehousing, and utilities",TrWHUt,DP03,GJ,Person
+FAMILIES & PEOPLE WHOSE INCOME IN THE PAST 12 MONTHS IS BELOW THE POVERTY LEVEL,65 years and over,P65plPvU,DP03,VE,Person
+FAMILIES & PEOPLE WHOSE INCOME IN THE PAST 12 MONTHS IS BELOW THE POVERTY LEVEL,All people,PopPvU,DP03,UK,Person
+FAMILIES & PEOPLE WHOSE INCOME IN THE PAST 12 MONTHS IS BELOW THE POVERTY LEVEL,Under 18 years,PU18PvU,DP03,UU,Person
+FAMILIES & PEOPLE WHOSE INCOME IN THE PAST 12 MONTHS IS BELOW THE POVERTY LEVEL,Below poverty,P65plBwPv,DP03,VJ,Person
+FAMILIES & PEOPLE WHOSE INCOME IN THE PAST 12 MONTHS IS BELOW THE POVERTY LEVEL,Below poverty,PBwPv,DP03,UP,Person
+FAMILIES & PEOPLE WHOSE INCOME IN THE PAST 12 MONTHS IS BELOW THE POVERTY LEVEL,Below poverty,PU18BwPv,DP03,UZ,Person
+COMMUNITY,PUMA Numeric ID,PUMA,Pop Div,E,ID
+COMMUNITY,Neighborhood Tabulation Area Code,GeoID,Pop Div,C,ID
+COMMUNITY,Neighborhood Tabulation Area Name,GeogName,Pop Div,B,ID
+COMMUNITY,Type of Geography,GeoType,Pop Div,A,ID
+COMMUNITY,Borough,Borough,Pop Div,D,ID
+COMMUNITY,Approximate Community District,ComDst,Pop Div,F,ID
+GROSS RENT,Less than $200,GRU200,DP04,PZ,Housing Units
+SELECTED MONTHLY OWNER COSTS AS A PERCENTAGE OF HOUSEHOLD INCOME (SMOCAPI) without mortgage,Less than 10.0 percent,NMSMPU10,DP04,OG,Housing Units
+SELECTED MONTHLY OWNER COSTS AS A PERCENTAGE OF HOUSEHOLD INCOME (SMOCAPI),Less than 20.0 percent,SMPU20,DP04,MX,Housing Units
+VALUE,"Less than $50,000",VlU50,DP04,KK,Housing Units
+OCCUPANTS PER ROOM,1.00 or less,OcPR0t1,DP04,JQ,Housing Units
+ROOMS,1 room,Rms1,DP04,EG,Housing Units
+ROOMS,2 rooms,Rms2,DP04,EL,Housing Units
+ROOMS,3 rooms,Rms3,DP04,EQ,Housing Units
+GROSS RENT AS A PERCENTAGE OF HOUSEHOLD INCOME (GRAPI),20.0 to 24.9 percent,GRPI20t24,DP04,SH,Housing Units
+GROSS RENT AS A PERCENTAGE OF HOUSEHOLD INCOME (GRAPI),30.0 to 34.9 percent,GRPI30t34,DP04,SR,Housing Units
+SELECTED MONTHLY OWNER COSTS AS A PERCENTAGE OF HOUSEHOLD INCOME (SMOCAPI) without mortgage,10.0 to 14.9 percent,NMSMP1014,DP04,OL,Housing Units
+SELECTED MONTHLY OWNER COSTS AS A PERCENTAGE OF HOUSEHOLD INCOME (SMOCAPI) without mortgage,20.0 to 24.9 percent,NMSMP2024,DP04,OV,Housing Units
+SELECTED MONTHLY OWNER COSTS AS A PERCENTAGE OF HOUSEHOLD INCOME (SMOCAPI) without mortgage,30.0 to 34.9 percent,NMSMP3034,DP04,PF,Housing Units
+ROOMS,4 rooms,Rms4,DP04,EV,Housing Units
+SELECTED MONTHLY OWNER COSTS AS A PERCENTAGE OF HOUSEHOLD INCOME (SMOCAPI),20.0 to 24.9 percent,SMP20t24,DP04,NC,Housing Units
+SELECTED MONTHLY OWNER COSTS AS A PERCENTAGE OF HOUSEHOLD INCOME (SMOCAPI),30.0 to 34.9 percent,SMP30t34,DP04,NM,Housing Units
+GROSS RENT AS A PERCENTAGE OF HOUSEHOLD INCOME (GRAPI),Less than 15.0 percent,GRPIU15,DP04,RX,Housing Units
+OCCUPANTS PER ROOM,1.01 to 1.50,OcPR1t1p5,DP04,JV,Housing Units
+ROOMS,5 rooms,Rms5,DP04,FA,Housing Units
+ROOMS,6 rooms,Rms6,DP04,FF,Housing Units
+ROOMS,7 rooms,Rms7,DP04,FK,Housing Units
+ROOMS,8 rooms,Rms8,DP04,FP,Housing Units
+YEAR STRUCTURE BUILT,Built 2000 to 2009,Blt00t09,DP04,CN,Housing Units
+YEAR STRUCTURE BUILT,Built 1940 to 1949,Blt40t49,DP04,DR,Housing Units
+YEAR STRUCTURE BUILT,Built 1950 to 1959,Blt50t59,DP04,DM,Housing Units
+YEAR STRUCTURE BUILT,Built 1960 to 1969,Blt60t69,DP04,DH,Housing Units
+YEAR STRUCTURE BUILT,Built 1970 to 1979,Blt70t79,DP04,DC,Housing Units
+YEAR STRUCTURE BUILT,Built 1980 to 1989,Blt80t89,DP04,CX,Housing Units
+YEAR STRUCTURE BUILT,Built 1990 to 1999,Blt90t99,DP04,CS,Housing Units
+YEAR STRUCTURE BUILT,Built 1939 or earlier,BltBf39,DP04,DW,Housing Units
+GROSS RENT,$200 to $299,GR200t299,DP04,QE,Housing Units
+GROSS RENT,$300 to $499,GR300t499,DP04,QJ,Housing Units
+GROSS RENT,$500 to $749,GR500t749,DP04,QO,Housing Units
+GROSS RENT,$750 to $999,GR750t999,DP04,QT,Housing Units
+GROSS RENT AS A PERCENTAGE OF HOUSEHOLD INCOME (GRAPI),15.0 to 19.9 percent,GRPI15t19,DP04,SC,Housing Units
+GROSS RENT AS A PERCENTAGE OF HOUSEHOLD INCOME (GRAPI),25.0 to 29.9 percent,GRPI25t29,DP04,SM,Housing Units
+YEAR HOUSEHOLDER MOVED INTO UNIT,Moved in 2000 to 2009,Mv00t09,DP04,HN,Housing Units
+YEAR HOUSEHOLDER MOVED INTO UNIT,Moved in 1970 to 1979,Mv70t79,DP04,IC,Housing Units
+YEAR HOUSEHOLDER MOVED INTO UNIT,Moved in 1980 to 1989,Mv80t89,DP04,HX,Housing Units
+YEAR HOUSEHOLDER MOVED INTO UNIT,Moved in 1990 to 1999,Mv90t99,DP04,HS,Housing Units
+YEAR HOUSEHOLDER MOVED INTO UNIT,Moved in 1969 or earlier,MvBf69,DP04,IH,Housing Units
+SELECTED MONTHLY OWNER COSTS AS A PERCENTAGE OF HOUSEHOLD INCOME (SMOCAPI) without mortgage,15.0 to 19.9 percent,NMSMP1519,DP04,OQ,Housing Units
+SELECTED MONTHLY OWNER COSTS AS A PERCENTAGE OF HOUSEHOLD INCOME (SMOCAPI) without mortgage,25.0 to 29.9 percent,NMSMP2529,DP04,PA,Housing Units
+SELECTED MONTHLY OWNER COSTS AS A PERCENTAGE OF HOUSEHOLD INCOME (SMOCAPI),25.0 to 29.9 percent,SMP25t29,DP04,NH,Housing Units
+VALUE,"$100,000 to $149,999",Vl100t149,DP04,KU,Housing Units
+VALUE,"$150,000 to $199,999",Vl150t199,DP04,KZ,Housing Units
+VALUE,"$200,000 to $299,999",Vl200t299,DP04,LE,Housing Units
+VALUE,"$300,000 to $499,999",Vl300t499,DP04,LJ,Housing Units
+VALUE,"$500,000 to $999,999",Vl500t999,DP04,LO,Housing Units
+VALUE,"$50,000 to $99,999",Vl50t99,DP04,KP,Housing Units
+UNITS IN STRUCTURE,"1-unit, attached",HU1uA,DP04,AP,Housing Units
+HOUSING TENURE,Average household size of owner-occupied unit,AvgHHSOOc,DP04,GT,Housing Units
+HOUSING TENURE,Average household size of renter-occupied unit,AvgHHSROc,DP04,GY,Housing Units
+UNITS IN STRUCTURE,"Boat, RV, van, etc.",BtRVVEtc,DP04,BY,Housing Units
+GROSS RENT AS A PERCENTAGE OF HOUSEHOLD INCOME (GRAPI),Not computed,GRPINtC,DP04,TB,Housing Units
+SELECTED MONTHLY OWNER COSTS AS A PERCENTAGE OF HOUSEHOLD INCOME (SMOCAPI) without mortgage,Not computed,NMSMPNtC,DP04,PP,Housing Units
+SELECTED MONTHLY OWNER COSTS AS A PERCENTAGE OF HOUSEHOLD INCOME (SMOCAPI),Not computed,SMPNtC,DP04,NW,Housing Units
+GROSS RENT,No rent paid,GRnoRntPd,DP04,RN,Housing Units
+UNITS IN STRUCTURE,"1-unit, detached",HU1uD,DP04,AK,Housing Units
+MORTGAGE STATUS,Housing units without a mortgage,HUnoMrtg,DP04,MN,Housing Units
+SELECTED MONTHLY OWNER COSTS AS A PERCENTAGE OF HOUSEHOLD INCOME (SMOCAPI) without mortgage,Housing unit without a mortgage (excluding units where SMOCAPI cannot be computed),HUnoMrtg,DP04,OB,Housing Units
+MORTGAGE STATUS,Housing units with a mortgage,HUwMrtg,DP04,MI,Housing Units
+GROSS RENT,"$1,000 to $1,499",GR1kt14k,DP04,QY,Housing Units
+GROSS RENT,"$1,500 or more",GR15kpl,DP04,RD,Housing Units
+GROSS RENT AS A PERCENTAGE OF HOUSEHOLD INCOME (GRAPI),35.0 percent or more,GRPI35pl,DP04,SW,Housing Units
+VALUE,Median (dollars),MdVl,DP04,LY,Housing Units
+SELECTED MONTHLY OWNER COSTS AS A PERCENTAGE OF HOUSEHOLD INCOME (SMOCAPI) without mortgage,35.0 percent or more,NMSMP35pl,DP04,PK,Housing Units
+OCCUPANTS PER ROOM,1.51 or more,OcPR1p5pl,DP04,KA,Housing Units
+ROOMS,9 rooms or more,Rms9pl,DP04,FU,Housing Units
+SELECTED MONTHLY OWNER COSTS AS A PERCENTAGE OF HOUSEHOLD INCOME (SMOCAPI),35.0 percent or more,SMP35pl,DP04,NR,Housing Units
+VALUE,"$1,000,000 or more",Vl1milpl,DP04,LT,Housing Units
+UNITS IN STRUCTURE,Mobile home,MobHm,DP04,BT,Housing Units
+YEAR STRUCTURE BUILT,Built 2010 or later,Blt10Ltr,DP04,CI,Housing Units
+GROSS RENT,Median (dollars),MdGR,DP04,RI,Housing Units
+YEAR HOUSEHOLDER MOVED INTO UNIT,Moved in 2010 or later,Mv10Ltr,DP04,HI,Housing Units
+ROOMS,Median rooms,MdRms,DP04,FZ,Housing Units
+Approximate Community District,Homeowner vacancy rate,HOVacRt,DP04,V,Housing Units
+GROSS RENT,Occupied units paying rent,OcHUPRnt,DP04,PU,Housing Units
+GROSS RENT AS A PERCENTAGE OF HOUSEHOLD INCOME (GRAPI),Occupied units paying rent (excluding units where GRAPI cannot be computed),OcHUPRnt,DP04,RS,Housing Units
+Approximate Community District,Rental vacancy rate,RntVacRt,DP04,AA,Housing Units
+Approximate Community District,Total housing units,HU,DP04,G,Housing Units
+UNITS IN STRUCTURE,Total housing units,HU,DP04,AF,Housing Units
+YEAR STRUCTURE BUILT,Total housing units,HU,DP04,CD,Housing Units
+ROOMS,Total housing units,HU,DP04,EB,Housing Units
+UNITS IN STRUCTURE,10 to 19 units,HU10t19u,DP04,BJ,Housing Units
+UNITS IN STRUCTURE,20 or more units,HU20plu,DP04,BO,Housing Units
+UNITS IN STRUCTURE,2 units,HU2u,DP04,AU,Housing Units
+UNITS IN STRUCTURE,3 or 4 units,HU3t4u,DP04,AZ,Housing Units
+UNITS IN STRUCTURE,5 to 9 units,HU5t9u,DP04,BE,Housing Units
+Approximate Community District,Occupied housing units,OcHU,DP04,L,Housing Units
+HOUSING TENURE,Occupied housing units,OcHU,DP04,GE,Housing Units
+YEAR HOUSEHOLDER MOVED INTO UNIT,Occupied housing units,OcHU,DP04,HD,Housing Units
+VEHICLES AVAILABLE,Occupied housing units,OcHU,DP04,IM,Housing Units
+OCCUPANTS PER ROOM,Occupied housing units,OcHU,DP04,JL,Housing Units
+HOUSING TENURE,Owner-occupied,OOcHU,DP04,GJ,Housing Units
+VALUE,Owner-occupied units,OOcHU,DP04,KF,Housing Units
+MORTGAGE STATUS,Owner-occupied units,OOcHU,DP04,MD,Housing Units
+HOUSING TENURE,Renter-occupied,ROcHU,DP04,GO,Housing Units
+Approximate Community District,Vacant housing units,VacHU,DP04,Q,Housing Units
+VEHICLES AVAILABLE,No vehicles available,NoVhclAv,DP04,IR,Housing Units
+VEHICLES AVAILABLE,1 vehicle available,Vhcl1Av,DP04,IW,Housing Units
+VEHICLES AVAILABLE,2 vehicles available,Vhcl2Av,DP04,JB,Housing Units
+VEHICLES AVAILABLE,3 or more vehicles available,Vhcl3plAv,DP04,JG,Housing Units
+SELECTED MONTHLY OWNER COSTS AS A PERCENTAGE OF HOUSEHOLD INCOME (SMOCAPI),Housing units with a mortgage (excluding units where SMOCAPI cannot be computed),HUwMrtgEx,DP04,MS,Housing Units
+HOUSEHOLDS TYPE,With own children under 18 years,FamChU18,DP02,Q,Households
+HOUSEHOLDS TYPE,With own children under 18 years,FHnHChU18,DP02,AU,Households
+HOUSEHOLDS TYPE,Households with one or more people under 18 years,HH1plU18,DP02,BO,Households
+HOUSEHOLDS TYPE,With own children under 18 years,MHnWChU18,DP02,AK,Households
+HOUSEHOLDS TYPE,With own children under 18 years,MrdChU18,DP02,AA,Households
+HOUSEHOLDS TYPE,Householder living alone,NFamA,DP02,BE,Households
+HOUSEHOLDS TYPE,"Female householder, no husband present, family",FHnH,DP02,AP,Households
+HOUSEHOLDS TYPE,Total households,HH,DP02,G,Households
+HOUSEHOLDS TYPE,Households with one or more people 65 years and over,HH1pl65pl,DP02,BT,Households
+HOUSEHOLDS TYPE,65 years and over,NFamA65pl,DP02,BJ,Households
+HOUSEHOLDS TYPE,Family households (families),Fam,DP02,L,Households
+HOUSEHOLDS TYPE,Married-couple family,MrdFam,DP02,V,Households
+HOUSEHOLDS TYPE,Nonfamily households,NFam,DP02,AZ,Households
+HOUSEHOLDS TYPE,"Male householder, no wife present, family",MHnW,DP02,AF,Households
+HOUSEHOLDS TYPE,Average family size,AvgFmSz,DP02,CD,Households
+HOUSEHOLDS TYPE,Average household size,AvgHHSz,DP02,BY,Households
+Families,"Less than $10,000",FamIU10,DP03,MD,Household
+INCOME AND BENEFITS,"Less than $10,000",HHIU10,DP03,JB,Household
+Families,"$10,000 to $14,999",FamI10t14,DP03,MI,Household
+Families,"$15,000 to $24,999",FamI15t24,DP03,MN,Household
+Families,"$25,000 to $34,999",FamI25t34,DP03,MS,Household
+Families,"$50,000 to $74,999",FamI50t74,DP03,NC,Household
+INCOME AND BENEFITS,"$10,000 to $14,999",HHI10t14,DP03,JG,Household
+INCOME AND BENEFITS,"$15,000 to $24,999",HHI15t24,DP03,JL,Household
+INCOME AND BENEFITS,"$25,000 to $34,999",HHI25t34,DP03,JQ,Household
+INCOME AND BENEFITS,"$50,000 to $74,999",HHI50t74,DP03,KA,Household
+Families,"$35,000 to $49,999",FamI35t49,DP03,MX,Household
+Families,"$75,000 to $99,999",FamI75t99,DP03,NH,Household
+Families,"$100,000 to $149,999",FI100t149,DP03,NM,Household
+Families,"$150,000 to $199,999",FI150t199,DP03,NR,Household
+INCOME AND BENEFITS,"$35,000 to $49,999",HHI35t49,DP03,JV,Household
+INCOME AND BENEFITS,"$75,000 to $99,999",HHI75t99,DP03,KF,Household
+INCOME AND BENEFITS,"$100,000 to $149,999",HI100t149,DP03,KK,Household
+INCOME AND BENEFITS,"$150,000 to $199,999",HI150t199,DP03,KP,Household
+INCOME AND BENEFITS,With cash public assistance income,Inc_CPbA,DP03,LO,Household
+INCOME AND BENEFITS,With Supplemental Security Income,Inc_SpSec,DP03,LJ,Household
+Families,Median family income (dollars),MdFamInc,DP03,OB,Household
+INCOME AND BENEFITS,Median household income (dollars),MdHHInc,DP03,KZ,Household
+Families,Median nonfamily income (dollars),MdNFInc,DP03,OL,Household
+INCOME AND BENEFITS,Mean household income (dollars),MnHHInc,DP03,LE,Household
+INCOME AND BENEFITS,Total households,HH,DP03,IW,Household
+Families,"$200,000 or more",FamI200pl,DP03,NW,Household
+INCOME AND BENEFITS,"$200,000 or more",HHI200pl,DP03,KU,Household
+Families,Families,Fam,DP03,LY,Household
+Families,Nonfamily households,Nfam,DP03,OG,Household
+INCOME AND BENEFITS,With Food Stamp/SNAP benefits in the past 12 months,Inc_SNAP,DP03,LT,Household
+FAMILIES & PEOPLE WHOSE INCOME IN THE PAST 12 MONTHS IS BELOW THE POVERTY LEVEL,All families,FamPvU,DP03,UA,Household
+FAMILIES & PEOPLE WHOSE INCOME IN THE PAST 12 MONTHS IS BELOW THE POVERTY LEVEL,Below poverty,FamBwPv,DP03,UF,Household

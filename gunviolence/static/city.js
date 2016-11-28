@@ -26,7 +26,7 @@ var scatterY;
 
 
 
-$.getJSON($SCRIPT_ROOT + '/community/' + city + '/0', function(json) {
+$.getJSON($SCRIPT_ROOT + '/community_pivot/' + city + '/0', function(json) {
 		res = json;
 	});
 
@@ -89,13 +89,13 @@ function sliderOption() {
 	selected_dt = date_dropdown[slider_idx];
 	var dt = document.getElementById("date-label");
 	var dt_list = getMonthName(selected_dt);
-	dt.innerHTML = community_name.toUpperCase() + " - " + dt_list[0].toUpperCase() + ". " + dt_list[1];	
+	dt.innerHTML = community_name.toUpperCase().replace("_", " ") + " - " + dt_list[0].toUpperCase() + ". " + dt_list[1];	
 
 	if (!$('.form-check-input:checked').val()){
 		$('.form-check-input[value="community"]').prop("checked", true)
 	}
 	if ($('.form-check-input[value="community"]').is(':checked')) {
-		if (community_name.toUpperCase()==city.toUpperCase()) {
+		if (community_name.toUpperCase().replace("_", " ")==city.toUpperCase().replace("_", " ")) {
 			$("#chart1").hide();
 			$("#chart4").hide();
 			$("#myDropdown").hide();
@@ -106,7 +106,7 @@ function sliderOption() {
 		}
 		$("#chart2").hide();
 		$("#chart3").hide();
-		$.getJSON($SCRIPT_ROOT + '/community/' + city + '/' + selected_dt, function(json) {
+		$.getJSON($SCRIPT_ROOT + '/community_pivot/' + city + '/' + selected_dt, function(json) {
 			res = json;
 			removeMarkers();
 			if (map_polygons.length > 0) {
@@ -568,9 +568,10 @@ function chartCrimeLocations() {
 function chartCrimeSeries() {
 	var data = [];
 	var xLabels = [];
+	console.log($SCRIPT_ROOT + '/trends/' + city )
 	$(function () {
-
 		$.getJSON($SCRIPT_ROOT + '/trends/' + city , function(json) {
+			console.log(json)
 			$.each(json[city], function(month, value) {
 				var data_point = {
 								color: "#000000", 
@@ -602,7 +603,11 @@ function chartCrimeSeries() {
 		            categories: xLabels
 		        },
 		        yAxis: {
-		        	visible: false
+		        	visible: false,
+		        	enabled: false,
+		        	title: {
+		        		text: null
+		        	}
 		        },
 		        plotOptions: {
 		        	line: {
@@ -629,18 +634,24 @@ function chartCrimeSeries() {
 
 function chartCensus() {
 	census_opt = $("#myDropdown option:selected").text();
+	console.log(comm_data);
 	var adj_list = comm_data[community_id]["adj_list"];
 	var census_data = [];
 	var census_labels = [];
-	var all_point = comm_data["All"][census_opt]
-	var all_data = [all_point];
+	if (city=='chicago'){
+		var all_point = comm_data["All"][census_opt];
+		var all_data = [all_point];
+	}
 	census_data.push({color: "#C0C0C0", y: comm_data[community_id][census_opt]});
 	census_labels.push(comm_data[community_id]["COMMUNITY AREA NAME"]);
 	for (i in adj_list) {
 		census_data.push({color: "#008080", y: comm_data[adj_list[i]][census_opt]});
 		census_labels.push(comm_data[adj_list[i]]["COMMUNITY AREA NAME"]);
-		all_data.push(all_point);
+		if (city=='chicago'){
+				all_data.push(all_point);
+			}
 	}
+	console.log(census_data);
 	series = [{
 	        	type: "column",
 	            name: census_opt,
@@ -648,6 +659,7 @@ function chartCensus() {
 	            colorByPoint: true,
 	            events: {
 	                    click: function (event) {
+	                    	console.log(event.point)
 	                    	community_name = event.point.category.toUpperCase();
 	                    	var idx = Object.values(res.results['COMMUNITY']).indexOf(community_name);
 							community_id = res.results['Community Area'][idx].toString();
@@ -664,12 +676,12 @@ function chartCensus() {
 							addCommunitySeries(community_id);
 							var dt = document.getElementById("date-label");
 							var dt_list = getMonthName(selected_dt);
-							dt.innerHTML = community_name.toUpperCase() + " - " + dt_list[0].toUpperCase() + ". " + dt_list[1];	
+							dt.innerHTML = community_name.toUpperCase().replace("_", " ") + " - " + dt_list[0].toUpperCase() + ". " + dt_list[1];	
 	                    }
 	                }
 	        }]
 
-	if (census_opt!="HARDSHIP INDEX") {
+	if (census_opt!="HARDSHIP INDEX" && city=="chicago") {
 		series.push({
 	        	type: "line",
 	        	name: "CITY AVERAGE",
@@ -846,7 +858,6 @@ function clickPoly(event) {
 	var latlngclicked = event.latLng;
 	var idx = map_polygons.indexOf(this);
 	var r = getResults();
-	console.log(r.results)
 	community_name = r.results.COMMUNITY[idx];
 	community_id = r.results['Community Area'][idx].toString() 
 	var content = "<p>" + r.results.COMMUNITY[idx] + "</p><p>Gun crimes: " + r.results[selected_dt][idx] + "</p>";
@@ -867,7 +878,7 @@ function clickPoly(event) {
 	addCommunitySeries(community_id);
 	var dt = document.getElementById("date-label");
 	var dt_list = getMonthName(selected_dt);
-	dt.innerHTML = community_name.toUpperCase() + " - " + dt_list[0].toUpperCase() + ". " + dt_list[1];	
+	dt.innerHTML = community_name.toUpperCase().replace("_", " ") + " - " + dt_list[0].toUpperCase() + ". " + dt_list[1];	
 
 }
 
