@@ -254,7 +254,8 @@ function createDropdownMarkers(res, field) {
 	$("#myDropdown").empty();
 	p = new Set(Object.values(res.results['Primary Type']))
 
-	$.each(Array.from(p), function(index, value) {
+	for (index in Array.from(p)) {
+		var value = Array.from(p)[index];
 		var opt = document.createElement("option");
 	    var t = document.createTextNode(value);
 	    if (!crimetype_opt) {
@@ -270,7 +271,7 @@ function createDropdownMarkers(res, field) {
 	    opt.setAttribute("value", "option" + index);
 	    opt.appendChild(t);
 		document.getElementById("myDropdown").appendChild(opt);
-	});
+	}
 	$("#myDropdown").show();
 }
 
@@ -281,7 +282,8 @@ function createDropdownScatter(res) {
 	$("#yDropdown").empty();
 	p = new Set(Object.keys(res.results));
 
-	$.each(Array.from(p), function(index, value) {
+	for (index in Array.from(p)) {
+		var value = Array.from(p)[index];
 		var optX = document.createElement("option");
 		var optY = document.createElement("option");
 	    var xText = document.createTextNode(value);
@@ -313,7 +315,8 @@ function createDropdownScatter(res) {
 	    optY.setAttribute("value", "option" + index);
 	    optY.appendChild(yText);
 		document.getElementById("yDropdown").appendChild(optY);
-	});
+	}
+	// });
 	$("#chart4").show()
 	$("#xDropdown").show();
 	$("#yDropdown").show();
@@ -328,7 +331,8 @@ function drawMarkers(res, field) {
 	removeMarkers();
 	crimetype_opt = $("#myDropdown option:selected").text();
 	
-	$.each(res.results[dt], function(index, value) {
+	for (index in res.results[dt]) {
+		var value = res.results[dt][index];
 		var comm_area = res.results[field][index];
 		var primary_type = res.results['Primary Type'][index];
 		var key = comm_area;
@@ -340,7 +344,7 @@ function drawMarkers(res, field) {
 			bounds[key].extend(new google.maps.LatLng(res.results['Latitude'][index], res.results['Longitude'][index]));
 			labels[key] += Number(res.results[dt][index]);
 		}
-	});
+	}
 
 	$.each(bounds, function(index, bound) {
 		var mark = new google.maps.Marker({
@@ -493,7 +497,7 @@ function chartCrimeTypes() {
 		            plotBackgroundColor: "#FFFFFF",
 		            backgroundColor: null,
 		            plotBorderWidth: null,
-		            plotShadow: false,
+		            plotShadow: true,
 		            type: 'bar'
 		        },
 		        tooltip: {
@@ -547,7 +551,7 @@ function chartCrimeLocations() {
 		        	backgroundColor: null,
 		            plotBackgroundColor: "#FFFFFF",
 		            plotBorderWidth: null,
-		            plotShadow: false,
+		            plotShadow: true,
 		            type: 'bar'
 		        },
 		        title: {
@@ -579,7 +583,8 @@ function chartCrimeSeries() {
 	var xLabels = [];
 	$(function () {
 		$.getJSON($SCRIPT_ROOT + '/trends/' + city , function(json) {
-			$.each(json[city], function(month, value) {
+			for (month in json[city]) {
+				var value = json[city][month];
 				var data_point = {
 								color: "#000000", 
 								y: value, 
@@ -587,7 +592,7 @@ function chartCrimeSeries() {
 								};
 				data.push(data_point);
 				xLabels.push(month);
-			});
+			}
 
 		    // Build the chart
 		    $('#chart0').highcharts({
@@ -713,7 +718,8 @@ function chartCensus() {
 			    chart: {
 		            type: 'column',
 			        plotBackgroundColor: "#FFFFFF",
-		            backgroundColor: null
+		            backgroundColor: null,
+		            plotShadow: true
 		        },
 		        legend: {
 		            align: 'right',
@@ -752,7 +758,8 @@ function scatterCensus() {
 		scatterY = $("#yDropdown option:selected").text();
 
 		createDropdownScatter(json);
-		$.each(json.results[scatterX], function(index, scatter_x) {
+		for (index in json.results[scatterX]) {
+			var scatter_x = json.results[scatterX][index]
 			var scatter_y = json.results[scatterY][index];
 			var label = json.results['COMMUNITY'][index];
 			if (label == community_name) {
@@ -771,7 +778,7 @@ function scatterCensus() {
 						name: label, 
 						marker: {symbol: symbol, radius: radius}, 
 						zIndex: zIndex});
-		});
+		}
 
 		$(function () {
 		    cencsusScatter = Highcharts.chart('chart4', {
@@ -781,7 +788,8 @@ function scatterCensus() {
 				    chart: {
 			            type: 'scatter',
 			            plotBackgroundColor: "#FFFFFF",
-			            backgroundColor: null
+			            backgroundColor: null,
+			            plotShadow: true
 			        },
 			        legend: {
 			        	enabled: false
@@ -894,9 +902,10 @@ function clickPoly(event) {
 function addCommunitySeries(community_id) {
 	$.getJSON($SCRIPT_ROOT + "/community_trends/" + city + "/" + community_id, function(json) {
 		var data = [];
-		$.each(json.results, function(month, count) {
+		for (month in json.results) {
+			var count = json.results[month]; 
 			data.push(count);
-		});
+		}
 		$("#chart0").highcharts().series[0].setData(data);		
 	});
 }
@@ -904,9 +913,10 @@ function addCommunitySeries(community_id) {
 function addCitySeries() {
 	$.getJSON($SCRIPT_ROOT + "/trends/" + city, function(json) {
 		var data = [];
-		$.each(json[city], function(month, count) {
+		for (month in json[city]) {
+			var count = json[city][month]; 
 			data.push(count);
-		});
+		}
 		$("#chart0").highcharts().series[0].setData(data);		
 	});
 }

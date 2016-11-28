@@ -43,7 +43,7 @@ def city(city):
 
 @app.route('/trends/<string:city>')
 def trends(city):
-    csv = 'trend.csv'
+    csv = 'trends.csv'
     fields = ['CITY']
     crime_obj = crimes(city, '%Y-%m', fields,  ['WEAPON_FLAG', 1], csv=csv) 
     data = crime_obj.data.set_index('CITY')
