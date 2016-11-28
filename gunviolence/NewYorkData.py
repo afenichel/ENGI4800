@@ -100,7 +100,7 @@ class NewYorkData():
 			if len(col)==1:
 				col = list(col[0])
 				col = [c]+col+[cls._heading(c, headings)]
-				col = [i.replace('GeoID', 'Community Area Number') for i in col if isinstance(i, basestring)]
+				col = [i.replace('GeoID', 'Community Area Number').replace('GeogName', 'COMMUNITY AREA NAME') for i in col if isinstance(i, basestring)]
 				col_filter.append(c)
 				col_levels.append(tuple(col))
 		census = census[col_filter]
@@ -216,15 +216,8 @@ class NewYorkData():
 	def read_census_extended(self):
 		census_extended = self._read_census().reset_index(drop=False, col_fill='GeoID')
 		census_extended = census_extended.T.reset_index(drop=False)
-		print census_extended
-		for h in census_extended.Heading:
-			print h
 		census_extended = census_extended[census_extended.Heading.isin(['estimates', 'GeoID'])]
-		for i, row in census_extended.iterrows():
-				print i, row['Code']
 		census_extended.index = ['%s: %s (%s)' % (row['Category'], row['Variable'], row['Unit of Analysis']) if row['Category'] not in ('adj_list', 'GeoID') else row['Category'] for i, row in census_extended.iterrows()]
-		# for i in census_extended.index:
-		# 	print i
 		census_extended.drop(['Code', 'Category', 'Variable', 'CodeType', 'Unit of Analysis', 'Heading'], axis=1, inplace=True)
 		return census_extended.T
 

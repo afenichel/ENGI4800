@@ -158,8 +158,8 @@ def community(city):
         return jsonify(community_meta.T.to_dict())
     elif city=='new_york':
         community_meta = community_meta.T.reset_index(drop=False)
-        community_meta = community_meta[community_meta.Heading.isin(['adj_list', 'estimates'])]
-        community_meta.index = ['%s: %s (%s)' % (row['Category'], row['Variable'], row['Unit of Analysis']) if row['Category']!='adj_list' else 'adj_list' for i, row in community_meta.iterrows()]
+        community_meta = community_meta[community_meta.Heading.isin(['adj_list', 'estimates', 'COMMUNITY AREA NAME'])]
+        community_meta.index = ['%s: %s (%s)' % (row['Category'], row['Variable'], row['Unit of Analysis']) if row['Code'] not in ('adj_list', 'COMMUNITY AREA NAME') else row['Code'] for i, row in community_meta.iterrows()]
         return jsonify(community_meta.to_dict())
 
 def cityPivot(city):

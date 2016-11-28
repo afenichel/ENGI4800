@@ -156,6 +156,7 @@ div#censusDropdownX {
     position: absolute;
     z-index: 100;
     padding-right: 20px;
+    width: 100px;
 }
 
 div#censusDropdownY {
@@ -164,6 +165,7 @@ div#censusDropdownY {
     position: absolute;
     z-index: 100;
     padding-right: 20px;
+    width: 100px;
 }
 div.ui-content {
     width: 1140px;
