@@ -139,7 +139,6 @@ class ChicagoData():
 			col = census_key[census_key.Code==c][['Category', 'Variable', 'Code']].values
 			if len(col)==1:
 				col = list(col[0])
-
 				col = [i.replace('GEOG', 'COMMUNITY AREA NAME') for i in col if isinstance(i, basestring)]
 				col_filter.append(c)
 				col_levels.append(tuple(col))
