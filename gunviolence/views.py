@@ -53,7 +53,6 @@ def trends(city):
 @app.route('/<string:api_endpoint>/<string:city>/<string:dt_filter>')
 def monthlty_data(api_endpoint, city, dt_filter, map_dict=map_dict):
     map_dict['center'] = tuple(config['center'][city])
-    
     if api_endpoint=='heatmap':
         csv = '%s.csv' % api_endpoint
         fields = ['Latitude', 'Longitude']
@@ -123,21 +122,20 @@ def community_data(city, community_id):
     return jsonify({'meta': meta.to_dict(), 'results': results.to_dict()})
 
 
-@app.route('/census_correlation/<string:city>')
-def census_scatter(city):
+@app.route('/census_correlation/<string:city>/<string:values>')
+def census_scatter(city, values):
     csv='census_correlation.csv'
     fields = ['Community Area', 'COMMUNITY', 'the_geom_community']
     crime_obj = crimes(city, '%Y', fields,  ['WEAPON_FLAG', 1], ['Year', [2010, 2011, 2012, 2013, 2014]], csv=csv) 
     crime_data = crime_obj.data[['COMMUNITY', 'Community Area']]
     crime_data['Avg. Annual Crimes'] = crime_obj.data[crime_obj.date_list].mean(axis=1)
-    census_extended = crime_obj.read_census_extended()
+    census_extended = crime_obj.read_census_extended(values=values)
     if city=='chicago':
         left_on='COMMUNITY'
-        right_on='GEOG'
+        right_on='COMMUNITY AREA NAME'
     elif city=='new_york':
         left_on='Community Area'
         right_on='GeoID'
-        census_extended = census_extended
     census_data = crime_data.merge(census_extended, left_on=left_on, right_on=right_on).fillna(0)
     return jsonify({'results': census_data.to_dict()})
 

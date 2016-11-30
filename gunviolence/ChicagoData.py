@@ -129,10 +129,26 @@ class ChicagoData():
 		os.system("curl 'https://datahub.cmap.illinois.gov/dataset/1d2dd970-f0a6-4736-96a1-3caeb431f5e4/resource/8c4e096e-c90c-4bef-9cf1-9028d094296e/download/ReferenceCCA20102014.csv' -o '%sCMAP_census_data.csv'" % self.DATA_PATH)
 		return self
 
-	def read_census_extended(self):
-		census_extended = pd.read_csv("gunviolence/data/chicago/CMAP_census_data.csv")
-		census_extended['GEOG'] = census_extended['GEOG'].map(lambda x: x.upper())
-		return census_extended
+	def read_census_extended(self, values=None):
+		census = pd.read_csv("gunviolence/data/chicago/CMAP_census_data.csv")
+		census['GEOG'] = census['GEOG'].map(lambda x: x.upper())
+		census_key = pd.read_csv("gunviolence/data/chicago/census_lookup.csv")
+		col_filter = []
+		col_levels = []
+		for c in census.columns:
+			col = census_key[census_key.Code==c][['Category', 'Variable', 'Code']].values
+			if len(col)==1:
+				col = list(col[0])
+
+				col = [i.replace('GEOG', 'COMMUNITY AREA NAME') for i in col if isinstance(i, basestring)]
+				col_filter.append(c)
+				col_levels.append(tuple(col))
+		census = census[col_filter]
+		census.columns = pd.MultiIndex.from_tuples(col_levels, names=['Category', 'Variable', 'Code'])
+		census_extended = census.T.reset_index(drop=False)
+		census_extended.index = ['%s: %s' % (row['Category'], row['Variable']) if row['Category'] not in ('COMMUNITY AREA NAME') else row['Category'] for i, row in census_extended.iterrows()]
+		census_extended.drop(['Code', 'Category', 'Variable'], axis=1, inplace=True)
+		return census_extended.T
 
 	@classmethod
 	def geom_to_list(cls, df):

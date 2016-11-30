@@ -110,7 +110,7 @@ li.dropdown {
 }
 
 #chart4 {
-    top: 520px;
+    top: 540px;
     right: 0; 
     width: 500px;
     height: 400px;
@@ -150,8 +150,16 @@ div.btn-group {
     text-align: center;
 }
 
+div#censusDropdownValue {
+    top: 490px;
+    right: 180px; 
+    position: absolute;
+    z-index: 100;
+    padding-right: 20px;   
+}
+
 div#censusDropdownX {
-    top: 500px;
+    top: 520px;
     right: 270px; 
     position: absolute;
     z-index: 100;
@@ -159,12 +167,16 @@ div#censusDropdownX {
 }
 
 div#censusDropdownY {
-    top: 500px;
+    top: 520px;
     right: 20px; 
     position: absolute;
     z-index: 100;
     padding-right: 20px;
     
+}
+
+select#valueDropdown {
+    width: 200px;
 }
 
 select#xDropdown {

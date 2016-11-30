@@ -46,6 +46,7 @@ function initMap() {
 	$("#myDropdown").hide();
 	$("#xDropdown").hide();
 	$("#yDropdown").hide();	
+	$("#censusDropdownValue").hide();
 	$("#censusDropdownX").hide();
 	$("#censusDropdownY").hide();
 	
@@ -105,6 +106,7 @@ function sliderOption() {
 			$("#myDropdown").hide();
 			$("#xDropdown").hide();
 			$("#yDropdown").hide();
+			$("#censusDropdownValue").hide();
 			$("#censusDropdownX").hide();
 			$("#censusDropdownY").hide();
 		}
@@ -134,6 +136,7 @@ function sliderOption() {
 		$("#myDropdown").hide();
 		$("#xDropdown").hide();
 		$("#yDropdown").hide();
+		$("#censusDropdownValue").hide();
 		$("#censusDropdownX").hide();
 		$("#censusDropdownY").hide();
 		$("#chart1").hide();
@@ -167,6 +170,7 @@ function sliderOption() {
 	if ($('.form-check-input[value="markers"]').is(':checked')) {
 		$("#xDropdown").hide();
 		$("#yDropdown").hide();
+		$("#censusDropdownValue").hide();
 		$("#censusDropdownX").hide();
 		$("#censusDropdownY").hide();
 		$("#chart1").hide();
@@ -286,40 +290,44 @@ function createDropdownScatter(res) {
 		var value = Array.from(p)[index];
 		var optX = document.createElement("option");
 		var optY = document.createElement("option");
-	    var xText = document.createTextNode(value);
-	    var yText = document.createTextNode(value);
-
-	    if (!scatterX) {
-		    if (value == 'Avg. Annual Crimes') {
-		    	optX.setAttribute("selected", "selected");
-		    	scatterX = value;
-			  }
-	    } else {
-	    	if (value==scatterX) {
-	    		optX.setAttribute("selected", "selected");
-	    	}
-	    }
-	    if (!scatterY) {
-		    if (index == 0) {
-		    	optY.setAttribute("selected", "selected");
-		    	scatterY = value;
-			  }
-	    } else {	
-	    	if (value==scatterY) {
-	    		optY.setAttribute("selected", "selected");
-	    	}
-	    }
-	    optX.setAttribute("value", "option" + index);
-	    optX.appendChild(xText);
-		document.getElementById("xDropdown").appendChild(optX);
-	    optY.setAttribute("value", "option" + index);
-	    optY.appendChild(yText);
-		document.getElementById("yDropdown").appendChild(optY);
+		if (['COMMUNITY', 'Community Area', 'GeoID', 'GEOG'].indexOf(value)==-1){
+			    var xText = document.createTextNode(value);
+			    var yText = document.createTextNode(value);
+		
+		    if (!scatterX) {
+			    if (value == 'Avg. Annual Crimes') {
+			    	optX.setAttribute("selected", "selected");
+			    	scatterX = value;
+				  }
+		    } else {
+		    	if (value==scatterX) {
+		    		optX.setAttribute("selected", "selected");
+		    	}
+		    }
+		    if (!scatterY) {
+			    if (index == 0) {
+			    	optY.setAttribute("selected", "selected");
+			    	scatterY = value;
+				  }
+		    } else {	
+		    	if (value==scatterY) {
+		    		optY.setAttribute("selected", "selected");
+		    	}
+		    }
+		    optX.setAttribute("value", "option" + index);
+		    optX.appendChild(xText);
+			document.getElementById("xDropdown").appendChild(optX);
+		    optY.setAttribute("value", "option" + index);
+		    optY.appendChild(yText);
+			document.getElementById("yDropdown").appendChild(optY);
+		}
 	}
-	// });
 	$("#chart4").show()
 	$("#xDropdown").show();
 	$("#yDropdown").show();
+	if (city=='new_york'){
+		$("#censusDropdownValue").show();
+	}
 	$("#censusDropdownX").show();
 	$("#censusDropdownY").show();
 }
@@ -757,7 +765,10 @@ function chartCensus() {
 
 
 function scatterCensus() {
-	$.getJSON($SCRIPT_ROOT + '/census_correlation/' + city, function(json) {
+	var values = $("#valueDropdown option:selected").text();
+	console.log(values)
+
+	$.getJSON($SCRIPT_ROOT + '/census_correlation/' + city + '/' + values, function(json) {
 		var series = []
 
 		scatterX = $("#xDropdown option:selected").text();
@@ -779,11 +790,13 @@ function scatterCensus() {
 				var symbol = 'circle';
 				var radius = 4;
 			}
-			series.push({data: [[scatter_x, scatter_y]], 
-						color: color, 
-						name: label, 
-						marker: {symbol: symbol, radius: radius}, 
-						zIndex: zIndex});
+			if (scatter_x>0 && scatter_y>0) {
+				series.push({data: [[scatter_x, scatter_y]], 
+							color: color, 
+							name: label, 
+							marker: {symbol: symbol, radius: radius}, 
+							zIndex: zIndex});
+			}
 		}
 
 		$(function () {
@@ -845,8 +858,6 @@ function drawPoly(res) {
 		        strokeColor: res.polyargs.stroke_color,
 		        strokeOpacity: res.polyargs.stroke_opacity,
 		        strokeWeight: res.polyargs.stroke_weight,
-		        // fillOpacity: res.results.fill_opacity[i],
-		        // fillColor: res.polyargs.fill_color,
 		        fillOpacity: res.polyargs.fill_opacity,
 		        fillColor: res.results.fill_color[i],
 		        path: polypaths[i],
@@ -869,7 +880,6 @@ function updatePoly(res) {
 
 		// add polygons
 		for(i = 0; i < map_polygons.length; i++) {
-			// map_polygons[i].setOptions({fillOpacity: res.results.fill_opacity[i]});
 			map_polygons[i].setOptions({fillOpacity: res.polyargs.fill_opacity});
 		}
 	}
@@ -936,7 +946,6 @@ function hoverPoly() {
 
 function unhoverPoly(p) {
 	var idx = map_polygons.indexOf(p);
-	// p.setOptions({fillOpacity: res.results.fill_opacity[idx]});
 	p.setOptions({fillOpacity: res.polyargs.fill_opacity});
 }
 

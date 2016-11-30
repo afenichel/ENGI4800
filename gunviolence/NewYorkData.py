@@ -101,7 +101,7 @@ class NewYorkData():
 			if len(col)==1:
 				col = list(col[0])
 				col = [c]+col+[cls._heading(c, headings)]
-				col = [i.replace('GeoID', 'Community Area Number').replace('GeogName', 'COMMUNITY AREA NAME') for i in col if isinstance(i, basestring)]
+				col = [i.replace('GeogName', 'COMMUNITY AREA NAME') for i in col if isinstance(i, basestring)]
 				col_filter.append(c)
 				col_levels.append(tuple(col))
 		census = census[col_filter]
@@ -215,10 +215,10 @@ class NewYorkData():
 		return [row[col] for i, row in area_data.iterrows() if row['path'].contains_point([lat, lng])]
 
 
-	def read_census_extended(self):
+	def read_census_extended(self, values="percents"):
 		census_extended = self._read_census().reset_index(drop=False, col_fill='GeoID')
 		census_extended = census_extended.T.reset_index(drop=False)
-		census_extended = census_extended[census_extended.Heading.isin(['estimates', 'GeoID'])]
+		census_extended = census_extended[census_extended.Heading.isin([values, 'GeoID'])]
 		census_extended.index = ['%s: %s (%s)' % (row['Category'], row['Variable'], row['Unit of Analysis']) if row['Category'] not in ('adj_list', 'GeoID') else row['Category'] for i, row in census_extended.iterrows()]
 		census_extended.drop(['Code', 'Category', 'Variable', 'CodeType', 'Unit of Analysis', 'Heading'], axis=1, inplace=True)
 		return census_extended.T
