@@ -110,7 +110,7 @@ li.dropdown {
 }
 
 #chart4 {
-    top: 540px;
+    top: 570px;
     right: 0; 
     width: 500px;
     height: 400px;
@@ -175,6 +175,22 @@ div#censusDropdownY {
     
 }
 
+div#transformX {
+    top: 550px;
+    right: 350px; 
+    position: absolute;
+    z-index: 100;
+    padding-right: 20px;
+}
+
+div#transformY {
+    top: 550px;
+    right: 100px; 
+    position: absolute;
+    z-index: 100;
+    padding-right: 20px;
+}
+
 select#valueDropdown {
     width: 200px;
 }
@@ -183,9 +199,15 @@ select#xDropdown {
     width: 200px;
 }
 
-
 select#yDropdown {
     width: 200px;
+}
+
+select#yTransform {
+    width: 60px;}
+
+select#xTransform {
+    width: 60px;
 }
 
 div.ui-content {

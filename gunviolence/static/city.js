@@ -49,6 +49,8 @@ function initMap() {
 	$("#censusDropdownValue").hide();
 	$("#censusDropdownX").hide();
 	$("#censusDropdownY").hide();
+	$("#transformX").hide();
+	$("#transformY").hide();
 	
 	z = res.map_dict.maptype_control;
     document.getElementById('view-side').style.display = 'block';
@@ -109,6 +111,8 @@ function sliderOption() {
 			$("#censusDropdownValue").hide();
 			$("#censusDropdownX").hide();
 			$("#censusDropdownY").hide();
+			$("#transformX").hide();
+			$("#transformY").hide();
 		}
 		$("#chart2").hide();
 		$("#chart3").hide();
@@ -139,6 +143,8 @@ function sliderOption() {
 		$("#censusDropdownValue").hide();
 		$("#censusDropdownX").hide();
 		$("#censusDropdownY").hide();
+		$("#transformX").hide();
+		$("#transformY").hide();
 		$("#chart1").hide();
 		$("#chart2").hide();
 		$("#chart3").hide();
@@ -173,6 +179,8 @@ function sliderOption() {
 		$("#censusDropdownValue").hide();
 		$("#censusDropdownX").hide();
 		$("#censusDropdownY").hide();
+		$("#transformX").hide();
+		$("#transformY").hide();
 		$("#chart1").hide();
 		$("#chart2").show();
 		$("#chart3").show();
@@ -290,7 +298,7 @@ function createDropdownScatter(res) {
 		var value = Array.from(p)[index];
 		var optX = document.createElement("option");
 		var optY = document.createElement("option");
-		if (['COMMUNITY', 'Community Area', 'GeoID', 'GEOG'].indexOf(value)==-1){
+		if (['COMMUNITY', 'Community Area', 'GeoID', 'GEOG', 'COMMUNITY AREA NAME'].indexOf(value)==-1){
 			    var xText = document.createTextNode(value);
 			    var yText = document.createTextNode(value);
 		
@@ -330,6 +338,8 @@ function createDropdownScatter(res) {
 	}
 	$("#censusDropdownX").show();
 	$("#censusDropdownY").show();
+	$("#transformX").show();
+	$("#transformY").show();
 }
 
 function drawMarkers(res, field) {
@@ -764,6 +774,18 @@ function chartCensus() {
 }
 
 
+function transform(v, t) {
+	if (t=="sqrt") {
+		return Math.sqrt(v);
+	} else if (t=="sqrd") {
+		return Math.pow(v, 2);
+	} else if (t=="log") {
+		return Math.log(v);
+	} else {
+		return v;
+	}
+}
+
 function scatterCensus() {
 	var values = $("#valueDropdown option:selected").text();
 	console.log(values)
@@ -773,7 +795,9 @@ function scatterCensus() {
 
 		scatterX = $("#xDropdown option:selected").text();
 		scatterY = $("#yDropdown option:selected").text();
-
+		var transformX = $("#xTransform").val();
+		var transformY = $("#yTransform").val();
+		
 		createDropdownScatter(json);
 		for (index in json.results[scatterX]) {
 			var scatter_x = json.results[scatterX][index]
@@ -791,6 +815,9 @@ function scatterCensus() {
 				var radius = 4;
 			}
 			if (scatter_x>0 && scatter_y>0) {
+				scatter_x = transform(scatter_x, transformX);
+				scatter_y = transform(scatter_y, transformY);
+
 				series.push({data: [[scatter_x, scatter_y]], 
 							color: color, 
 							name: label, 

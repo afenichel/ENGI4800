@@ -101,7 +101,7 @@ class NewYorkData():
 			if len(col)==1:
 				col = list(col[0])
 				col = [c]+col+[cls._heading(c, headings)]
-				col = [i.replace('GeogName', 'COMMUNITY AREA NAME') for i in col if isinstance(i, basestring)]
+				col = [i.replace('GeoID', 'Community Area Number').replace('GeogName', 'COMMUNITY AREA NAME') for i in col if isinstance(i, basestring)]
 				col_filter.append(c)
 				col_levels.append(tuple(col))
 		census = census[col_filter]

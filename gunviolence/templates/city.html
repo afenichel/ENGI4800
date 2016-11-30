@@ -89,7 +89,7 @@
             <div id="chart3"></div>
             <div class="dropdown" id="censusDropdownValue" style="display: inline-block">
                 <select id="valueDropdown" onchange="dropDownSelect()" class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                    <option value="option1" selected=selected>estimates</option>
+                    <option value="option1" selected="selected">estimates</option>
                     <option value="option2">percents</option>
                 </select>
             </div>
@@ -98,8 +98,24 @@
                 <b>X</b>: <select id="xDropdown" onchange="dropDownSelect()" class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                 </select>
             </div>
+            <div class="dropdown" id="transformX" style="display: inline-block">
+                <b>Transform</b>: <select id="xTransform" onchange="dropDownSelect()" class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                    <option value="none" selected="selected">X</option>
+                    <option value="sqrt">&radic;<span style="text-decoration: overline">X</span></option>
+                    <option value="sqrd">X&sup2</option>
+                    <option value="log">logX</option>
+                </select>
+            </div>
             <div class="dropdown" id="censusDropdownY" style="display: inline-block">
                 <b>Y</b>: <select id="yDropdown" onchange="dropDownSelect()" class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                </select>
+            </div>
+            <div class="dropdown" id="transformY" style="display: inline-block">
+                <b>Transform</b>: <select id="yTransform" onchange="dropDownSelect()" class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                    <option value="none" selected="selected">Y</option>
+                    <option value="sqrt">&radic;<span style="text-decoration: overline">Y</span></option>
+                    <option value="sqrd">Y&sup2</option>
+                    <option value="log">logY</option>
                 </select>
             </div>
             <div id="chart4"></div>
