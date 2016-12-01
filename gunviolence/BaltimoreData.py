@@ -15,11 +15,11 @@ from matplotlib.path import Path
 from matplotlib import colors, cm
 
 
-class NewYorkData():
+class BaltimoreData():
 	def __init__(self, *args):
-		self.DATA_PATH =  os.path.join(os.path.dirname(__file__), "data/new_york/")
-		self.NEIGHBORHOOD_URL =  "http://services5.arcgis.com/GfwWNkhOj9bNBqoJ/arcgis/rest/services/nynta/FeatureServer/0/query?where=1=1&outFields=*&outSR=4326&f=geojson"
-		self.CSV_FILE = self.DATA_PATH + "NYPD_Complaint_Data.csv"
+		self.DATA_PATH =  os.path.join(os.path.dirname(__file__), "data/baltimore/")
+		self.NEIGHBORHOOD_URL =  "http://catalog.civicdashboards.com/dataset/e90d8498-44dd-4390-9bb9-5a53e85221eb/resource/6045d7d0-263e-416c-80fe-af1fb9f30650/download/3327ba9ba6f54cfdb9a5ef18244ae710temp.geojson"
+		self.CSV_FILE = self.DATA_PATH + "Baltimore_Complaint_Data.csv"
 		self.df = pd.DataFrame()
 		self.meta = dict()
 		self.args = args
@@ -53,144 +53,84 @@ class NewYorkData():
 				self.read_data(limit=limit)
 				self._apply_weapons_flag()
 				self.read_meta()
-				# self.merge_meta()
-				self.df['CITY'] = 'New York'
+				self.merge_meta()
+				self.df['CITY'] = 'Baltimore'
+		return self
+
+	def _split_latlng(self):
+		Lat_Lng = self.df['Location'].str.replace('\(|\)', '').str.split(', ')
+		self.df['Latitude'] = Lat_Lng.map(lambda x: x[0])
+		self.df['Longitude'] = Lat_Lng.map(lambda x: x[1])
 		return self
 
 	def read_data(self, limit=None):
-		self.df = pd.read_csv(self.CSV_FILE, nrows=limit, dtype={'CMPLNT_NUM': str, 'KY_CD': str, 'PD_CD': str, 'ADDR_PCT_CD': str, 'PARKS_NM': str, 'X_COORD_CD': str, 'Y_COORD_CD': str, 'Latitude': str, 'Longitude': str})
-		self.df.rename(columns={'RPT_DT': 'Date', 'PREM_TYP_DESC': 'Location Description', 'Lat_Lon': 'Location', 'BORO_NM': 'DIST_NUM', 'OFNS_DESC': 'Primary Type', 'PD_DESC': 'Description'}, inplace=True)
-		self.df = self.df[self.df.Date != 'RPT_DT']
+		self.df = pd.read_csv(self.CSV_FILE, nrows=limit)
+		self.df.rename(columns={'Location': 'Address', 'CrimeDate': 'Date', 'Neighborhood': 'Community Area',  'Inside/Outside': 'Location Description', 'Location 1': 'Location', 'District': 'DIST_NUM', 'Description': 'Primary Type', 'Weapon': 'Description'}, inplace=True)
 		self.df = self.df[self.df.Location.notnull()].reset_index(drop=True)
+		self.df['COMMUNITY'] = self.df['Community Area'].str.upper()
+		self._split_latlng()
 		return self	
 
 	def read_meta(self):
 		self.meta['census'] = self._read_census()
-		self.meta['precinct'] = self._read_precinct()
+		self.meta['district'] = self._read_BNIAneighborhood()
+		self.meta['ward'] = self._read_ward()
 		self.meta['community'] = self._read_neighborhood()
 
-	@classmethod
-	def _read_census(cls):		
-		headings = {"E": "estimates",
-					"M": "margins of error",
-					"C": "coefficients of variation",
-					"P": "percents",
-					"Z": "percent margins of error"}
-		identifiers = ['GeoType', 'GeogName', 'Borough', 'PUMA', 'ComDst', 'GeoID']
-
-		census_key = pd.read_csv("gunviolence/data/new_york/census_lookup.csv")
-
-		econ_census = pd.read_csv("gunviolence/data/new_york/economic_census_data.csv")
-		demo_census = pd.read_csv("gunviolence/data/new_york/demo_census_data.csv")
-		hous_census = pd.read_csv("gunviolence/data/new_york/housing_census_data.csv")
-		soc_census = pd.read_csv("gunviolence/data/new_york/social_census_data.csv")
-		census = econ_census
-		census = census.merge(demo_census, on=identifiers)
-		census = census.merge(hous_census, on=identifiers)
-		census = census.merge(soc_census, on=identifiers)
-		for c in census.columns:
-			if c not in identifiers:
-				if census[c].dtype=='object':
-					census[c] = census[c].str.replace(",", "")
-					census[c] = census[c].apply(pd.to_numeric)
-
-		col_filter = []
-		col_levels = []
-		for c in census.columns:
-			col = census_key[census_key.Code==cls._codetype(c, headings)][['Category', 'Variable', 'Code', 'Unit of Analysis']].values
-			if len(col)==1:
-				col = list(col[0])
-				col = [c]+col+[cls._heading(c, headings)]
-				col = [i.replace('GeoID', 'Community Area Number').replace('GeogName', 'COMMUNITY AREA NAME') for i in col if isinstance(i, basestring)]
-				col_filter.append(c)
-				col_levels.append(tuple(col))
-		census = census[col_filter]
-		census.columns = pd.MultiIndex.from_tuples(col_levels, names=['Code', 'Category', 'Variable', 'CodeType', 'Unit of Analysis', 'Heading'])
-		census = census.set_index('Community Area Number')
-		census.index = [i[0] for i in census.index]
+	def _read_census(self):
+		demo_census = self._read_demo_census()
+		action_census = self._read_action_census()
+		census = demo_census.merge(action_census, on='DIST_NUM')
 		return census
 
-	@staticmethod
-	def _codetype(x, headings):
-		if x[-1] in headings.keys():
-			return x[:-1]
-		else:
-			return x
-
-	@staticmethod
-	def _heading(x, headings):
-		if x[-1] in headings.keys():
-			return headings[x[-1]]
-		else:
-			return x
+	def _read_BNIAneighborhood(self):
+		BNIAneighborhood = pd.read_csv(self.DATA_PATH + 'BNIA_neighborhood.csv').rename(columns={'CSA2010': 'DIST_NUM'})
+		return BNIAneighborhood
 
 	def _read_neighborhood(self):
-		neighborhood = pd.read_csv(self.DATA_PATH + 'tabulation_areas.csv').rename(columns={'NTAName': 'COMMUNITY', 'NTACode': 'Community Area'})
-		neighborhood['COMMUNITY'] = neighborhood['COMMUNITY'].map(lambda x: x.upper())
+		neighborhood = pd.read_csv(self.DATA_PATH + 'neighborhood.csv').rename(columns={'NBRDESC': 'COMMUNITY', 'LABEL': 'Community Area', 'the_geom': 'the_geom_community'})
 		return neighborhood
 
-	def _read_precinct(self):
-		precinct = pd.read_csv(self.DATA_PATH + 'precinct.csv')
-		return precinct
+	def _read_ward(self):
+		ward = pd.read_csv(self.DATA_PATH + 'ward.csv').rename(columns={'NAME_1': 'Ward'})
+		return ward
 	
-	def _read_economic_census(self):
-		census_econ = pd.read_csv(self.DATA_PATH + 'economic_census_data.csv')
-		return census_econ
-		
 	def _read_demo_census(self):
-		census_demo = pd.read_csv(self.DATA_PATH + 'demo_census_data.csv')
+		census_demo = pd.read_csv(self.DATA_PATH + 'BNIA_census_data.csv').rename(columns={'CSA2010': 'DIST_NUM'})
 		return census_demo
+	
+	def _read_action_census(self):
+		census_action = pd.read_csv(self.DATA_PATH + 'BNIA_action_data.csv').rename(columns={'CSA2010': 'DIST_NUM'})
+		return census_action
 
 	def pull_data(self):
-		os.system("curl 'https://data.cityofnewyork.us/api/views/4ax6-n4rg/rows.csv?accessType=DOWNLOAD' -o '%sNYPD_Complaint_Data_Historic.csv'" % self.DATA_PATH)
-		os.system("curl 'https://data.cityofnewyork.us/api/views/5uac-w243/rows.csv?accessType=DOWNLOAD' -o '%sNYPD_Complaint_Data_Current_YTD.csv'" % self.DATA_PATH)
-		os.system("cat '{0}NYPD_Complaint_Data_Historic.csv' {0}NYPD_Complaint_Data_Current_YTD.csv > {0}NYPD_Complaint_data.csv" .format(self.DATA_PATH))
+		os.system("curl 'https://data.baltimorecity.gov/api/views/v9wg-c9g7/rows.csv?accessType=DOWNLOAD' -o '%sBaltimore_Complaint_Data.csv'" % self.DATA_PATH)
 		return self
 
 	def merge_meta(self):
-		# self.df = self.df.merge(self.meta['precinct'], how='left', left_on='District', right_on='DIST_NUM', suffixes=('', '_district'))
-		# self.df = self.df.merge(self.meta['community'], how='left', left_on='Community Area', right_on='AREA_NUMBE', suffixes=('', '_community'))		
-		# self.df = self.df.merge(self.meta['demo_census'], how='left', left_on='District', right_on='DIST_NUM', suffixes=('', '_district'))
-		# self.df = self.df.merge(self.meta['economic_census'], how='left', left_on='Community Area', right_on='Community Area Number')
-		# self.df['the_geom_district'] = self.df['the_geom']
+		self.df = self.df.merge(self.meta['community'], how='left', on=['Community Area', 'COMMUNITY'], suffixes=('', '_community'))
 		return self
 
 	def pull_metadata(self):
-		os.system("curl 'https://data.cityofnewyork.us/api/views/q2z5-ai38/rows.csv?accessType=DOWNLOAD' -o %stabulation_areas.csv" % self.DATA_PATH)
-		os.system("curl 'https://data.cityofnewyork.us/api/views/kmub-vria/rows.csv?accessType=DOWNLOAD' -o '%sprecinct.csv" % self.DATA_PATH)
-		os.system("curl 'http://catalog.civicdashboards.com/dataset/273b1ac5-4f00-438d-ab93-37dc41dd6450/resource/671ebb5a-672e-4005-9712-45310afd4308/download/eco2013acs5yrntadata.csv' -o '%seconomic_census_data.csv'" % self.DATA_PATH)
-		os.system("curl 'http://catalog.civicdashboards.com/dataset/efabb263-311f-47fe-b63a-09b56e44105a/resource/407919f3-6013-4635-af11-b51bd6adadff/download/dem2013acs5yrntadata.csv' -o '%sdemo_census_data.csv'" % self.DATA_PATH)
-		os.system("curl 'http://catalog.civicdashboards.com/dataset/aed70144-5b18-4aa5-a326-6f1d99778e54/resource/9edc7927-c881-4ee5-84b3-d4f689b24363/download/hsg2013acs5yrntadata.csv' -o '%shousing_census_data.csv'" % self.DATA_PATH)
-		os.system("curl 'http://catalog.civicdashboards.com/dataset/f0b51d6c-7a7e-4599-b9ab-df82697be392/resource/5dc1b8e8-8d0d-47d4-9230-1323022af35d/download/soc2013acs5yrntadata.csv' -o '%ssocial_census_data.csv'" % self.DATA_PATH)
+		os.system("curl 'https://data.baltimorecity.gov/api/views/t7sb-aegk/rows.csv?accessType=DOWNLOAD' -o '%sBNIA_census_data.csv'" % self.DATA_PATH)
+		os.system("curl 'https://data.baltimorecity.gov/api/views/ipje-efsv/rows.csv?accessType=DOWNLOAD' -o '%sBNIA_action_data.csv'" % self.DATA_PATH)
+		os.system("curl 'https://data.baltimorecity.gov/api/views/5j2q-jsy4/rows.csv?accessType=DOWNLOAD' -o '%sward.csv'" % self.DATA_PATH)
+		os.system("curl 'https://data.baltimorecity.gov/api/views/i49u-94ea/rows.csv?accessType=DOWNLOAD' -o '%sBNIA_neighborhood.csv'" % self.DATA_PATH)
+		os.system("curl 'https://data.baltimorecity.gov/api/views/h3fx-54q3/rows.csv?accessType=DOWNLOAD' -o '%sneighborhood.csv'" % self.DATA_PATH)
 		return self
 
-
-	def _pull_geom(self):
-		results = requests.get(self.NEIGHBORHOOD_URL)
-		j = json.loads(results.content)
-		neighborhood_data = []
-		for n in j['features']:
-			neighborhood_dict = n['properties']
-			if not re.match('park-cemetery-etc.*|Airport', neighborhood_dict['NTAName']):
-				if len(n['geometry']['coordinates'])>1:
-					geom = []
-					for p in n['geometry']['coordinates']:
-						if len(p)==1:
-							geom += p[0]
-						else:
-							geom += p
-					n['geometry']['coordinates'] = [geom]
-				neighborhood_dict['the_geom_community'] = [(k[1], k[0]) for i in n['geometry']['coordinates'] for k in i]
-				neighborhood_data.append(neighborhood_dict)
-		return pd.DataFrame(neighborhood_data).rename(columns={'NTAName': 'COMMUNITY', 'NTACode': 'Community Area'})
 
 	def get_neighborhood_name(self, df):
 		df = self._get_area_name(df, 'community', 'Community Area')
 		df['Community Area Number'] = df['Community Area']
 		return df
 	
-	def get_precinct_name(self, df):
-		df = self._get_area_name(df, 'precinct', 'Precinct')
+	def get_ward_name(self, df):
+		df = self._get_area_name(df, 'ward', 'Ward')
+		return df
+
+	def get_district_name(self, df):
+		df = self._get_area_name(df, 'district', 'DIST_NUM')
 		return df
 
 	def _get_area_name(self, df, meta_key, col):
@@ -215,12 +155,24 @@ class NewYorkData():
 		return [row[col] for i, row in area_data.iterrows() if row['path'].contains_point([lat, lng])]
 
 
-	def read_census_extended(self, values="percents"):
-		census_extended = self._read_census().reset_index(drop=False, col_fill='GeoID')
-		census_extended = census_extended.T.reset_index(drop=False)
-		census_extended = census_extended[census_extended.Heading.isin([values, 'GeoID'])]
-		census_extended.index = ['%s: %s (%s)' % (row['Category'], row['Variable'], row['Unit of Analysis']) if row['Category'] not in ('adj_list', 'GeoID') else row['Category'] for i, row in census_extended.iterrows()]
-		census_extended.drop(['Code', 'Category', 'Variable', 'CodeType', 'Unit of Analysis', 'Heading'], axis=1, inplace=True)
+	def read_census_extended(self, values=None):
+		census = pd.read_csv("gunviolence/data/chicago/CMAP_census_data.csv")
+		census['GEOG'] = census['GEOG'].map(lambda x: x.upper())
+		census_key = pd.read_csv("gunviolence/data/chicago/census_lookup.csv")
+		col_filter = []
+		col_levels = []
+		for c in census.columns:
+			col = census_key[census_key.Code==c][['Category', 'Variable', 'Code']].values
+			if len(col)==1:
+				col = list(col[0])
+				col = [i.replace('GEOG', 'COMMUNITY AREA NAME') for i in col if isinstance(i, basestring)]
+				col_filter.append(c)
+				col_levels.append(tuple(col))
+		census = census[col_filter]
+		census.columns = pd.MultiIndex.from_tuples(col_levels, names=['Category', 'Variable', 'Code'])
+		census_extended = census.T.reset_index(drop=False)
+		census_extended.index = ['%s: %s' % (row['Category'], row['Variable']) if row['Category'] not in ('COMMUNITY AREA NAME') else row['Category'] for i, row in census_extended.iterrows()]
+		census_extended.drop(['Code', 'Category', 'Variable'], axis=1, inplace=True)
 		return census_extended.T
 
 	@classmethod
@@ -288,16 +240,16 @@ class NewYorkData():
 		self.df['WEAPON_FLAG'] = 0
 		for i, row in self.df.iterrows():
 			if row['Description']:
-				if 'WEAP' in str(row['Description']) or 'WEAP' in str(row['Primary Type']):
+				if 'FIREARM' in str(row['Description']) or 'FIREARM' in str(row['Primary Type']):
 					indexes.append(i)
 		self.df.loc[indexes, 'WEAPON_FLAG'] = 1
 		return self
 
 
 
-class PivotData(NewYorkData):
+class PivotData(BaltimoreData):
 	def __init__(self, fields, dt_format, *args, **kwargs):
-		NewYorkData.__init__(self, *args)
+		BaltimoreData.__init__(self, *args)
 		kwargs.setdefault('repull', False)
 		self.fields = self._set_list(fields)
 		self.dt_format = dt_format
@@ -318,10 +270,10 @@ class PivotData(NewYorkData):
 		data = self.df.copy()
 		data['Year'] = data['Date'].map(lambda x: datetime.strptime(x, '%m/%d/%Y').year)
 		data = self.filter_df(data)
-		if ('COMMUNITY' in self.fields) or ('Community Area' in self.fields) or ('Community Area Number' in self.fields):
-			data = self.get_neighborhood_name(data)
-		if 'Precinct' in self.fields:
-			data = self.get_precinct_name(data)
+		if 'DIST_NUM' in self.fields:
+			data = self.get_district_name(data)
+		if 'Ward' in self.fields:
+			data = self.get_ward_name(data)
 		sep = '---'
 		data['Period'] = data['Date'].map(lambda x: datetime.strptime(x, '%m/%d/%Y').strftime(self.dt_format))
 		counts = data.fillna(0).groupby(['Period']+self.fields, as_index=False).count()
@@ -376,44 +328,55 @@ if __name__=="__main__":
 	csv = 'community_pivot.csv'
 	fields = ['Community Area', 'COMMUNITY', 'the_geom_community']
 	p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
+	print '%s done' % csv
 
-	csv = 'precinct_marker.csv'
-	fields = ['Latitude', 'Longitude', 'Precinct', 'Primary Type']
+	csv = 'ward_marker.csv'
+	fields = ['Latitude', 'Longitude', 'Ward', 'Primary Type']
 	p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
-	
+	print '%s done' % csv
+
 	csv = 'community_marker.csv'
 	fields = ['Latitude', 'Longitude', 'Community Area', 'Primary Type']
 	p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
-
+	print '%s done' % csv
+	
 	csv = 'incident_marker.csv'
 	fields = ['Latitude', 'Longitude', 'Location', 'Primary Type']
 	p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
+	print '%s done' % csv
 	
 	csv = 'heatmap.csv'
 	fields = ['Latitude', 'Longitude']
 	p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
+	print '%s done' % csv
 	
 	csv = 'census_correlation.csv'
 	fields = ['Community Area', 'COMMUNITY', 'the_geom_community']
 	p = PivotData(fields, '%Y', ['WEAPON_FLAG', 1], ['Year', [2010, 2011, 2012, 2013, 2014]], csv=csv, repull=True)
-
+	print '%s done' % csv
+	
 	csv = 'trends.csv'
 	fields = ['CITY']
 	p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
-
+	print '%s done' % csv
+	
 	csv = 'crime_location.csv'
 	fields = ['Primary Type', 'Location Description']
 	p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
-
+	print '%s done' % csv
+	
 	csv = 'district_marker.csv'
 	fields = ['Latitude', 'Longitude', 'DIST_NUM', 'Primary Type']
 	p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
+	print '%s done' % csv
 	
 	csv = 'city_marker.csv'
 	fields = ['Latitude', 'Longitude', 'CITY', 'Primary Type']
 	p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
+	print '%s done' % csv
 	
 	csv = 'crime_description.csv'
 	fields = ['Primary Type', 'Description']
 	p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
+	print '%s done' % csv
 	

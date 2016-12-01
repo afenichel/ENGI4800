@@ -4,8 +4,10 @@ from werkzeug.serving import run_simple
 from ConfigUtil import config
 from gunviolence.NewYorkData import PivotData as NewYorkPivot
 from gunviolence.ChicagoData import PivotData as ChicagoPivot
+from gunviolence.ChicagoData import PivotData as BaltimorePivot
 from gunviolence.NewYorkData import NewYorkData
 from gunviolence.ChicagoData import ChicagoData
+from gunviolence.ChicagoData import BaltimoreData
 import pandas as pd
 import numpy as np
 import random
@@ -160,12 +162,16 @@ def cityPivot(city):
         return ChicagoPivot
     elif city=='new_york':
         return NewYorkPivot
+    elif city=='baltimore':
+        return BaltimorePivot
 
 def cityData(city):
     if city=='chicago':
         return ChicagoData()
     elif city=='new_york':
         return NewYorkData()
+    elif city=='baltimore':
+        return BaltimoreData()
 
 def crimes(city, dt_format,  pivot_cols, *args, **kwargs):
     nd = cityData(city)
