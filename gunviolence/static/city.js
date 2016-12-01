@@ -201,7 +201,6 @@ function sliderOption() {
 		z = map.getZoom();
 		console.log('z'+z)
 
-
 		var zoom_ref = {}
 		zoom_ref['chicago'] = {}
 		zoom_ref['new_york'] = {}
@@ -336,6 +335,7 @@ function createDropdownScatter(res) {
 	$("#xDropdown").empty();
 	$("#yDropdown").empty();
 	p = new Set(Object.keys(res.results));
+	var count = 0;
 
 	for (index in Array.from(p)) {
 		var value = Array.from(p)[index];
@@ -356,10 +356,14 @@ function createDropdownScatter(res) {
 		    	}
 		    }
 		    if (!scatterY) {
-			    if (index == 0) {
+			    if ((count == 0) && (value != 'Avg. Annual Crimes')) {
 			    	optY.setAttribute("selected", "selected");
 			    	scatterY = value;
-				  }
+				} else if (count == 1){
+				  	optY.setAttribute("selected", "selected");
+			    	scatterY = value;
+				}
+
 		    } else {	
 		    	if (value==scatterY) {
 		    		optY.setAttribute("selected", "selected");
@@ -371,8 +375,10 @@ function createDropdownScatter(res) {
 		    optY.setAttribute("value", "option" + index);
 		    optY.appendChild(yText);
 			document.getElementById("yDropdown").appendChild(optY);
-		}
+			count += 1;
+		}		
 	}
+	
 	$("#chart4").show()
 	$("#xDropdown").show();
 	$("#yDropdown").show();
@@ -831,7 +837,6 @@ function transform(v, t) {
 
 function scatterCensus() {
 	var values = $("#valueDropdown option:selected").text();
-	console.log(values)
 
 	$.getJSON($SCRIPT_ROOT + '/census_correlation/' + city + '/' + values, function(json) {
 		var series = []
@@ -988,7 +993,8 @@ function clickPoly(event) {
 }
 
 function addCommunitySeries(community_id) {
-	$.getJSON($SCRIPT_ROOT + "/community_trends/" + city + "/" + community_id, function(json) {
+
+	$.getJSON($SCRIPT_ROOT + "/community_trends/" + city + "/" + community_id.replace('/', '%2F'), function(json) {
 		var data = [];
 		for (month in json.results) {
 			var count = json.results[month]; 

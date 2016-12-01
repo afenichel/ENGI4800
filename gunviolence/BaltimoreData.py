@@ -53,7 +53,7 @@ class BaltimoreData():
 				self.read_data(limit=limit)
 				self._apply_weapons_flag()
 				self.read_meta()
-				self.merge_meta()
+				# self.merge_meta()
 				self.df['CITY'] = 'Baltimore'
 		return self
 
@@ -65,30 +65,30 @@ class BaltimoreData():
 
 	def read_data(self, limit=None):
 		self.df = pd.read_csv(self.CSV_FILE, nrows=limit)
-		self.df.rename(columns={'Location': 'Address', 'CrimeDate': 'Date', 'Neighborhood': 'Community Area',  'Inside/Outside': 'Location Description', 'Location 1': 'Location', 'District': 'DIST_NUM', 'Description': 'Primary Type', 'Weapon': 'Description'}, inplace=True)
+		self.df.rename(columns={'Location': 'Address', 'CrimeDate': 'Date', 'Inside/Outside': 'Location Description', 'Location 1': 'Location', 'District': 'DIST_NUM', 'Description': 'Primary Type', 'Weapon': 'Description'}, inplace=True)
 		self.df = self.df[self.df.Location.notnull()].reset_index(drop=True)
-		self.df['COMMUNITY'] = self.df['Community Area'].str.upper()
 		self._split_latlng()
 		return self	
 
 	def read_meta(self):
 		self.meta['census'] = self._read_census()
-		self.meta['district'] = self._read_BNIAneighborhood()
+		self.meta['community'] = self._read_community()
 		self.meta['ward'] = self._read_ward()
-		self.meta['community'] = self._read_neighborhood()
+		self.meta['neighborhood'] = self._read_neighborhood()
 
 	def _read_census(self):
 		demo_census = self._read_demo_census()
 		action_census = self._read_action_census()
-		census = demo_census.merge(action_census, on='DIST_NUM')
+		census = demo_census.merge(action_census, on='COMMUNITY AREA NAME')
 		return census
 
-	def _read_BNIAneighborhood(self):
-		BNIAneighborhood = pd.read_csv(self.DATA_PATH + 'BNIA_neighborhood.csv').rename(columns={'CSA2010': 'DIST_NUM'})
-		return BNIAneighborhood
+	def _read_community(self):
+		community = pd.read_csv(self.DATA_PATH + 'BNIA_neighborhood.csv').rename(columns={'CSA2010': 'Community Area', 'the_geom': 'the_geom_community'})
+		community['COMMUNITY'] = community['Community Area'].str.upper()
+		return community
 
 	def _read_neighborhood(self):
-		neighborhood = pd.read_csv(self.DATA_PATH + 'neighborhood.csv').rename(columns={'NBRDESC': 'COMMUNITY', 'LABEL': 'Community Area', 'the_geom': 'the_geom_community'})
+		neighborhood = pd.read_csv(self.DATA_PATH + 'neighborhood.csv').rename(columns={'NBRDESC': 'NEIGHBORHOOD', 'LABEL': 'Neighborhood', 'the_geom': 'the_geom_neighborhood'})
 		return neighborhood
 
 	def _read_ward(self):
@@ -96,11 +96,11 @@ class BaltimoreData():
 		return ward
 	
 	def _read_demo_census(self):
-		census_demo = pd.read_csv(self.DATA_PATH + 'BNIA_census_data.csv').rename(columns={'CSA2010': 'DIST_NUM'})
+		census_demo = pd.read_csv(self.DATA_PATH + 'BNIA_census_data.csv').rename(columns={'CSA2010': 'COMMUNITY AREA NAME'})
 		return census_demo
 	
 	def _read_action_census(self):
-		census_action = pd.read_csv(self.DATA_PATH + 'BNIA_action_data.csv').rename(columns={'CSA2010': 'DIST_NUM'})
+		census_action = pd.read_csv(self.DATA_PATH + 'BNIA_action_data.csv').rename(columns={'CSA2010': 'COMMUNITY AREA NAME'})
 		return census_action
 
 	def pull_data(self):
@@ -108,7 +108,9 @@ class BaltimoreData():
 		return self
 
 	def merge_meta(self):
-		self.df = self.df.merge(self.meta['community'], how='left', on=['Community Area', 'COMMUNITY'], suffixes=('', '_community'))
+		# print self.meta['community'].columns
+		# print self.df.columns
+		# self.df = self.df.merge(self.meta['community'], how='left', on=['Community Area'], suffixes=('', '_community'))
 		return self
 
 	def pull_metadata(self):
@@ -120,7 +122,7 @@ class BaltimoreData():
 		return self
 
 
-	def get_neighborhood_name(self, df):
+	def get_community_name(self, df):
 		df = self._get_area_name(df, 'community', 'Community Area')
 		df['Community Area Number'] = df['Community Area']
 		return df
@@ -156,24 +158,9 @@ class BaltimoreData():
 
 
 	def read_census_extended(self, values=None):
-		census = pd.read_csv("gunviolence/data/chicago/CMAP_census_data.csv")
-		census['GEOG'] = census['GEOG'].map(lambda x: x.upper())
-		census_key = pd.read_csv("gunviolence/data/chicago/census_lookup.csv")
-		col_filter = []
-		col_levels = []
-		for c in census.columns:
-			col = census_key[census_key.Code==c][['Category', 'Variable', 'Code']].values
-			if len(col)==1:
-				col = list(col[0])
-				col = [i.replace('GEOG', 'COMMUNITY AREA NAME') for i in col if isinstance(i, basestring)]
-				col_filter.append(c)
-				col_levels.append(tuple(col))
-		census = census[col_filter]
-		census.columns = pd.MultiIndex.from_tuples(col_levels, names=['Category', 'Variable', 'Code'])
-		census_extended = census.T.reset_index(drop=False)
-		census_extended.index = ['%s: %s' % (row['Category'], row['Variable']) if row['Category'] not in ('COMMUNITY AREA NAME') else row['Category'] for i, row in census_extended.iterrows()]
-		census_extended.drop(['Code', 'Category', 'Variable'], axis=1, inplace=True)
-		return census_extended.T
+		census_extended = self._read_census()
+		census_extended['COMMUNITY AREA NAME'] = census_extended['COMMUNITY AREA NAME'].map(lambda x: x.upper())
+		return census_extended
 
 	@classmethod
 	def geom_to_list(cls, df):
@@ -196,11 +183,10 @@ class BaltimoreData():
 			coord_list = tuple(coords)
 		return coord_list
 
-	@classmethod
-	def communities(cls, df):
+	def communities(self, df):
 		community = dict()
-		census = cls._read_census()
-		
+		census = self._read_census()
+
 		if set(['the_geom_community', 'Community Area']) < set(df.columns):
 			for index1, row1 in df.iterrows():
 				for index2, row2 in df.iterrows():
@@ -214,10 +200,20 @@ class BaltimoreData():
 							community[row1['Community Area']].setdefault('adj_list', []).append(row2['Community Area'])
 							community[row2['Community Area']].setdefault('adj_list', []).append(row1['Community Area'])
 		
+
 		community = pd.DataFrame(community).T
-		community.columns = pd.MultiIndex.from_tuples([tuple(['adj_list']*6)], names=['Code', 'Category', 'Variable', 'CodeType', 'Unit of Analysis', 'Heading'])
+		numeric_cols = census.columns.difference(['COMMUNITY AREA NAME'])
+		census[numeric_cols] = census[numeric_cols].fillna(0).applymap(lambda x: self._parse_pct(x))
+		census.index = census['COMMUNITY AREA NAME']
 		return pd.DataFrame(community).join(census).fillna(-1)
 		
+	@staticmethod
+	def _parse_pct(x):
+		if isinstance(x, basestring):
+			x = x.strip('%')
+			return float(x)/100.
+		else:
+			return float(x)
 
 	@staticmethod
 	def _set_list(f):
@@ -270,8 +266,8 @@ class PivotData(BaltimoreData):
 		data = self.df.copy()
 		data['Year'] = data['Date'].map(lambda x: datetime.strptime(x, '%m/%d/%Y').year)
 		data = self.filter_df(data)
-		if 'DIST_NUM' in self.fields:
-			data = self.get_district_name(data)
+		if ('COMMUNITY' in self.fields) or ('Community Area' in self.fields) or ('Community Area Number' in self.fields):
+			data = self.get_community_name(data)
 		if 'Ward' in self.fields:
 			data = self.get_ward_name(data)
 		sep = '---'
@@ -325,10 +321,10 @@ class PivotData(BaltimoreData):
 
 
 if __name__=="__main__":
-	csv = 'community_pivot.csv'
-	fields = ['Community Area', 'COMMUNITY', 'the_geom_community']
-	p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
-	print '%s done' % csv
+	# csv = 'community_pivot.csv'
+	# fields = ['Community Area', 'COMMUNITY', 'the_geom_community']
+	# p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
+	# print '%s done' % csv
 
 	csv = 'ward_marker.csv'
 	fields = ['Latitude', 'Longitude', 'Ward', 'Primary Type']
