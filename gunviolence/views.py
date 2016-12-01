@@ -93,8 +93,6 @@ def monthlty_data(api_endpoint, city, dt_filter, map_dict=map_dict):
     if dt_filter!='0':
         norm_data = crime_obj.color_data(dt_filter, filter_zeros)
         crime_data = crime_obj.geom_to_list(norm_data)
-        if api_endpoint=="crime_location":
-            crime_data['Location Description'] = crime_data['Location Description'].map(lambda x: 'Inside' if x=="I" else 'Outside')
         cols = (set(crime_data.columns) - set(crime_obj.date_list)) | set([dt_filter])
         crime_data = crime_data[list(cols)]    
     else: 
