@@ -78,8 +78,22 @@ class BaltimoreData():
 
 	def _read_census(self):
 		demo_census = self._read_demo_census()
-		action_census = self._read_action_census()
-		census = demo_census.merge(action_census, on='COMMUNITY AREA NAME')
+		housing_census = self._read_demo_census()
+		family_census = self._read_family_census()
+		crime_census = self._read_crime_census()
+		workforce_census = self._read_workforce_census()
+		arts_census = self._read_arts_census()
+		education_census = self._read_education_census()
+		sustainability_census = self._read_sustainability_census()
+		census = demo_census
+		census = census.merge(housing_census, on='COMMUNITY AREA NAME')
+		census = census.merge(family_census, on='COMMUNITY AREA NAME')
+		census = census.merge(housing_census, on='COMMUNITY AREA NAME')
+		census = census.merge(crime_census, on='COMMUNITY AREA NAME')
+		census = census.merge(workforce_census, on='COMMUNITY AREA NAME')
+		census = census.merge(arts_census, on='COMMUNITY AREA NAME')
+		census = census.merge(education_census, on='COMMUNITY AREA NAME')
+		census = census.merge(sustainability_census, on='COMMUNITY AREA NAME')
 		return census
 
 	def _read_community(self):
@@ -96,12 +110,38 @@ class BaltimoreData():
 		return ward
 	
 	def _read_demo_census(self):
-		census_demo = pd.read_csv(self.DATA_PATH + 'BNIA_census_data.csv').rename(columns={'CSA2010': 'COMMUNITY AREA NAME'})
+		census_demo = pd.read_excel(self.DATA_PATH + 'BNIA_demo_data.csv', header=1).rename(columns={'CSA2010': 'COMMUNITY AREA NAME'})
 		return census_demo
 	
-	def _read_action_census(self):
-		census_action = pd.read_csv(self.DATA_PATH + 'BNIA_action_data.csv').rename(columns={'CSA2010': 'COMMUNITY AREA NAME'})
+	def _read_housing_census(self):
+		census_action = pd.read_excel(self.DATA_PATH + 'BNIA_housing_data.csv', header=1).rename(columns={'CSA2010': 'COMMUNITY AREA NAME'})
 		return census_action
+
+	def _read_family_census(self):
+		census_action = pd.read_excel(self.DATA_PATH + 'BNIA_family_data.csv', header=1).rename(columns={'CSA2010': 'COMMUNITY AREA NAME'})
+		return census_action
+
+	def _read_crime_census(self):
+		census_action = pd.read_excel(self.DATA_PATH + 'BNIA_crime_data.csv', header=1).rename(columns={'CSA2010': 'COMMUNITY AREA NAME'})
+		return census_action
+
+	def _read_workforce_census(self):
+		census_action = pd.read_excel(self.DATA_PATH + 'BNIA_workforce_data.csv', header=1).rename(columns={'CSA2010': 'COMMUNITY AREA NAME'})
+		return census_action
+
+	def _read_arts_census(self):
+		census_action = pd.read_excel(self.DATA_PATH + 'BNIA_arts_data.csv', header=1).rename(columns={'CSA2010': 'COMMUNITY AREA NAME'})
+		return census_action
+
+	def _read_education_census(self):
+		census_action = pd.read_excel(self.DATA_PATH + 'BNIA_education_data.csv', header=1).rename(columns={'CSA2010': 'COMMUNITY AREA NAME'})
+		return census_action
+
+	def _read_sustainability_census(self):
+		census_action = pd.read_excel(self.DATA_PATH + 'BNIA_sustainability_data.csv', header=1).rename(columns={'CSA2010': 'COMMUNITY AREA NAME'})
+		return census_action
+
+		
 
 	def pull_data(self):
 		os.system("curl 'https://data.baltimorecity.gov/api/views/v9wg-c9g7/rows.csv?accessType=DOWNLOAD' -o '%sBaltimore_Complaint_Data.csv'" % self.DATA_PATH)
@@ -114,8 +154,16 @@ class BaltimoreData():
 		return self
 
 	def pull_metadata(self):
-		os.system("curl 'https://data.baltimorecity.gov/api/views/t7sb-aegk/rows.csv?accessType=DOWNLOAD' -o '%sBNIA_census_data.csv'" % self.DATA_PATH)
-		os.system("curl 'https://data.baltimorecity.gov/api/views/ipje-efsv/rows.csv?accessType=DOWNLOAD' -o '%sBNIA_action_data.csv'" % self.DATA_PATH)
+		os.system("curl 'http://bniajfi.org/wp-content/uploads/2016/04/VS-14-Census-2010-2014.xlsx' -o '%sBNIA_demo_data.csv'" % self.DATA_PATH)
+		os.system("curl 'http://bniajfi.org/wp-content/uploads/2016/04/VS-14-Housing-2010-2014.xlsx' -o '%sBNIA_housing_data.csv'" % self.DATA_PATH)
+		os.system("curl 'http://bniajfi.org/wp-content/uploads/2016/04/VS-14-Children-and-Family-Health-2010-2014.xlsx' -o '%sBNIA_family_data.csv'" % self.DATA_PATH)
+		os.system("curl 'http://bniajfi.org/wp-content/uploads/2016/04/VS14-Crime-2010-2014.xlsx' -o '%sBNIA_crime_data.csv'" % self.DATA_PATH)
+		os.system("curl 'http://bniajfi.org/wp-content/uploads/2016/04/VS-14-Workforce-2010-2014.xlsx' -o '%sBNIA_workforce_data.csv'" % self.DATA_PATH)
+		os.system("curl 'http://bniajfi.org/wp-content/uploads/2016/04/VS-14-Arts-2011-2014.xlsx' -o '%sBNIA_arts_data.csv'" % self.DATA_PATH)
+		os.system("curl 'http://bniajfi.org/wp-content/uploads/2016/04/VS-14-Education-2010-2014.xlsx' -o '%sBNIA_education_data.csv'" % self.DATA_PATH)
+		os.system("curl 'http://bniajfi.org/wp-content/uploads/2016/04/VS-14-Sustainability-2010-2014.xlsx' -o '%sBNIA_sustainability_data.csv'" % self.DATA_PATH)
+		
+		# os.system("curl 'https://data.baltimorecity.gov/api/views/ipje-efsv/rows.csv?accessType=DOWNLOAD' -o '%sBNIA_action_data.csv'" % self.DATA_PATH)
 		os.system("curl 'https://data.baltimorecity.gov/api/views/5j2q-jsy4/rows.csv?accessType=DOWNLOAD' -o '%sward.csv'" % self.DATA_PATH)
 		os.system("curl 'https://data.baltimorecity.gov/api/views/i49u-94ea/rows.csv?accessType=DOWNLOAD' -o '%sBNIA_neighborhood.csv'" % self.DATA_PATH)
 		os.system("curl 'https://data.baltimorecity.gov/api/views/h3fx-54q3/rows.csv?accessType=DOWNLOAD' -o '%sneighborhood.csv'" % self.DATA_PATH)
@@ -210,8 +258,14 @@ class BaltimoreData():
 	@staticmethod
 	def _parse_pct(x):
 		if isinstance(x, basestring):
-			x = x.strip('%')
-			return float(x)/100.
+			x = re.match('.*(\d+).*', x)
+			if x:
+				if x[-1]=='%':
+					return float(x.group(1))/100.
+				else: 
+					return float(x.group(1))
+			else:
+				return 0
 		else:
 			return float(x)
 
@@ -326,50 +380,50 @@ if __name__=="__main__":
 	# p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
 	# print '%s done' % csv
 
-	csv = 'ward_marker.csv'
-	fields = ['Latitude', 'Longitude', 'Ward', 'Primary Type']
-	p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
-	print '%s done' % csv
+	# csv = 'ward_marker.csv'
+	# fields = ['Latitude', 'Longitude', 'Ward', 'Primary Type']
+	# p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
+	# print '%s done' % csv
 
-	csv = 'community_marker.csv'
-	fields = ['Latitude', 'Longitude', 'Community Area', 'Primary Type']
-	p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
-	print '%s done' % csv
+	# csv = 'community_marker.csv'
+	# fields = ['Latitude', 'Longitude', 'Community Area', 'Primary Type']
+	# p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
+	# print '%s done' % csv
 	
-	csv = 'incident_marker.csv'
-	fields = ['Latitude', 'Longitude', 'Location', 'Primary Type']
-	p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
-	print '%s done' % csv
+	# csv = 'incident_marker.csv'
+	# fields = ['Latitude', 'Longitude', 'Location', 'Primary Type']
+	# p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
+	# print '%s done' % csv
 	
-	csv = 'heatmap.csv'
-	fields = ['Latitude', 'Longitude']
-	p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
-	print '%s done' % csv
+	# csv = 'heatmap.csv'
+	# fields = ['Latitude', 'Longitude']
+	# p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
+	# print '%s done' % csv
 	
-	csv = 'census_correlation.csv'
-	fields = ['Community Area', 'COMMUNITY', 'the_geom_community']
-	p = PivotData(fields, '%Y', ['WEAPON_FLAG', 1], ['Year', [2010, 2011, 2012, 2013, 2014]], csv=csv, repull=True)
-	print '%s done' % csv
+	# csv = 'census_correlation.csv'
+	# fields = ['Community Area', 'COMMUNITY', 'the_geom_community']
+	# p = PivotData(fields, '%Y', ['WEAPON_FLAG', 1], ['Year', [2010, 2011, 2012, 2013, 2014]], csv=csv, repull=True)
+	# print '%s done' % csv
 	
-	csv = 'trends.csv'
-	fields = ['CITY']
-	p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
-	print '%s done' % csv
+	# csv = 'trends.csv'
+	# fields = ['CITY']
+	# p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
+	# print '%s done' % csv
 	
-	csv = 'crime_location.csv'
-	fields = ['Primary Type', 'Location Description']
-	p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
-	print '%s done' % csv
+	# csv = 'crime_location.csv'
+	# fields = ['Primary Type', 'Location Description']
+	# p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
+	# print '%s done' % csv
 	
-	csv = 'district_marker.csv'
-	fields = ['Latitude', 'Longitude', 'DIST_NUM', 'Primary Type']
-	p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
-	print '%s done' % csv
+	# csv = 'district_marker.csv'
+	# fields = ['Latitude', 'Longitude', 'DIST_NUM', 'Primary Type']
+	# p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
+	# print '%s done' % csv
 	
-	csv = 'city_marker.csv'
-	fields = ['Latitude', 'Longitude', 'CITY', 'Primary Type']
-	p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
-	print '%s done' % csv
+	# csv = 'city_marker.csv'
+	# fields = ['Latitude', 'Longitude', 'CITY', 'Primary Type']
+	# p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
+	# print '%s done' % csv
 	
 	csv = 'crime_description.csv'
 	fields = ['Primary Type', 'Description']
