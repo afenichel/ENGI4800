@@ -377,43 +377,43 @@ if __name__=="__main__":
 	fields = ['Community Area', 'COMMUNITY', 'the_geom_community']
 	p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
 
-	# csv = 'precinct_marker.csv'
-	# fields = ['Latitude', 'Longitude', 'Precinct', 'Primary Type']
-	# p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
+	csv = 'precinct_marker.csv'
+	fields = ['Latitude', 'Longitude', 'Precinct', 'Primary Type']
+	p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
 	
-	# csv = 'community_marker.csv'
-	# fields = ['Latitude', 'Longitude', 'Community Area', 'Primary Type']
-	# p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
+	csv = 'community_marker.csv'
+	fields = ['Latitude', 'Longitude', 'Community Area', 'Primary Type']
+	p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
 
-	# csv = 'incident_marker.csv'
-	# fields = ['Latitude', 'Longitude', 'Location', 'Primary Type']
-	# p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
+	csv = 'incident_marker.csv'
+	fields = ['Latitude', 'Longitude', 'Location', 'Primary Type']
+	p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
 	
-	# csv = 'heatmap.csv'
-	# fields = ['Latitude', 'Longitude']
-	# p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
+	csv = 'heatmap.csv'
+	fields = ['Latitude', 'Longitude']
+	p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
 	
-	# csv = 'census_correlation.csv'
-	# fields = ['Community Area', 'COMMUNITY', 'the_geom_community']
-	# p = PivotData(fields, '%Y', ['WEAPON_FLAG', 1], ['Year', [2010, 2011, 2012, 2013, 2014]], csv=csv, repull=True)
+	csv = 'census_correlation.csv'
+	fields = ['Community Area', 'COMMUNITY', 'the_geom_community']
+	p = PivotData(fields, '%Y', ['WEAPON_FLAG', 1], ['Year', [2010, 2011, 2012, 2013, 2014]], csv=csv, repull=True)
 
-	# csv = 'trends.csv'
-	# fields = ['CITY']
-	# p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
+	csv = 'trends.csv'
+	fields = ['CITY']
+	p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
 
-	# csv = 'crime_location.csv'
-	# fields = ['Primary Type', 'Location Description']
-	# p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
+	csv = 'crime_location.csv'
+	fields = ['Primary Type', 'Location Description']
+	p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
 
-	# csv = 'district_marker.csv'
-	# fields = ['Latitude', 'Longitude', 'DIST_NUM', 'Primary Type']
-	# p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
+	csv = 'district_marker.csv'
+	fields = ['Latitude', 'Longitude', 'DIST_NUM', 'Primary Type']
+	p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
 	
-	# csv = 'city_marker.csv'
-	# fields = ['Latitude', 'Longitude', 'CITY', 'Primary Type']
-	# p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
+	csv = 'city_marker.csv'
+	fields = ['Latitude', 'Longitude', 'CITY', 'Primary Type']
+	p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
 	
-	# csv = 'crime_description.csv'
-	# fields = ['Primary Type', 'Description']
-	# p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
+	csv = 'crime_description.csv'
+	fields = ['Primary Type', 'Description']
+	p = PivotData(fields, '%Y-%m', ['WEAPON_FLAG', 1], csv=csv, repull=True)
 	

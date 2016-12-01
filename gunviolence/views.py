@@ -4,8 +4,10 @@ from werkzeug.serving import run_simple
 from ConfigUtil import config
 from gunviolence.NewYorkData import PivotData as NewYorkPivot
 from gunviolence.ChicagoData import PivotData as ChicagoPivot
+from gunviolence.BaltimoreData import PivotData as BaltimorePivot
 from gunviolence.NewYorkData import NewYorkData
 from gunviolence.ChicagoData import ChicagoData
+from gunviolence.BaltimoreData import BaltimoreData
 import pandas as pd
 import numpy as np
 import random
@@ -106,8 +108,9 @@ def monthlty_data(api_endpoint, city, dt_filter, map_dict=map_dict):
     polyargs['stroke_weight'] = .5
     return jsonify({'selected_dt': dt_filter, 'map_dict': map_dict, 'polyargs': polyargs, 'results': crime_data.to_dict()})
 
-@app.route('/community_trends/<string:city>/<string:community_id>')
+@app.route('/community_trends/<string:city>/<path:community_id>')
 def community_data(city, community_id):
+    community_id = community_id.replace('%20', ' ').replace('%2F', '/')
     csv = 'community_pivot.csv'
     fields = ['Community Area', 'COMMUNITY', 'the_geom_community']
     crime_obj = crimes(city, '%Y-%m', fields,  ['WEAPON_FLAG', 1], csv=csv) 
@@ -130,12 +133,14 @@ def census_scatter(city, values):
     crime_data = crime_obj.data[['COMMUNITY', 'Community Area']]
     crime_data['Avg. Annual Crimes'] = crime_obj.data[crime_obj.date_list].mean(axis=1)
     census_extended = crime_obj.read_census_extended(values=values)
-    if city=='chicago':
-        left_on='COMMUNITY'
-        right_on='COMMUNITY AREA NAME'
-    elif city=='new_york':
+    if city=='new_york':
         left_on='Community Area'
         right_on='GeoID'
+    else:
+        left_on='COMMUNITY'
+        right_on='COMMUNITY AREA NAME'
+    print 'crime_data\n', crime_data
+    print 'census_extended\n', census_extended
     census_data = crime_data.merge(census_extended, left_on=left_on, right_on=right_on).fillna(0)
     return jsonify({'results': census_data.to_dict()})
 
@@ -147,25 +152,29 @@ def community(city):
     data = crime_obj.data
     crime_data = crime_obj.geom_to_list(data)
     community_meta = crime_obj.communities(crime_data)
-    if city=='chicago':
-        return jsonify(community_meta.T.to_dict())
-    elif city=='new_york':
+    if city=='new_york':
         community_meta = community_meta.T.reset_index(drop=False)
         community_meta = community_meta[community_meta.Heading.isin(['adj_list', 'estimates', 'COMMUNITY AREA NAME'])]
         community_meta.index = ['%s: %s (%s)' % (row['Category'], row['Variable'], row['Unit of Analysis']) if row['Code'] not in ('adj_list', 'COMMUNITY AREA NAME') else row['Code'] for i, row in community_meta.iterrows()]
         return jsonify(community_meta.to_dict())
+    else:
+        return jsonify(community_meta.T.to_dict())
 
 def cityPivot(city):
     if city=='chicago':
         return ChicagoPivot
     elif city=='new_york':
         return NewYorkPivot
+    elif city=='baltimore':
+        return BaltimorePivot
 
 def cityData(city):
     if city=='chicago':
         return ChicagoData()
     elif city=='new_york':
         return NewYorkData()
+    elif city=='baltimore':
+        return BaltimoreData()
 
 def crimes(city, dt_format,  pivot_cols, *args, **kwargs):
     nd = cityData(city)

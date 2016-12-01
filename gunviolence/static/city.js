@@ -200,33 +200,75 @@ function sliderOption() {
 		}
 		z = map.getZoom();
 		console.log('z'+z)
+
+		var zoom_ref = {}
+		zoom_ref['chicago'] = {}
+		zoom_ref['new_york'] = {}
+		zoom_ref['baltimore'] = {}
+
+		zoom_ref['chicago']['endpoint'] = {
+			0: 'city_marker',
+			1: 'district_marker',
+			2: 'community_marker',
+			3: 'beat_marker',
+			4: 'incident_marker'
+		} 
+
+		zoom_ref['new_york']['endpoint'] = {
+			0: 'city_marker',
+			1: 'district_marker',
+			2: 'precinct_marker',
+			3: 'community_marker',
+			4: 'incident_marker'
+		} 
+
+		zoom_ref['baltimore']['endpoint'] = {
+			0: 'city_marker',
+			1: 'district_marker',
+			2: 'community_marker',
+			3: 'ward_marker',
+			4: 'incident_marker'
+		} 
+
+		zoom_ref['chicago']['field'] = {
+			0: 'CITY',
+			1: 'DIST_NUM',
+			2: 'Community Area',
+			3: 'BEAT_NUM',
+			4: 'Location'
+		} 
+
+		zoom_ref['new_york']['field'] = {
+			0: 'CITY',
+			1: 'DIST_NUM',
+			2: 'Precinct',
+			3: 'Community Area',
+			4: 'Location'
+		} 
+
+		zoom_ref['baltimore']['field'] = {
+			0: 'CITY',
+			1: 'DIST_NUM',
+			2: 'Community Area',
+			3: 'Ward',
+			4: 'Location'
+		} 
+
 		if (z < 10) {
-			var endpoint = 'city_marker';
-			field = 'CITY';
+			var endpoint = zoom_ref[city]['endpoint'][0];
+			field = zoom_ref[city]['field'][0];
 		} else if (z == 10) {
-			var endpoint = 'district_marker';
-			field = 'DIST_NUM';
+			var endpoint = zoom_ref[city]['endpoint'][1];
+			field = zoom_ref[city]['field'][1];
 		} else if (z == 11 ) {
-			if (city=='chicago'){
-				field = 'Community Area';
-				var endpoint = 'community_marker';
-			}
-			else if (city=='new_york'){
-				field = 'Precinct';
-				var endpoint = 'precinct_marker';
-			}
+			var endpoint = zoom_ref[city]['endpoint'][2];
+			field = zoom_ref[city]['field'][2];
 		} else if (z == 12 ) {
-			if (city=='chicago'){
-				field = 'BEAT_NUM';
-				var endpoint = 'beat_marker';
-			}
-			else if (city=='new_york'){
-				field = 'Community Area';
-				var endpoint = 'community_marker';
-			}
+			var endpoint = zoom_ref[city]['endpoint'][3];
+			field = zoom_ref[city]['field'][3];
 		} else {
-			var endpoint = 'incident_marker';
-			field = 'Location'
+			var endpoint = zoom_ref[city]['endpoint'][4];
+			field = zoom_ref[city]['field'][4];
 		}
 
 		$.getJSON($SCRIPT_ROOT + '/' + endpoint + '/' + city + '/' + selected_dt, function(json) {
@@ -293,6 +335,7 @@ function createDropdownScatter(res) {
 	$("#xDropdown").empty();
 	$("#yDropdown").empty();
 	p = new Set(Object.keys(res.results));
+	var count = 0;
 
 	for (index in Array.from(p)) {
 		var value = Array.from(p)[index];
@@ -313,10 +356,14 @@ function createDropdownScatter(res) {
 		    	}
 		    }
 		    if (!scatterY) {
-			    if (index == 0) {
+			    if ((count == 0) && (value != 'Avg. Annual Crimes')) {
 			    	optY.setAttribute("selected", "selected");
 			    	scatterY = value;
-				  }
+				} else if (count == 1){
+				  	optY.setAttribute("selected", "selected");
+			    	scatterY = value;
+				}
+
 		    } else {	
 		    	if (value==scatterY) {
 		    		optY.setAttribute("selected", "selected");
@@ -328,8 +375,10 @@ function createDropdownScatter(res) {
 		    optY.setAttribute("value", "option" + index);
 		    optY.appendChild(yText);
 			document.getElementById("yDropdown").appendChild(optY);
-		}
+			count += 1;
+		}		
 	}
+	
 	$("#chart4").show()
 	$("#xDropdown").show();
 	$("#yDropdown").show();
@@ -788,7 +837,6 @@ function transform(v, t) {
 
 function scatterCensus() {
 	var values = $("#valueDropdown option:selected").text();
-	console.log(values)
 
 	$.getJSON($SCRIPT_ROOT + '/census_correlation/' + city + '/' + values, function(json) {
 		var series = []
@@ -945,7 +993,8 @@ function clickPoly(event) {
 }
 
 function addCommunitySeries(community_id) {
-	$.getJSON($SCRIPT_ROOT + "/community_trends/" + city + "/" + community_id, function(json) {
+
+	$.getJSON($SCRIPT_ROOT + "/community_trends/" + city + "/" + community_id.replace('/', '%2F'), function(json) {
 		var data = [];
 		for (month in json.results) {
 			var count = json.results[month]; 
