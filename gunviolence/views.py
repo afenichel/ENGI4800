@@ -89,10 +89,12 @@ def monthlty_data(api_endpoint, city, dt_filter, map_dict=map_dict):
     crime_obj = crimes(city, '%Y-%m', fields,  ['WEAPON_FLAG', 1], csv=csv) 
     filter_zeros = True
     if api_endpoint=="community_pivot":
-        filter_zeros = False
+        filter_zeros = False    
     if dt_filter!='0':
         norm_data = crime_obj.color_data(dt_filter, filter_zeros)
         crime_data = crime_obj.geom_to_list(norm_data)
+        if api_endpoint=="crime_location":
+            crime_data['Location Description'] = crime_data['Location Description'].map(lambda x: 'Inside' if x=="I" else 'Outside')
         cols = (set(crime_data.columns) - set(crime_obj.date_list)) | set([dt_filter])
         crime_data = crime_data[list(cols)]    
     else: 
@@ -103,7 +105,7 @@ def monthlty_data(api_endpoint, city, dt_filter, map_dict=map_dict):
     polyargs = {}
     polyargs['stroke_color'] = '#FFFFFF' 
     polyargs['fill_color'] = '#FF0000' 
-    polyargs['fill_opacity'] = 0.5
+    polyargs['fill_opacity'] = 0.5000
     polyargs['stroke_opacity'] = 1
     polyargs['stroke_weight'] = .5
     return jsonify({'selected_dt': dt_filter, 'map_dict': map_dict, 'polyargs': polyargs, 'results': crime_data.to_dict()})
