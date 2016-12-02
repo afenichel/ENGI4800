@@ -184,7 +184,23 @@ class Regression():
 					census['Population Growth Pct'] = census[c]/census[pop_change]
 		return census
 
-	def box_plot(self, city='chicago'):
+	def box_plot_type(self, city='chicago'):
+		csv = 'crime_location.csv'
+		fields = ['Primary Type', 'Location Description']
+		location_obj = self.crimes(city, '%Y', fields,  ['WEAPON_FLAG', 1], csv=csv) 
+		location_data = location_obj.data.fillna(0)
+		location_data = location_data.groupby('Primary Type').sum()
+		location_data = location_data[location_data['2016-10']>10].sort_values('2016-10', ascending=False).applymap(lambda x: int(x))
+		fig, ax = plt.subplots(1)
+		ax.boxplot(location_data.values.T)
+		ax.set_xticklabels(list(location_data.index), rotation=45)
+		plt.tight_layout()
+		ylim = plt.ylim()
+		ax.set_ylim([ylim[0], ylim[1]+100])
+		fig.savefig('type_boxplot.png')
+
+
+	def box_plot_location(self, city='chicago'):
 		csv = 'crime_location.csv'
 		fields = ['Primary Type', 'Location Description']
 		location_obj = self.crimes(city, '%Y', fields,  ['WEAPON_FLAG', 1], csv=csv) 
@@ -194,10 +210,8 @@ class Regression():
 		fig, ax = plt.subplots(1)
 		ax.boxplot(location_data.values.T)
 		ax.set_xticklabels(list(location_data.index), rotation='vertical')
-		# plt.show()
 		plt.tight_layout()
-
-		fig.savefig('location_box.png')
+		fig.savefig('location_boxplot.png')
 
 if __name__=="__main__":
 	R = Regression()
@@ -206,4 +220,5 @@ if __name__=="__main__":
 	# census = R.regression(True)
 	# census = R.regression(time_model=False)
 	# census = R.regression(time_model=False, model_by="sm")
-	R.box_plot()
+	R.box_plot_location()
+	R.box_plot_type()
