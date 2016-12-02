@@ -195,6 +195,8 @@ class Regression():
 		ax.boxplot(location_data.values.T)
 		ax.set_xticklabels(list(location_data.index), rotation='vertical')
 		# plt.show()
+		plt.tight_layout()
+
 		fig.savefig('location_box.png')
 
 if __name__=="__main__":
