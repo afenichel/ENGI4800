@@ -190,11 +190,12 @@ class Regression():
 		location_obj = self.crimes(city, '%Y', fields,  ['WEAPON_FLAG', 1], csv=csv) 
 		location_data = location_obj.data.fillna(0)
 		location_data = location_data.groupby('Location Description').sum()
-		print location_data
-		# location_data = pd.melt(location_data, id_vars ='Location Description', value_vars = location_obj.date_list)
-		# location_data.rename(columns={'variable': 'Month', 'value': 'Crimes'}, inplace=True)
-		plt.boxplot(location_data)
-		# fig.savefig('location_box.png')
+		location_data = location_data[location_data['2016-10']>10].sort_values('2016-10', ascending=False).applymap(lambda x: int(x))
+		fig, ax = plt.subplots(1)
+		ax.boxplot(location_data.values.T)
+		ax.set_xticklabels(list(location_data.index), rotation='vertical')
+		# plt.show()
+		fig.savefig('location_box.png')
 
 if __name__=="__main__":
 	R = Regression()
