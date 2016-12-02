@@ -605,9 +605,10 @@ function chartCrimeLocations() {
 				if (value==crimetype_opt) {
 					var name = json.results['Location Description'][index];
 					var y = json.results[selected_dt][index];
-					data.push({color: "#900C3F", y: y});
-					xLabels.push(name);
-
+					if (name.toString()!='0') {
+						data.push({color: "#900C3F", y: y});
+						xLabels.push(name);
+					}
 				}
 			});
 

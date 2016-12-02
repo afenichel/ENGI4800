@@ -139,7 +139,14 @@ def census_scatter(city, values):
     else:
         left_on='COMMUNITY'
         right_on='COMMUNITY AREA NAME'
+    if city=='chicago':
+        census_area = crime_obj._read_community()[['COMMUNITY', 'SHAPE_AREA']]
+        census_area.rename(columns={'COMMUNITY': 'COMMUNITY AREA NAME'}, inplace=True)
+        census_extended = census_extended.merge(census_area, on='COMMUNITY AREA NAME')
+        census_extended = crime_obj._add_percentage(census_extended)
+
     census_data = crime_data.merge(census_extended, left_on=left_on, right_on=right_on).fillna(0)
+
     return jsonify({'results': census_data.to_dict()})
 
 @app.route('/census/<string:city>')

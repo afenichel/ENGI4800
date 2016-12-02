@@ -300,7 +300,39 @@ class PivotData(ChicagoData):
 		dt_list.sort()
 		return dt_list
 
-
+	def _add_percentage(self, census):
+		for c in census.columns:
+			if 'Age Cohorts' in c or 'Race and Ethnicity' in c: 
+				total_pop = 'General Population: Total Population'
+				if c!=total_pop:
+					census['%s - Percent' % c] = census[c]/census[total_pop]
+			elif 'Employment Status' in c or 'Mode of Travel to Work' in c: 
+				total_employment = 'Employment Status: Population 16+ (Labor)'
+				if c!=total_employment:
+					census['%s - Percent' % c] = census[c]/census[total_employment]
+			elif 'Educational Attainment' in c: 
+				education = 'Educational Attainment: Population 25+ (Education)'
+				if c!=education:
+					census['%s - Percent' % c] = census[c]/census[education]
+			elif 'Household Income' in c: 
+				household = 'General Population: Total Households'
+				if c=='Household Income: Median Income 2010-2014 American Community':
+					census[c] = census[c]
+				elif c!=household:
+					census['%s - Percent' % c] = census[c]/census[household]
+			elif 'Housing and Tenure' in c or 'Housing Type' in c or 'Housing Size' in c or 'Housing Age' in c: 
+				housing_unit = 'Housing: Housing Unit total'
+				if c!=housing_unit:
+					census['%s - Percent' % c] = census[c]/census[housing_unit]
+			elif 'General Population: Total Population' in c: 
+				sq_footage = 'SHAPE_AREA'
+				if c!= sq_footage:
+					census['Population Density'] = census[c]/census[sq_footage]
+			elif 'General Population: Total Population' in c:
+				pop_change = 'Population: 2010 Census'
+				if c!= pop_change:
+					census['Population Growth - Percent'] = census[c]/census[pop_change]
+		return census
 
 def community_crimes(dt_format, *args, **kwargs):
 	data_obj = crimes(dt_format, ['Community Area', 'COMMUNITY', 'the_geom_community'],  *args, **kwargs)
@@ -375,7 +407,7 @@ def crimes(dt_format,  pivot_cols, *args, **kwargs):
 			print '%s pickled' % filepath
 	return data_obj
 
-
+		
 if __name__=="__main__":
 	csv = 'community_pivot.csv'
 	fields = ['Community Area', 'COMMUNITY', 'the_geom_community']
