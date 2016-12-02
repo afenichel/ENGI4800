@@ -5,12 +5,10 @@ from datetime import datetime
 import numbers
 import requests
 import re
-from sklearn.linear_model import LinearRegression
-from statsmodels.api import OLS
 import cPickle
 from sklearn.cluster import DBSCAN
-from runserver import args
 from matplotlib import colors, cm
+from statsmodels.api import OLS
 
 
 
@@ -207,11 +205,6 @@ class ChicagoData():
 		else:
 			return f		
 
-	def _model(self, X, y):
-		model = OLS(y, X)
-		result = model.fit()
-		print result.summary()
-		return result
 
 	def _apply_weapons_flag(self):
 		indexes = []

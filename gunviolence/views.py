@@ -139,7 +139,6 @@ def census_scatter(city, values):
     else:
         left_on='COMMUNITY'
         right_on='COMMUNITY AREA NAME'
-    census_extended
     census_data = crime_data.merge(census_extended, left_on=left_on, right_on=right_on).fillna(0)
     return jsonify({'results': census_data.to_dict()})
 
