@@ -847,6 +847,9 @@ function scatterCensus() {
 		var transformX = $("#xTransform").val();
 		var transformY = $("#yTransform").val();
 		
+		var corrX = [];
+		var corrY = []
+
 		createDropdownScatter(json);
 		for (index in json.results[scatterX]) {
 			var scatter_x = json.results[scatterX][index]
@@ -872,8 +875,11 @@ function scatterCensus() {
 							name: label, 
 							marker: {symbol: symbol, radius: radius}, 
 							zIndex: zIndex});
+				corrX.push(scatter_x);
+				corrY.push(scatter_y);
 			}
 		}
+		var corr_coeff = jStat.corrcoeff(corrX, corrY);
 
 		$(function () {
 		    cencsusScatter = Highcharts.chart('chart4', {
@@ -906,6 +912,10 @@ function scatterCensus() {
 			        title: {
 			            text: 'CENSUS DATA 2010-2014',
 			            style: {"fontSize": "14px"}
+			        },
+			        subtitle: {
+			        	text: 'Correlation Coefficient: '+ Math.round(corr_coeff*100) + '%',
+			        	style: {"fontSize": "12px"}
 			        },
 			        tooltip: {
 			        	pointFormat: 'X: <b>{point.x:,.0f}</b><br>Y: <b>{point.y:,.0f}</b><br/>' 
