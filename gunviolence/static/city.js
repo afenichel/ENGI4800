@@ -782,6 +782,12 @@ function chartCensus() {
 	if (censusChart) {
 		censusChart.destroy()
 	}
+
+	if (city=='chicago') {
+		var title_text = 'SOCIOECONOMIC CENSUS DATA 2008-2012';
+	} else {
+		title_text = 'CENSUS DATA 2010-2014';
+	}
 	$(function () {
 	    censusChart = Highcharts.chart('chart1', {
 	    	credits: {
@@ -804,7 +810,7 @@ function chartCensus() {
 		            y: 50
 		        },
 		        title: {
-		            text: 'SOCIOECONOMIC CENSUS DATA 2008-2012',
+		            text: title_text,
 		            style: {"fontSize": "14px"}
 		        },
 		        subtitle: {
