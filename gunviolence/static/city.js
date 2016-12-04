@@ -1064,10 +1064,7 @@ function clickPoly(event) {
 function addCommunitySeries(community_id) {
 	$.getJSON($SCRIPT_ROOT + "/community_trends/" + city + "/" + community_id.replace('/', '%2F'), function(json) {
 		var data = [];
-		for (month in json.results) {
-			var count = json.results[month]; 
-			data.push(count);
-		}
+		data = Object.values(json.results);
 		$("#chart0").highcharts().series[0].setData(data);		
 	});
 }
@@ -1075,10 +1072,7 @@ function addCommunitySeries(community_id) {
 function addCitySeries() {
 	$.getJSON($SCRIPT_ROOT + "/trends/" + city, function(json) {
 		var data = [];
-		for (month in json[city]) {
-			var count = json[city][month]; 
-			data.push(count);
-		}
+		data = Object.values(json[city]);
 		$("#chart0").highcharts().series[0].setData(data);		
 	});
 }
