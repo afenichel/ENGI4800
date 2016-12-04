@@ -623,7 +623,7 @@ function chartCrimeTypes() {
 		        	pointFormat: '<span style="color:{point.color}">\u25CF</span> {series.name}: <b>{point.y:,.0f}</b><br/>'
 		        },
 		        title: {
-		            text: getMonthName(selected_dt).join('. ') + '<br>Crimes by Type<br>',
+		            text: getMonthName(selected_dt).join('. ') + '<br>' + $("#myDropdown option:selected").text() + '<br>Gun Crimes by Sub-Type<br>',
 		            style: {"fontSize": "14px"}
 
 		        },
@@ -677,7 +677,7 @@ function chartCrimeLocations() {
 		            plotBorderWidth: 1
 		        },
 		        title: {
-		            text: 'Crimes by Location<br>',
+		            text: '<br>' + $("#myDropdown option:selected").text() + '<br>Gun Crimes by Location<br>',
 		            style: {"fontSize": "14px"}
 		        },
 		        xAxis: {
