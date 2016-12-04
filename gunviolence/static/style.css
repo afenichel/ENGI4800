@@ -1,5 +1,6 @@
 body {
 	font-family: Helvetica;
+    height: 390px;
 }
 
 
@@ -11,6 +12,9 @@ body {
     padding-left: 40px;
 }
 
+div#map {
+    top: 350px;
+}
 
 .form-check {
     padding-top: 1px;
@@ -215,3 +219,17 @@ div.ui-content {
     margin: auto;
 }
 
+
+div.play {
+    position: absolute;
+    padding-top: 10px;
+    padding-bottom: 0px;
+    right: 120px;
+    top: 20px;
+
+}
+
+div.play button {
+    width: 60px;
+    height: 60px;
+}

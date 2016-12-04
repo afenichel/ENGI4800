@@ -23,6 +23,7 @@ var z;
 var last_point;
 var scatterX;
 var scatterY;
+var timedPlay;
 
 
 chartCrimeSeries();
@@ -35,12 +36,52 @@ $.getJSON($SCRIPT_ROOT + '/census/' + city , function(json) {
 		comm_data = json;
 	});
 
-$('.btn-primary').on('click', function(){
+$('.btn-primary').on('change', function(){
     dropDownSelect();
 }); 
 
 google.maps.event.addDomListener(window, 'load', initMap);
 
+$(document).ready(function() {
+	$("#btn-back").click(function(event){
+		nextButton(-1);
+	});
+	$("#btn-fwd").click(function(event){
+		nextButton(1);
+	});
+	$("#btn-play").click(function(event){
+		timedPlay = playButton();
+	});
+	$("#btn-pause").click(function(event){
+		clearInterval(timedPlay);
+	});
+	$("ul.dropdown-menu").click(function(event){
+		clearInterval(timedPlay);
+	});
+});
+
+
+function playButton() {
+	var timedPlay = setInterval(function(){
+		nextButton(1);
+	}, 1000);
+	return timedPlay
+}
+
+function nextButton(i) {
+	if (res.results[selected_dt]) {
+		var slider_idx = Number($("#date-slider").val());
+		if (slider_idx+i == date_dropdown.length) {
+			slider_idx = 0; 
+		} else if (slider_idx+i == -1){
+			slider_idx = date_dropdown.length-1;
+		} else {
+			slider_idx += i;
+		}
+		$("#date-slider").val(slider_idx.toString());
+		sliderOption();
+	}
+}
 
 function initMap() {
 	$("#myDropdown").hide();
@@ -51,6 +92,7 @@ function initMap() {
 	$("#censusDropdownY").hide();
 	$("#transformX").hide();
 	$("#transformY").hide();
+	$('.play').hide()
 	
 	z = res.map_dict.maptype_control;
     document.getElementById('view-side').style.display = 'block';
@@ -93,6 +135,11 @@ function dateLabel() {
 	dt.innerHTML = community_name.toUpperCase().replace("_", " ") + " - " + dt_list[0].toUpperCase() + ". " + dt_list[1];
 }
 
+
+
+
+
+
 function sliderOption() {
 	var slider_idx = $("#date-slider").val();
 	selected_dt = date_dropdown[slider_idx];
@@ -116,6 +163,7 @@ function sliderOption() {
 		}
 		$("#chart2").hide();
 		$("#chart3").hide();
+		$('.play').hide();
 		$.getJSON($SCRIPT_ROOT + '/community_pivot/' + city + '/' + selected_dt, function(json) {
 			res = json;
 			removeMarkers();
@@ -149,6 +197,7 @@ function sliderOption() {
 		$("#chart2").hide();
 		$("#chart3").hide();
 		$("#chart4").hide();
+		$('.play').show();
 		community_name = city;
 		dateLabel();
 		addCitySeries();
@@ -185,6 +234,7 @@ function sliderOption() {
 		$("#chart2").show();
 		$("#chart3").show();
 		$("#chart4").hide();
+		$('.play').hide()
 		community_name = city;
 		dateLabel();
 		addCitySeries();
@@ -1010,7 +1060,6 @@ function clickPoly(event) {
 }
 
 function addCommunitySeries(community_id) {
-
 	$.getJSON($SCRIPT_ROOT + "/community_trends/" + city + "/" + community_id.replace('/', '%2F'), function(json) {
 		var data = [];
 		for (month in json.results) {

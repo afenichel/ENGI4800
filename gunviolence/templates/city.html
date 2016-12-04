@@ -62,7 +62,6 @@
             <div id="chart0"></div>
         </div> 
         
-        
         <div class="btn-group" data-toggle="buttons">
             <label class="btn btn-primary">
                 <input type="radio" class="form-check-input" name="optionsRadios" id="optionsRadios1" value="community" onchange="sliderOption()">
@@ -73,15 +72,21 @@
                 Heatmap
             </label>
             <label class="btn btn-primary">
-                <input type="radio" class="form-check-input" name="optionsRadios" id="optionsRadios2" value="markers" onchange="sliderOption()">
+                <input type="radio" class="form-check-input" name="optionsRadios" id="optionsRadios3" value="markers" onchange="sliderOption()">
                 Markers
             </label>
         </div>
-    
+        
         <div id="map">
             <div id="view-side" class="map"></div>
         </div>
         <div id="right-panel">
+            <div class="play"> 
+                <button type="button" id="btn-back" class="btn btn-info" value="back"><span class="glyphicon glyphicon-step-backward"></span></button>
+                <button type="button" id="btn-play" class="btn btn-info" value="play"><span class="glyphicon glyphicon-play"></span></button>
+                <button type="button" id="btn-pause" class="btn btn-info" value="pause"><span class="glyphicon glyphicon-pause"></span></button>
+                <button type="button" id="btn-fwd" class="btn btn-info" value="forward"><span class="glyphicon glyphicon-step-forward"></span></button>
+            </div>
             <div class="dropdown" id="censusDropdown">
                 <select id="myDropdown" onchange="dropDownSelect()" class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                 </select>
