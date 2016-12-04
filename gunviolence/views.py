@@ -98,7 +98,7 @@ def monthlty_data(api_endpoint, city, dt_filter, map_dict=map_dict):
     else: 
         crime_data=pd.DataFrame([])
     
-    if dt_filter in crime_data.columns:
+    if dt_filter in crime_data.columns and api_endpoint in ('crime_location', 'crime_description'):
         crime_data  = crime_data.sort_values(dt_filter, ascending=False).reset_index(drop=True)
     polyargs = {}
     polyargs['stroke_color'] = '#FFFFFF' 

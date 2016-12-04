@@ -1022,7 +1022,7 @@ function updatePoly(res) {
 
 		// add polygons
 		for(i = 0; i < map_polygons.length; i++) {
-			map_polygons[i].setOptions({fillOpacity: res.polyargs.fill_opacity});
+			map_polygons[i].setOptions({fillColor: res.results.fill_color[i]});
 		}
 	}
 }
@@ -1038,7 +1038,9 @@ function clickPoly(event) {
 	var latlngclicked = event.latLng;
 	var idx = map_polygons.indexOf(this);
 	var r = getResults();
+
 	community_name = r.results.COMMUNITY[idx];
+
 	community_id = r.results['Community Area'][idx].toString() 
 	var content = "<p>" + r.results.COMMUNITY[idx] + "</p><p>Gun crimes: " + r.results[selected_dt][idx] + "</p>";
 	var infowindow = new google.maps.InfoWindow({content: content, position: latlngclicked});
