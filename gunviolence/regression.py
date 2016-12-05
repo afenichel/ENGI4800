@@ -51,7 +51,7 @@ class Regression():
 				Xtest = X[cols].values[test]
 				ytest = y.values[test].astype(int)
 				if model_by=="sk":
-					LR = LinearRegression()
+					LR = LinearRegression(fit_intercept=False)
 					LR.fit(Xtrain, ytrain)
 					mse = mean_squared_error(ytest, LR.predict(Xtest))
 				elif model_by=="sm":
@@ -92,13 +92,16 @@ class Regression():
 			print '-------------LINEAR REGRESSION-------------'		
 			print "R^2:  %s" % LR.score(X[cols].values, y.values.astype(int))
 			print "MSE:  %s" % mean_squared_error(y.values.astype(int), LR.predict(X[cols].values))
-			print 'variable:%scoefficients:\n%s' % (' '*(70-len('variable:')), '\n'.join(['%s%s%s' % (n, ' '*(70-len(n)), c) for n, c in zip(cols, LR.coef_)]))
+			print 'variable:%scoefficients:\nIntercept%s\n%s' % (' '*(70-len('variable:')), ' '*(70-len('intercept'))+str(LR.intercept_), '\n'.join(['%s%s%s' % (n, ' '*(70-len(n)), c) for n, c in zip(cols, LR.coef_)]))
 
 		elif model_by=="sm":
 			model = OLS(y.values.astype(int), X[cols])
 			result = model.fit()
 			print result.summary()
 
+		model = OLS(y.values.astype(int), mat[[c for c in mat.columns if re.match('Household Income.*Pct', c)]])
+		result = model.fit()
+		print result.summary()
 
 	def crimes(self, city, dt_format,  pivot_cols, *args, **kwargs):
 		nd = ChicagoData()
@@ -217,8 +220,9 @@ if __name__=="__main__":
 	R = Regression()
 	# census = R.census_scatter()
 	# print census
-	# census = R.regression(True)
-	# census = R.regression(time_model=False)
-	# census = R.regression(time_model=False, model_by="sm")
+	census = R.regression(True)
+	census = R.regression(time_model=True, model_by="sm")
+	census = R.regression(time_model=False)
+	census = R.regression(time_model=False, model_by="sm")
 	R.box_plot_location()
 	R.box_plot_type()
