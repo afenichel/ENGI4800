@@ -100,6 +100,9 @@ class Regression():
 			print result.summary()
 
 		model = OLS(y.values.astype(int), mat[[c for c in mat.columns if re.match('Household Income.*Pct', c)]])
+		if time_model:
+			model = OLS(y.values.astype(int), mat[['Crimes_lag1month', 'Interventions', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']])
+			model = OLS(y.values.astype(int), mat[['Interventions']])
 		result = model.fit()
 		print result.summary()
 
@@ -130,13 +133,20 @@ class Regression():
 		census_area = census_obj._read_community()[['COMMUNITY', 'SHAPE_AREA']]
 		census_data = census_data.merge(census_area, on='COMMUNITY')
 
+		intervention_obj = self.crimes(city, '%Y-%m', 'COMMUNITY', csv='interventions.csv')
+		interventions = pd.melt(intervention_obj.data, id_vars = 'COMMUNITY', value_vars = intervention_obj.date_list)
+		interventions['COMMUNITY'] = interventions['COMMUNITY'].str.upper()
+		interventions.rename(columns={'variable': 'MonthYear', 'value': 'Interventions'}, inplace=True)
+
 		if time_model:
 			data = census_data.merge(community_data[['COMMUNITY'] + community_obj.date_list], on='COMMUNITY')
 			data = pd.melt(data, id_vars = list(census_data.columns), value_vars = community_obj.date_list)
 			data.rename(columns={'variable': 'MonthYear', 'value': 'Crimes'}, inplace=True)
 			data['Crimes'] = data['Crimes'].fillna(0)
 
-			lag = data[['MonthYear', 'COMMUNITY', 'Crimes']]
+			data = data.merge(interventions, how='left', on=['COMMUNITY', 'MonthYear']).fillna(0)
+
+			lag = data[['MonthYear', 'COMMUNITY', 'Crimes', 'Interventions']]
 			lag['LastMonthYear'] = lag['MonthYear'].map(lambda x: (datetime.strptime(x, '%Y-%m') - relativedelta(months=1)).strftime('%Y-%m'))
 			data = data.merge(lag, left_on=['MonthYear', 'COMMUNITY'], right_on=['LastMonthYear', 'COMMUNITY'], suffixes=('', '_lag1month'))
 			data['Month'] = data['MonthYear'].str.split('-').map(lambda x: x[1])
